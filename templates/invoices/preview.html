@@ -2,118 +2,184 @@
 <html lang="nl">
   <head>
     <meta charset="utf-8" />
-    <title>Voorbeeld factuur {{ inv.number|default:"(concept)" }}</title>
+    <title>Factuurvoorbeeld {{ inv.number|default:"(concept)" }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="/static/css/tailwind.css" rel="stylesheet" />
     <style>
-      @media print {
-        .no-print { display: none !important; }
-        body { background: white; }
+      :root {
+        --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; --chip:#eef2ff;
+        --brand:#0f766e;
       }
-      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border-bottom: 1px solid #e5e7eb; padding: 0.5rem; }
-      th { background: #f1f5f9; text-align: left; }
+      * { box-sizing: border-box; }
+      body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:#f1f5f9; }
+      .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+      .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+      .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:white; text-decoration:none; color:var(--fg); }
+      .btn.primary { background:var(--brand); color:white; border-color:var(--brand); }
+      .card { background:white; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow: 0 2px 8px rgba(15,23,42,.04); }
+      .head { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
+      .h-title { font-size:20px; font-weight:700; letter-spacing:.2px; }
+      .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:var(--chip); color:#3730a3; font-size:12px; margin-left:8px; }
+      .meta { text-align:right; color:var(--muted); }
+      .meta strong { display:block; color:var(--fg); font-size:16px; margin-top:4px; }
+      hr { border:0; height:1px; background:var(--line); margin:20px 0; }
+      .grid { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
+      .box-title { font-weight:600; margin-bottom:4px; }
+      .muted { color:var(--muted); }
+      table { width:100%; border-collapse: collapse; }
+      th, td { padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+      thead th { background:var(--soft); text-align:left; font-weight:600; }
+      td.num, th.num { text-align:right; white-space:nowrap; }
+      .totals { margin-top:12px; display:flex; justify-content:flex-end; }
+      .totals .tbox { width: min(420px, 100%); }
+      .row { display:flex; justify-content:space-between; padding:6px 0; }
+      .row.total { border-top:1px solid var(--line); margin-top:6px; padding-top:10px; font-weight:700; }
+      .paybox { margin-top:18px; padding:14px 16px; border:1px dashed var(--line); border-radius:12px; background:#fafafa; }
+      .ogm { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.5px; }
+      @media print {
+        .toolbar { display:none !important; }
+        body { background:white; }
+        .card { box-shadow:none; border-color:#ddd; }
+      }
     </style>
   </head>
-  <body class="bg-slate-50 text-slate-800">
-    <div class="max-w-4xl mx-auto p-6">
-      <div class="no-print flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-semibold">Voorbeeld factuur</h1>
-        <div class="flex gap-2">
-          <a href="javascript:window.print()" class="px-3 py-2 rounded bg-slate-800 text-white">Print</a>
-          <a href="/admin/core/invoice/{{ inv.pk }}/change/" class="px-3 py-2 rounded border border-slate-300">Terug naar admin</a>
+  <body>
+    <div class="wrap">
+      <div class="toolbar">
+        <div class="h-title">Voorbeeld factuur</div>
+        <div>
+          <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
+          <a href="/admin/core/invoice/{{ inv.pk }}/change/" class="btn">Terug naar admin</a>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow p-6">
-        <div class="flex justify-between">
+      <div class="card">
+        <div class="head">
           <div>
-            <div class="text-xl font-semibold">Spiegelven Fakturatie</div>
-          </div>
-          <div class="text-right">
-            <div class="text-sm text-slate-500">Factuur</div>
-            <div class="text-lg font-semibold mono">
-              {{ inv.number|default:"(nog geen nummer)" }}
+            <div class="h-title">
+              {{ org.name|default:"Spiegelven Fakturatie" }}
+              {% if inv.number %}{% else %}<span class="badge">CONCEPT</span>{% endif %}
             </div>
-            <div class="text-sm">Datum: {{ inv.issue_date|date:"d/m/Y" }}</div>
-            <div class="text-sm">Status: {{ inv.get_status_display|default:inv.status }}</div>
+            <div class="muted">
+              {% if org.address_line1 %}{{ org.address_line1 }}<br>{% endif %}
+              {% if org.address_line2 %}{{ org.address_line2 }}<br>{% endif %}
+              {% if org.postal_code or org.city %}{{ org.postal_code }} {{ org.city }}<br>{% endif %}
+              {% if org.country %}{{ org.country }}<br>{% endif %}
+              {% if org.vat_number %}BTW: {{ org.vat_number }}{% endif %}
+              {% if org.enterprise_number %}{% if org.vat_number %} · {% endif %}Ond.nr: {{ org.enterprise_number }}{% endif %}
+            </div>
+          </div>
+          <div class="meta">
+            <div>Factuurnummer</div>
+            <strong>{{ inv.number|default:"(nog geen nummer)" }}</strong>
+            <div>Datum</div>
+            <strong>{{ inv.issue_date|date:"d/m/Y" }}</strong>
+            <div>Status</div>
+            <strong>{{ inv.get_status_display|default:inv.status }}</strong>
           </div>
         </div>
 
-        <hr class="my-6" />
+        <hr>
 
-        <div class="grid md:grid-cols-2 gap-6">
+        <div class="grid">
           <div>
-            <div class="font-semibold mb-1">Facturatie aan</div>
-            <div>{{ inv.account.name }}</div>
-            {% if inv.account.street %}<div>{{ inv.account.street }}</div>{% endif %}
+            <div class="box-title">Facturatie aan</div>
             <div>
-              {% if inv.account.postal_code %}{{ inv.account.postal_code }} {% endif %}
-              {% if inv.account.city %}{{ inv.account.city }}{% endif %}
+              <strong>{{ inv.account.name }}</strong><br>
+              {% if inv.account.street %}{{ inv.account.street }}<br>{% endif %}
+              {% if inv.account.postal_code or inv.account.city %}{{ inv.account.postal_code }} {{ inv.account.city }}<br>{% endif %}
+              {% if inv.account.country %}{{ inv.account.country }}<br>{% endif %}
+              {% if inv.account.vat_number %}BTW: {{ inv.account.vat_number }}<br>{% endif %}
+              {% if inv.account.email %}<span class="muted">{{ inv.account.email }}</span>{% endif %}
             </div>
-            {% if inv.account.country %}<div>{{ inv.account.country }}</div>{% endif %}
-            {% if inv.account.vat_number %}<div>BTW: {{ inv.account.vat_number }}</div>{% endif %}
-            {% if inv.account.email %}<div class="text-sm text-slate-500">{{ inv.account.email }}</div>{% endif %}
           </div>
           <div>
             {% if inv.notes %}
-              <div class="font-semibold mb-1">Opmerkingen</div>
-              <div class="whitespace-pre-wrap text-sm">{{ inv.notes }}</div>
+              <div class="box-title">Opmerkingen</div>
+              <div style="white-space:pre-wrap">{{ inv.notes }}</div>
             {% endif %}
           </div>
         </div>
 
-        <div class="overflow-x-auto mt-8">
+        <hr>
+
+        <div class="table">
           <table>
             <thead>
               <tr>
-                <th>Omschrijving</th>
-                <th class="text-right">Aantal</th>
-                <th class="text-right">Eenheidsprijs (excl.)</th>
-                <th class="text-right">BTW %</th>
-                <th class="text-right">Lijn (excl.)</th>
-                <th class="text-right">BTW bedrag</th>
-                <th class="text-right">Lijn (incl.)</th>
+                <th style="width:46%">Omschrijving</th>
+                <th class="num" style="width:9%">Aantal</th>
+                <th class="num" style="width:15%">Eenheidsprijs</th>
+                <th class="num" style="width:8%">BTW</th>
+                <th class="num" style="width:11%">Excl.</th>
+                <th class="num" style="width:11%">BTW-bedrag</th>
+                <th class="num" style="width:11%">Incl.</th>
               </tr>
             </thead>
             <tbody>
               {% for l in lines %}
                 <tr>
                   <td>{{ l.description }}</td>
-                  <td class="text-right">{{ l.quantity }}</td>
-                  <td class="text-right">{{ l.unit_price_excl }}</td>
-                  <td class="text-right">{{ l.vat_rate }}%</td>
-                  <td class="text-right">{{ l.line_excl }}</td>
-                  <td class="text-right">{{ l.vat_amount }}</td>
-                  <td class="text-right">{{ l.line_incl }}</td>
+                  <td class="num">{{ l.quantity }}</td>
+                  <td class="num">{{ l.unit_price_excl }}</td>
+                  <td class="num">{{ l.vat_rate }}</td>
+                  <td class="num">{{ l.line_excl }}</td>
+                  <td class="num">{{ l.vat_amount }}</td>
+                  <td class="num">{{ l.line_incl }}</td>
                 </tr>
               {% empty %}
                 <tr>
-                  <td colspan="7" class="text-slate-500">Geen regels.</td>
+                  <td colspan="7" class="muted">Geen regels.</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
 
-        <div class="mt-6 flex justify-end">
-          <div class="w-full md:w-1/2">
-            <div class="flex justify-between py-1">
-              <div class="text-slate-600">Totaal excl.</div>
-              <div class="font-medium">{{ totals.excl }}</div>
-            </div>
-            <div class="flex justify-between py-1">
-              <div class="text-slate-600">BTW</div>
-              <div class="font-medium">{{ totals.vat }}</div>
-            </div>
-            <div class="flex justify-between py-2 border-t mt-2">
-              <div class="font-semibold">Totaal incl.</div>
-              <div class="font-semibold">{{ totals.incl }}</div>
-            </div>
+        {% if vat_summary %}
+        <div style="margin-top:12px">
+          <div class="box-title">Samenvatting per BTW-tarief</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tarief</th>
+                <th class="num">Excl.</th>
+                <th class="num">BTW</th>
+                <th class="num">Incl.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in vat_summary %}
+              <tr>
+                <td>{{ r.rate }}</td>
+                <td class="num">{{ r.excl }}</td>
+                <td class="num">{{ r.vat }}</td>
+                <td class="num">{{ r.incl }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        <div class="totals">
+          <div class="tbox">
+            <div class="row"><div class="muted">Totaal excl.</div><div>{{ totals.excl }}</div></div>
+            <div class="row"><div class="muted">BTW</div><div>{{ totals.vat }}</div></div>
+            <div class="row total"><div>Totaal incl.</div><div>{{ totals.incl }}</div></div>
           </div>
         </div>
 
+        {% if payment.iban or payment.ogm %}
+        <div class="paybox">
+          <div class="box-title">Betalingsgegevens</div>
+          <div class="muted">Gelieve bij overschrijving onderstaande gestructureerde mededeling te gebruiken.</div>
+          <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:6px">
+            {% if payment.iban %}<div><strong>IBAN</strong><br>{{ payment.iban }}</div>{% endif %}
+            {% if payment.bic %}<div><strong>BIC</strong><br>{{ payment.bic }}</div>{% endif %}
+            {% if payment.ogm %}<div><strong>Gestructureerde mededeling</strong><br><span class="ogm">{{ payment.ogm }}</span></div>{% endif %}
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
   </body>
