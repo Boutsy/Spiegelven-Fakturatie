@@ -1,24 +1,12 @@
-# Python/Django
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.sqlite3
-db.sqlite3
-
-# Django collectstatic
-staticfiles/
-static_root/
-media/
-
-# Env & secrets
-.env
-*.env
-
-# VSCode / Mac
-.vscode/
 .DS_Store
-
-# Node/Tailwind caches
-node_modules/
-.pnp/
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+*.log
+db.sqlite3
+media/
+staticfiles/
+static/css/tailwind.css
+.env
+*.pid
