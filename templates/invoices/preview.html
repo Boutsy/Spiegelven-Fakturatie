@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <title>Voorbeeld factuur {{ inv.number|default:inv.id }}</title>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+    <style>
+      @media print {
+        .no-print { display:none; }
+        body { margin: 0; }
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 text-slate-800">
+    <div class="max-w-5xl mx-auto py-6">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h1 class="text-2xl font-semibold">Factuurvoorbeeld</h1>
+          <p class="text-slate-600">Status: {{ status_label }}</p>
+        </div>
+        <div class="no-print">
+          <button onclick="window.print()" class="px-4 py-2 border rounded">Print / PDF</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-6">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h2 class="font-semibold mb-2">{{ org.name if org }}{% if not org %}Spiegelven{% endif %}</h2>
+            {% if org %}
+              <div class="text-sm text-slate-700">
+                {% if org.address_line1 %}<div>{{ org.address_line1 }}</div>{% endif %}
+                {% if org.address_line2 %}<div>{{ org.address_line2 }}</div>{% endif %}
+                {% if org.postal_code or org.city %}<div>{{ org.postal_code }} {{ org.city }}</div>{% endif %}
+                {% if org.country %}<div>{{ org.country }}</div>{% endif %}
+                {% if org.iban or org.bic %}<div>IBAN {{ org.iban }}{% if org.bic %} — BIC {{ org.bic }}{% endif %}</div>{% endif %}
+                {% if org.vat_number %}<div>BTW {{ org.vat_number }}</div>{% endif %}
+                {% if org.enterprise_number %}<div>Ondernemingsnr {{ org.enterprise_number }}</div>{% endif %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="text-sm">
+            <div><span class="text-slate-500">Factuurnr:</span> <span class="font-medium">{{ inv.number|default:inv.id }}</span></div>
+            <div><span class="text-slate-500">Datum:</span> <span class="font-medium">{{ inv.issue_date|date:"d/m/Y" }}</span></div>
+            <div><span class="text-slate-500">Rekening:</span> <span class="font-medium">{{ inv.account.name }}</span></div>
+            {% if inv.account.vat_number %}<div><span class="text-slate-500">BTW-nr:</span> <span class="font-medium">{{ inv.account.vat_number }}</span></div>{% endif %}
+            {% if inv.account.email %}<div><span class="text-slate-500">E-mail:</span> <span class="font-medium">{{ inv.account.email }}</span></div>{% endif %}
+            {% if inv.account.street or inv.account.postal_code or inv.account.city %}
+              <div class="mt-1"><span class="text-slate-500">Adres:</span>
+                <span class="font-medium">
+                  {{ inv.account.street }}{% if inv.account.postal_code or inv.account.city %}, {{ inv.account.postal_code }} {{ inv.account.city }}{% endif %}
+                </span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <table class="w-full text-sm border-t border-slate-200">
+          <thead>
+            <tr class="bg-slate-50">
+              <th class="text-left p-2">Omschrijving</th>
+              <th class="text-right p-2">Aantal</th>
+              <th class="text-right p-2">Prijs/stuk</th>
+              <th class="text-right p-2">BTW</th>
+              <th class="text-right p-2">Excl. btw</th>
+              <th class="text-right p-2">BTW-bedrag</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for ln in lines %}
+            <tr class="border-t">
+              <td class="p-2">{{ ln.description }}</td>
+              <td class="p-2 text-right">{{ ln.qty }}</td>
+              <td class="p-2 text-right">{{ ln.unit }}</td>
+              <td class="p-2 text-right">{{ ln.vat_rate }}</td>
+              <td class="p-2 text-right">{{ ln.sum_excl }}</td>
+              <td class="p-2 text-right">{{ ln.sum_vat }}</td>
+            </tr>
+          {% empty %}
+            <tr><td class="p-3 text-slate-500" colspan="6">Geen lijnen.</td></tr>
+          {% endfor %}
+          </tbody>
+          <tfoot class="border-t">
+            <tr>
+              <td colspan="4"></td>
+              <td class="p-2 text-right font-medium">Totaal excl.</td>
+              <td class="p-2 text-right font-medium">{{ total_excl }}</td>
+            </tr>
+            <tr>
+              <td colspan="4"></td>
+              <td class="p-2 text-right font-medium">Totaal btw</td>
+              <td class="p-2 text-right font-medium">{{ total_vat }}</td>
+            </tr>
+            <tr>
+              <td colspan="4"></td>
+              <td class="p-2 text-right font-semibold">Totaal incl.</td>
+              <td class="p-2 text-right font-semibold">{{ total_incl }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="mt-6 text-sm">
+          <div><span class="text-slate-500">Gestructureerde mededeling:</span> <span class="font-mono tracking-wider">{{ ogm }}</span></div>
+          {% if inv.notes %}<div class="mt-2"><span class="text-slate-500">Opmerking:</span> {{ inv.notes }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

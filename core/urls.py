@@ -1,10 +1,18 @@
-from django.urls import path
-from . import views
+from django.contrib import admin
+from django.urls import path, include
+from core.print_views import invoice_preview
+from core import views as core_views  # JSON endpoint voor admin-autofill
 
 urlpatterns = [
-    path("", views.dashboard, name="dashboard"),
-    path("import/upload/", views.import_upload, name="import_upload"),
-    path("import/map/", views.import_map, name="import_map"),
-    path("import/confirm/", views.import_confirm, name="import_confirm"),
-    path("import/run/", views.import_run, name="import_run"),
+    # JSON endpoint dat admin JS gebruikt (prijzen/btw bij productkeuze)
+    path("admin/core/product_defaults/<int:pk>/", core_views.product_defaults, name="product-defaults"),
+
+    # Admin
+    path("admin/", admin.site.urls),
+
+    # Auth
+    path("accounts/", include("django.contrib.auth.urls")),
+
+    # NIEUW: Factuur-preview
+    path("facturen/<int:pk>/voorbeeld/", invoice_preview, name="invoice_preview"),
 ]
