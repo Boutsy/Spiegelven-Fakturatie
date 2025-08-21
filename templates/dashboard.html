@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-semibold mb-6">Dashboard</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <a href="{% url 'import_upload' %}" class="block rounded-xl border border-slate-200 p-6 hover:shadow">
+      <h2 class="text-lg font-semibold mb-2">CSV-import leden</h2>
+      <p class="text-slate-600 text-sm">Upload een CSV, wijs kolommen toe aan velden en importeer leden.</p>
+    </a>
+    <a href="/admin/" class="block rounded-xl border border-slate-200 p-6 hover:shadow">
+      <h2 class="text-lg font-semibold mb-2">Admin</h2>
+      <p class="text-slate-600 text-sm">Beheer leden, gezinnen, factuurrekeningen, prijzen…</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

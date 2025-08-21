@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}CSV uploaden{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-semibold mb-6">CSV uploaden (Leden)</h1>
+
+  {% if messages %}
+    <div class="mb-4">
+      {% for m in messages %}
+        <div class="text-sm p-3 rounded {{ m.tags|default:'info' }} bg-red-50 text-red-700">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="space-y-4">
+    {% csrf_token %}
+    <div>
+      <label class="block text-sm font-medium mb-1">CSV-bestand</label>
+      <input type="file" name="csvfile" accept=".csv,.txt" class="block w-full border rounded p-2" required>
+      <p class="text-xs text-slate-500 mt-1">Gebruik UTF-8 .csv indien mogelijk (eerste rij = kolomnamen).</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="px-4 py-2 rounded bg-slate-900 text-white">Uploaden</button>
+      <a href="{% url 'dashboard' %}" class="text-slate-600 hover:underline">Annuleren</a>
+    </div>
+  </form>
+
+  <hr class="my-8">
+
+  <h2 class="text-lg font-semibold mb-2">Bewaarde mappings (optioneel)</h2>
+  <p class="text-sm text-slate-600 mb-3">Je kan straks op de volgende stap een mapping laden of opslaan.</p>
+  <ul class="list-disc pl-6 text-sm">
+    {% for m in saved_maps %}<li>{{ m.name }}</li>{% empty %}<li>Geen mappings bewaard.</li>{% endfor %}
+  </ul>
+</div>
+{% endblock %}

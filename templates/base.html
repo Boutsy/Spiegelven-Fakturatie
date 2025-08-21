@@ -1,0 +1,41 @@
+{% load static %}
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Spiegelven{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+  </head>
+  <body class="bg-slate-50">
+    <header class="topbar">
+      <nav class="topbar-inner">
+        <a href="/" class="font-semibold">Spiegelven</a>
+        <div class="links flex items-center gap-4">
+          {% if user.is_authenticated %}
+            <a href="/import/upload">CSV import</a>
+            <a href="/admin/">Admin</a>
+            <a href="/accounts/logout/">Uitloggen</a>
+          {% else %}
+            <a href="/accounts/login/">Inloggen</a>
+          {% endif %}
+        </div>
+      </nav>
+    </header>
+
+    <main class="page-wrap">
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %}
+            <div class="alert alert-info">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="page-wrap text-xs text-slate-500">
+      Spiegelven • {{ request.user }} • {{ request.path }}
+    </footer>
+  </body>
+</html>

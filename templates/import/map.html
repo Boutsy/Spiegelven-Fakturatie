@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Kolommen mappen{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-semibold mb-6">Kolommen toewijzen</h1>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <div class="rounded-xl border border-slate-200">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="text-left p-3 w-1/3">Leden-veld</th>
+            <th class="text-left p-3">CSV-kolom</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key,label in member_fields.items %}
+          <tr class="border-t">
+            <td class="p-3 font-medium">{{ label }}</td>
+            <td class="p-3">
+              <select name="map_{{ key }}" class="border rounded p-2 w-full">
+                <option value="">-- laat leeg --</option>
+                {% for h in headers %}
+                  {% if initial_map.key == h %}{% endif %}
+                  <option value="{{ h }}" {% if initial_map|get_item:key == h %}selected{% endif %}>{{ h }}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="rounded-xl border border-slate-200 p-4">
+        <h2 class="font-semibold mb-2">Bewaarde mapping laden</h2>
+        <p class="text-xs text-slate-500 mb-2">Je kunt een eerder bewaarde mapping gebruiken.</p>
+        <select name="load_mapping_id" class="border rounded p-2 w-full">
+          <option value="">-- kies mapping --</option>
+          {% for m in saved_maps %}
+            <option value="{{ m.id }}">{{ m.name }}</option>
+          {% endfor %}
+        </select>
+        <p class="text-xs text-slate-500 mt-2">Als je hier iets kiest, wordt die mapping gebruikt en worden bovenstaande keuzes genegeerd.</p>
+      </div>
+      <div class="rounded-xl border border-slate-200 p-4">
+        <h2 class="font-semibold mb-2">Opslaan als nieuwe mapping</h2>
+        <input type="text" name="save_mapping_name" class="border rounded p-2 w-full" placeholder="Geef een naam…">
+        <p class="text-xs text-slate-500 mt-2">Dit bewaart jouw huidige selectie voor volgende imports.</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button class="px-4 py-2 rounded bg-slate-900 text-white">Verder</button>
+      <a href="{% url 'import_upload' %}" class="text-slate-600 hover:underline">Vorige</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% comment %} Kleine helper voor dict access {% endcomment %}
+{% load static %}
+{% block extra_scripts %}
+<script>
+  // no JS nodig; server-side mapping
+</script>
+{% endblock %}

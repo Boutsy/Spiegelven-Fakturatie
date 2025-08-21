@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Resultaat import{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-semibold mb-6">Import afgerond</h1>
+
+  <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="rounded-xl border p-4 text-center">
+      <div class="text-sm text-slate-500">Aangemaakt</div>
+      <div class="text-2xl font-semibold">{{ created }}</div>
+    </div>
+    <div class="rounded-xl border p-4 text-center">
+      <div class="text-sm text-slate-500">Bijgewerkt</div>
+      <div class="text-2xl font-semibold">{{ updated }}</div>
+    </div>
+    <div class="rounded-xl border p-4 text-center">
+      <div class="text-sm text-slate-500">Overgeslagen</div>
+      <div class="text-2xl font-semibold">{{ skipped }}</div>
+    </div>
+  </div>
+
+  {% if errors %}
+  <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+    <h2 class="font-semibold mb-2 text-red-700">Fouten (eerste {{ errors|length }})</h2>
+    <ul class="list-disc pl-6 text-sm text-red-700">
+      {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% else %}
+    <p class="text-sm text-slate-600">Geen fouten gemeld.</p>
+  {% endif %}
+
+  <div class="mt-8 flex items-center gap-3">
+    <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded bg-slate-900 text-white">Terug naar dashboard</a>
+    <a href="/admin/core/member/" class="text-slate-600 hover:underline">Leden in admin bekijken</a>
+  </div>
+</div>
+{% endblock %}
