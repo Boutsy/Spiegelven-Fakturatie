@@ -1,109 +1,150 @@
-{% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
   <head>
     <meta charset="utf-8" />
-    <title>Voorbeeld factuur {{ inv.number|default:inv.id }}</title>
-    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+    <title>Voorbeeld factuur {{ inv.number|default:"(concept)" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/static/css/tailwind.css" rel="stylesheet" />
     <style>
       @media print {
-        .no-print { display:none; }
-        body { margin: 0; }
+        .no-print { display: none !important; }
+        body { background: white; }
       }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
     </style>
   </head>
-  <body class="bg-slate-100 text-slate-800">
-    <div class="max-w-5xl mx-auto py-6">
-      <div class="flex justify-between items-start mb-6">
-        <div>
-          <h1 class="text-2xl font-semibold">Factuurvoorbeeld</h1>
-          <p class="text-slate-600">Status: {{ status_label }}</p>
-        </div>
-        <div class="no-print">
-          <button onclick="window.print()" class="px-4 py-2 border rounded">Print / PDF</button>
+  <body class="bg-slate-50 text-slate-800">
+    <div class="max-w-4xl mx-auto p-6">
+      <!-- Toolbar -->
+      <div class="no-print flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold">Voorbeeld factuur</h1>
+        <div class="flex gap-2">
+          <a href="javascript:window.print()" class="px-3 py-2 rounded bg-slate-800 text-white">Print</a>
+          <a href="/admin/core/invoice/{{ inv.pk }}/change/" class="px-3 py-2 rounded border border-slate-300">Terug naar admin</a>
         </div>
       </div>
 
+      <!-- Document -->
       <div class="bg-white rounded-xl shadow p-6">
-        <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="flex justify-between">
           <div>
-            <h2 class="font-semibold mb-2">{{ org.name if org }}{% if not org %}Spiegelven{% endif %}</h2>
-            {% if org %}
-              <div class="text-sm text-slate-700">
-                {% if org.address_line1 %}<div>{{ org.address_line1 }}</div>{% endif %}
-                {% if org.address_line2 %}<div>{{ org.address_line2 }}</div>{% endif %}
-                {% if org.postal_code or org.city %}<div>{{ org.postal_code }} {{ org.city }}</div>{% endif %}
-                {% if org.country %}<div>{{ org.country }}</div>{% endif %}
-                {% if org.iban or org.bic %}<div>IBAN {{ org.iban }}{% if org.bic %} — BIC {{ org.bic }}{% endif %}</div>{% endif %}
-                {% if org.vat_number %}<div>BTW {{ org.vat_number }}</div>{% endif %}
-                {% if org.enterprise_number %}<div>Ondernemingsnr {{ org.enterprise_number }}</div>{% endif %}
-              </div>
-            {% endif %}
+            <div class="text-xl font-semibold">Spiegelven Fakturatie</div>
+            <!-- Toon je clubgegevens hier indien gewenst; kan ook uit OrganizationProfile komen zodra gevuld -->
           </div>
-          <div class="text-sm">
-            <div><span class="text-slate-500">Factuurnr:</span> <span class="font-medium">{{ inv.number|default:inv.id }}</span></div>
-            <div><span class="text-slate-500">Datum:</span> <span class="font-medium">{{ inv.issue_date|date:"d/m/Y" }}</span></div>
-            <div><span class="text-slate-500">Rekening:</span> <span class="font-medium">{{ inv.account.name }}</span></div>
-            {% if inv.account.vat_number %}<div><span class="text-slate-500">BTW-nr:</span> <span class="font-medium">{{ inv.account.vat_number }}</span></div>{% endif %}
-            {% if inv.account.email %}<div><span class="text-slate-500">E-mail:</span> <span class="font-medium">{{ inv.account.email }}</span></div>{% endif %}
-            {% if inv.account.street or inv.account.postal_code or inv.account.city %}
-              <div class="mt-1"><span class="text-slate-500">Adres:</span>
-                <span class="font-medium">
-                  {{ inv.account.street }}{% if inv.account.postal_code or inv.account.city %}, {{ inv.account.postal_code }} {{ inv.account.city }}{% endif %}
-                </span>
-              </div>
+          <div class="text-right">
+            <div class="text-sm text-slate-500">Factuur</div>
+            <div class="text-lg font-semibold mono">
+              {{ inv.number|default:"(nog geen nummer)" }}
+            </div>
+            <div class="text-sm">
+              Datum: {{ inv.issue_date|date:"d/m/Y" }}
+            </div>
+            <div class="text-sm">
+              Status: {{ inv.get_status_display|default:inv.status }}
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-6" />
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <div class="font-semibold mb-1">Facturatie aan</div>
+            <div>{{ inv.account.name }}</div>
+            {% if inv.account.street %}<div>{{ inv.account.street }}</div>{% endif %}
+            <div>
+              {% if inv.account.postal_code %}{{ inv.account.postal_code }} {% endif %}
+              {% if inv.account.city %}{{ inv.account.city }}{% endif %}
+            </div>
+            {% if inv.account.country %}<div>{{ inv.account.country }}</div>{% endif %}
+            {% if inv.account.vat_number %}<div>BTW: {{ inv.account.vat_number }}</div>{% endif %}
+            {% if inv.account.email %}<div class="text-sm text-slate-500">{{ inv.account.email }}</div>{% endif %}
+          </div>
+          <div>
+            {% if inv.notes %}
+              <div class="font-semibold mb-1">Opmerkingen</div>
+              <div class="whitespace-pre-wrap text-sm">{{ inv.notes }}</div>
             {% endif %}
           </div>
         </div>
 
-        <table class="w-full text-sm border-t border-slate-200">
-          <thead>
-            <tr class="bg-slate-50">
-              <th class="text-left p-2">Omschrijving</th>
-              <th class="text-right p-2">Aantal</th>
-              <th class="text-right p-2">Prijs/stuk</th>
-              <th class="text-right p-2">BTW</th>
-              <th class="text-right p-2">Excl. btw</th>
-              <th class="text-right p-2">BTW-bedrag</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for ln in lines %}
-            <tr class="border-t">
-              <td class="p-2">{{ ln.description }}</td>
-              <td class="p-2 text-right">{{ ln.qty }}</td>
-              <td class="p-2 text-right">{{ ln.unit }}</td>
-              <td class="p-2 text-right">{{ ln.vat_rate }}</td>
-              <td class="p-2 text-right">{{ ln.sum_excl }}</td>
-              <td class="p-2 text-right">{{ ln.sum_vat }}</td>
-            </tr>
-          {% empty %}
-            <tr><td class="p-3 text-slate-500" colspan="6">Geen lijnen.</td></tr>
-          {% endfor %}
-          </tbody>
-          <tfoot class="border-t">
-            <tr>
-              <td colspan="4"></td>
-              <td class="p-2 text-right font-medium">Totaal excl.</td>
-              <td class="p-2 text-right font-medium">{{ total_excl }}</td>
-            </tr>
-            <tr>
-              <td colspan="4"></td>
-              <td class="p-2 text-right font-medium">Totaal btw</td>
-              <td class="p-2 text-right font-medium">{{ total_vat }}</td>
-            </tr>
-            <tr>
-              <td colspan="4"></td>
-              <td class="p-2 text-right font-semibold">Totaal incl.</td>
-              <td class="p-2 text-right font-semibold">{{ total_incl }}</td>
-            </tr>
-          </tfoot>
-        </table>
-
-        <div class="mt-6 text-sm">
-          <div><span class="text-slate-500">Gestructureerde mededeling:</span> <span class="font-mono tracking-wider">{{ ogm }}</span></div>
-          {% if inv.notes %}<div class="mt-2"><span class="text-slate-500">Opmerking:</span> {{ inv.notes }}</div>{% endif %}
+        <div class="overflow-x-auto mt-8">
+          <table class="min-w-full border border-slate-200">
+            <thead class="bg-slate-100">
+              <tr class="text-left">
+                <th class="p-3 border-b border-slate-200">Omschrijving</th>
+                <th class="p-3 border-b border-slate-200 text-right">Aantal</th>
+                <th class="p-3 border-b border-slate-200 text-right">Eenheidsprijs (excl.)</th>
+                <th class="p-3 border-b border-slate-200 text-right">BTW %</th>
+                <th class="p-3 border-b border-slate-200 text-right">Lijn (excl.)</th>
+                <th class="p-3 border-b border-slate-200 text-right">BTW bedrag</th>
+                <th class="p-3 border-b border-slate-200 text-right">Lijn (incl.)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in lines %}
+                {% with q=l.quantity|default:0 unit=l.unit_price_excl|default:0 rate=l.vat_rate|default:0 %}
+                {% with excl=q|floatformat:-2|add:"0"|floatformat:2 %}
+                {% endwith %}
+                {% endwith %}
+                {% with line_excl=l.unit_price_excl|default:0|floatformat:2 %}
+                {% endwith %}
+                {% with lx=(l.unit_price_excl|default:0)* (l.quantity|default:0) %}
+                {% endwith %}
+                <tr class="border-b border-slate-100">
+                  <td class="p-3 align-top">{{ l.description|default:l.product.name }}</td>
+                  <td class="p-3 text-right align-top">{{ l.quantity }}</td>
+                  <td class="p-3 text-right align-top">{{ l.unit_price_excl }}</td>
+                  <td class="p-3 text-right align-top">{{ l.vat_rate }}%</td>
+                  {% with excl=l.unit_price_excl|default:0 %}
+                  {% endwith %}
+                  <td class="p-3 text-right align-top">
+                    {{ l.unit_price_excl|default:0|floatformat:2|add:"0" }}
+                    {% with subtotal=l.unit_price_excl|default_if_none:0 %}
+                    {% endwith %}
+                    {{ (l.unit_price_excl|default_if_none:0) }}
+                  </td>
+                  <td class="p-3 text-right align-top">
+                    {% with lx=(l.unit_price_excl|default_if_none:0) * (l.quantity|default_if_none:0) %}
+                      {% with vat=(lx * (l.vat_rate|default_if_none:0)/100) %}
+                        {{ vat|floatformat:2 }}
+                      {% endwith %}
+                    {% endwith %}
+                  </td>
+                  <td class="p-3 text-right align-top">
+                    {% with lx=(l.unit_price_excl|default_if_none:0) * (l.quantity|default_if_none:0) %}
+                      {% with vat=(lx * (l.vat_rate|default_if_none:0)/100) %}
+                        {{ (lx + vat)|floatformat:2 }}
+                      {% endwith %}
+                    {% endwith %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td class="p-3 text-slate-500" colspan="7">Geen regels.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+
+        <div class="mt-6 flex justify-end">
+          <div class="w-full md:w-1/2">
+            <div class="flex justify-between py-1">
+              <div class="text-slate-600">Totaal excl.</div>
+              <div class="font-medium">{{ totals.excl|floatformat:2 }}</div>
+            </div>
+            <div class="flex justify-between py-1">
+              <div class="text-slate-600">BTW</div>
+              <div class="font-medium">{{ totals.vat|floatformat:2 }}</div>
+            </div>
+            <div class="flex justify-between py-2 border-t mt-2">
+              <div class="font-semibold">Totaal incl.</div>
+              <div class="font-semibold">{{ totals.incl|floatformat:2 }}</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </body>
