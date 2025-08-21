@@ -1,18 +1,24 @@
-# Python / Django
-*.pyc
+# Python/Django
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
 db.sqlite3
-media/
+
+# Django collectstatic
 staticfiles/
+static_root/
+media/
 
-# Node / Tailwind
-node_modules/
-package-lock.json
+# Env & secrets
+.env
+*.env
 
-# macOS & editors
-.DS_Store
+# VSCode / Mac
 .vscode/
-.idea/
+.DS_Store
 
-# Logs
-*.log
+# Node/Tailwind caches
+node_modules/
+.pnp/
