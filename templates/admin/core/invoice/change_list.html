@@ -1,11 +1,10 @@
 {% extends "admin/change_list.html" %}
 
 {% block object-tools %}
+  {% now "Y" as cyear %}
   <ul class="object-tools">
     <li>
-      <a class="addlink" href="{% url 'admin:core_invoice_generate_yearly' %}">
-        Genereer jaarfacturen…
-      </a>
+      <a class="addlink" href="{% url "yearplan_forecast" cyear %}">Prognose jaarplan ({{ cyear }})</a>
     </li>
   </ul>
   {{ block.super }}
