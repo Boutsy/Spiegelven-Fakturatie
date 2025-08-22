@@ -50,6 +50,14 @@ class Household(models.Model):
         return self.name
 
 class Member(models.Model):
+    household_head = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        related_name="household_members",
+        on_delete=models.SET_NULL,
+        help_text="Kies het gezinshoofd indien dit lid deel uitmaakt van een gezin."
+    )
     ROLE_HEAD = "head"
     ROLE_PARTNER = "partner"
     ROLE_CHILD = "child"
@@ -75,6 +83,9 @@ class Member(models.Model):
     def __str__(self) -> str:
         name = f"{self.first_name} {self.last_name}".strip()
         return name or f"Member #{self.pk}"
+    @property
+    def is_household_head(self):
+        return self.household_head_id is None
 
 class ImportMapping(models.Model):
     name = models.CharField(max_length=200, unique=True)

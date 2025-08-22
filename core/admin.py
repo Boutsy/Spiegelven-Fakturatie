@@ -17,6 +17,16 @@ from .models import (
     MemberAsset,
     OrganizationProfile,
 )
+from django.contrib import admin
+
+class FamilyMemberInline(admin.TabularInline):
+    model = Member
+    fk_name = "head"
+    fields = ("first_name", "last_name", "date_of_birth", "email", "active")
+    extra = 0
+    verbose_name = "Gezinslid"
+    verbose_name_plural = "Gezinsleden"
+    show_change_link = True
 
 class InvoiceLineInline(admin.TabularInline):
     model = InvoiceLine
@@ -95,10 +105,13 @@ class PricingRuleAdmin(admin.ModelAdmin):
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'email', 'household_role', 'active')
-    search_fields = ('last_name', 'first_name', 'email')
-    list_filter = ('active', 'household_role')
-    ordering = ('last_name', 'first_name')
+    list_display = ("last_name", "first_name", "email", "household_head", "is_household_head")
+    search_fields = ("last_name", "first_name", "email")
+    autocomplete_fields = ("household_head",)
+
+    @admin.display(boolean=True, description="Gezinshoofd?")
+    def is_household_head(self, obj):
+        return obj.is_household_head
 
 @admin.register(MemberAsset)
 class MemberAssetAdmin(admin.ModelAdmin):
@@ -149,3 +162,34 @@ except Exception as e:
     # Stil falen in importfase, toont zich als er echt iets mis is bij admin load
     pass
 # --- einde inline toevoeging ---
+
+from django.contrib import admin
+from .models import Member
+
+class FamilyMemberInline(admin.TabularInline):
+    model = Member
+    fk_name = "head"
+    fields = ("first_name", "last_name", "date_of_birth", "email", "active")
+    extra = 0
+    verbose_name = "Gezinslid"
+    verbose_name_plural = "Gezinsleden"
+    show_change_link = True
+
+try:
+    admin.site.unregister(Member)
+except admin.sites.NotRegistered:
+    pass
+
+@admin.register(Member)
+class MemberAdmin(admin.ModelAdmin):
+    list_display = ("last_name", "first_name", "email", "active", "is_household_head")
+    list_filter = ("active",)
+    search_fields = ("first_name", "last_name", "email")
+    autocomplete_fields = ()
+    @admin.display(boolean=True, description="Gezinshoofd?")
+    def is_household_head(self, obj):
+        return hasattr(obj, "household_head_id") and obj.household_head_id is None
+    def get_inlines(self, request, obj=None):
+        if obj is None or getattr(obj, "is_household_head", False):
+            return [FamilyMemberInline]
+        return []
