@@ -80,7 +80,7 @@ class Command(BaseCommand):
                 continue
 
             # Start conceptfactuur
-            inv = Invoice(account=account, issue_date=issue_dt, doc_type="FACTUUR", status="CONCEPT")
+        inv = Invoice(account=account, issue_date=issue_dt, doc_type="FACTUUR", status="CONCEPT")
             lines_to_add = []
 
             def add_by_code(code: str, fallback_desc: str, qty=1, override_price=None):
