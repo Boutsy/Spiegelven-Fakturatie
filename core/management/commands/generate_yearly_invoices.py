@@ -84,15 +84,19 @@ class Command(BaseCommand):
         lines_to_add = []
 
             def add_by_code(code: str, fallback_desc: str, qty=1, override_price=None):
-                item = items.get(code)
-                if item:
-                    unit = q2(override_price if override_price is not None else item.price_excl)
-                    vat = item.vat_rate
-                    desc = item.description or fallback_desc
-                    lines_to_add.append(dict(description=desc, quantity=qty, unit_price_excl=unit, vat_rate=vat))
-                else:
+                try:
+                    ypi = YearPlanItem.objects.get(yearplan=yp, code=code)
+                    price = override_price if override_price is not None else ypi.unit_price
+                    vat = getattr(ypi, 'vat_rate', Decimal('0.21'))
+                    lines_to_add.append(dict(
+                        description=(ypi.description or fallback_desc),
+                        unit_price=price,
+                        quantity=qty,
+                        vat_rate=vat,
+                        product_id=getattr(ypi, 'product_id', None),
+                    ))
+                except YearPlanItem.DoesNotExist:
                     self.stdout.write(f"  ! ontbrekend YearPlanItem code={code} → lijn overgeslagen")
-
             # 1) Lidgeld volwassenen (Normaal/Flex + individueel/koppel)
             # Regels:
             # - "Normaal lid" is wat vroeger "INVEST" heette (we kijken naar membership_mode op leden).
