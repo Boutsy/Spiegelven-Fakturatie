@@ -73,13 +73,14 @@ class Command(BaseCommand):
             volwassenen = [m for m in leden if m.household_role in ("GEZINSHOOFD", "PARTNER")]
             kinderen = [m for m in leden if m not in volwassenen]
 
-            if not hh.account:
-                self.stdout.write(f"- SKIP {hh}: geen facturatieaccount")
+            account = getattr(head, 'billing_account', None) or getattr(head, 'account', None)
+        if not account:
+                self.stdout.write(f"- SKIP {head}: geen facturatieaccount")
                 skipped += 1
                 continue
 
             # Start conceptfactuur
-            inv = Invoice(account=hh.account, issue_date=issue_dt, doc_type="FACTUUR", status="CONCEPT")
+            inv = Invoice(account=account, issue_date=issue_dt, doc_type="FACTUUR", status="CONCEPT")
             lines_to_add = []
 
             def add_by_code(code: str, fallback_desc: str, qty=1, override_price=None):
@@ -162,9 +163,9 @@ class Command(BaseCommand):
                     for l in lines_to_add:
                         InvoiceLine.objects.create(invoice=inv, **l)
                 created += 1
-                self.stdout.write(f"+ Factuur aangemaakt voor {hh.name or str(hh.account)}")
+                self.stdout.write(f"+ Factuur aangemaakt voor {head.name or str(account)}")
             else:
-                self.stdout.write(f"[DRY-RUN] zou factuur maken voor {hh.name or str(hh.account)} met {len(lines_to_add)} lijnen.")
+                self.stdout.write(f"[DRY-RUN] zou factuur maken voor {head.name or str(account)} met {len(lines_to_add)} lijnen.")
 
         self.stdout.write(self.style.SUCCESS(
             f"Klaar: aangemaakt={created}, overgeslagen={skipped}, jaar={year}, datum={issue_dt}"
