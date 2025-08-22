@@ -86,6 +86,9 @@ class ImportMapping(models.Model):
         return f"{self.name} ({self.model})"
 
 class MemberAsset(models.Model):
+    active = models.BooleanField(default=True)
+    assigned_on = models.DateField(null=True, blank=True)
+    released_on = models.DateField(null=True, blank=True)
     ASSET_LOCKER = "locker"
     ASSET_TROLLEY = "trolley_locker"
     ASSET_E_TROLLEY = "e_trolley_locker"

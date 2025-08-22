@@ -2,7 +2,7 @@
 <html lang="nl">
   <head>
     <meta charset="utf-8" />
-    <title>Factuurvoorbeeld {{ inv.number|default:"(concept)" }}</title>
+    <title>Factuurvoorbeeld {{ invoice.number|default:"(concept)" }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       :root {
@@ -48,7 +48,7 @@
         <div class="h-title">Voorbeeld factuur</div>
         <div>
           <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
-          <a href="/admin/core/invoice/{{ inv.pk }}/change/" class="btn">Terug naar admin</a>
+          <a href="/admin/core/invoice/{{ invoice.pk }}/change/" class="btn">Terug naar admin</a>
         </div>
       </div>
 
@@ -57,7 +57,7 @@
           <div>
             <div class="h-title">
               {{ org.name|default:"Spiegelven Fakturatie" }}
-              {% if inv.number %}{% else %}<span class="badge">CONCEPT</span>{% endif %}
+              {% if invoice.number %}{% else %}<span class="badge">CONCEPT</span>{% endif %}
             </div>
             <div class="muted">
               {% if org.address_line1 %}{{ org.address_line1 }}<br>{% endif %}
@@ -70,11 +70,11 @@
           </div>
           <div class="meta">
             <div>Factuurnummer</div>
-            <strong>{{ inv.number|default:"(nog geen nummer)" }}</strong>
+            <strong>{{ invoice.number|default:"(nog geen nummer)" }}</strong>
             <div>Datum</div>
-            <strong>{{ inv.issue_date|date:"d/m/Y" }}</strong>
+            <strong>{{ invoice.issue_date|date:"d/m/Y" }}</strong>
             <div>Status</div>
-            <strong>{{ inv.get_status_display|default:inv.status }}</strong>
+            <strong>{{ invoice.get_status_display|default:invoice.status }}</strong>
           </div>
         </div>
 
@@ -84,18 +84,18 @@
           <div>
             <div class="box-title">Facturatie aan</div>
             <div>
-              <strong>{{ inv.account.name }}</strong><br>
-              {% if inv.account.street %}{{ inv.account.street }}<br>{% endif %}
-              {% if inv.account.postal_code or inv.account.city %}{{ inv.account.postal_code }} {{ inv.account.city }}<br>{% endif %}
-              {% if inv.account.country %}{{ inv.account.country }}<br>{% endif %}
-              {% if inv.account.vat_number %}BTW: {{ inv.account.vat_number }}<br>{% endif %}
-              {% if inv.account.email %}<span class="muted">{{ inv.account.email }}</span>{% endif %}
+              <strong>{{ invoice.account.name }}</strong><br>
+              {% if invoice.account.street %}{{ invoice.account.street }}<br>{% endif %}
+              {% if invoice.account.postal_code or invoice.account.city %}{{ invoice.account.postal_code }} {{ invoice.account.city }}<br>{% endif %}
+              {% if invoice.account.country %}{{ invoice.account.country }}<br>{% endif %}
+              {% if invoice.account.vat_number %}BTW: {{ invoice.account.vat_number }}<br>{% endif %}
+              {% if invoice.account.email %}<span class="muted">{{ invoice.account.email }}</span>{% endif %}
             </div>
           </div>
           <div>
-            {% if inv.notes %}
+            {% if invoice.notes %}
               <div class="box-title">Opmerkingen</div>
-              <div style="white-space:pre-wrap">{{ inv.notes }}</div>
+              <div style="white-space:pre-wrap">{{ invoice.notes }}</div>
             {% endif %}
           </div>
         </div>

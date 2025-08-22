@@ -102,9 +102,9 @@ class MemberAdmin(admin.ModelAdmin):
 
 @admin.register(MemberAsset)
 class MemberAssetAdmin(admin.ModelAdmin):
-    list_display = ('member', 'asset_type', 'identifier', 'year', 'price_excl', 'vat_rate')
-    list_filter = ('asset_type', 'year')
-    search_fields = ('member__last_name', 'member__first_name', 'identifier')
+    list_display = ("member", "asset_type", "identifier", "active")
+    list_filter = ("asset_type", "active")
+    search_fields = ("member__first_name", "member__last_name", "identifier")
     autocomplete_fields = ('member',)
     ordering = ('-year', 'member')
 
@@ -134,7 +134,7 @@ try:
         model = MemberAsset
         fk_name = "member"
         extra = 0
-        fields = ("asset_type", "identifier", "year")
+        fields = ("asset_type", "identifier", "active")
         verbose_name = "Ledenvoorziening"
         verbose_name_plural = "Ledenvoorzieningen"
 

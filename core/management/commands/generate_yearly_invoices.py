@@ -1,122 +1,170 @@
-from decimal import Decimal
+from datetime import date, timedelta
+from decimal import Decimal, ROUND_HALF_UP
+
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
 from django.db import transaction
-from django.db.models import Prefetch
+from django.utils import timezone
 
 from core.models import (
-    Household,
-    Invoice,
-    InvoiceAccount,
-    InvoiceLine,
-    Member,
-    MemberAsset,
-    Product,
-    YearPlan,
-    YearPlanItem,
+    Household, Member, Invoice, InvoiceLine, YearPlan, YearPlanItem, MemberAsset
 )
 
+# Helpers
+def first_monday(year: int) -> date:
+    d = date(year, 1, 1)
+    # weekday(): Monday=0 ... Sunday=6
+    delta = (7 - d.weekday()) % 7
+    return d + timedelta(days=delta)
+
+def age_on(dob, ref: date) -> int:
+    if not dob:
+        return 0
+    return ref.year - dob.year - ((ref.month, ref.day) < (dob.month, dob.day))
+
+def q2(x) -> Decimal:
+    return (Decimal(x).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
 class Command(BaseCommand):
-    help = "Genereer jaarfacturen op basis van het Jaarplan. Alle prijzen komen UITSLUITEND uit Jaarplan-onderdelen."
+    help = "Genereer jaarfacturen voor alle leden (per gezinshoofd) voor het gegeven jaar."
 
     def add_arguments(self, parser):
-        parser.add_argument("--year", type=int, help="Jaar voor het Jaarplan (bv. 2025). Standaard: huidig jaar.")
-        parser.add_argument("--commit", action="store_true", help="Zonder deze vlag is het een proefrun (niets wordt opgeslagen).")
-
-    def handle(self, *args, **options):
-        year = options.get("year") or timezone.now().year
-        commit = options.get("commit", False)
-
-        try:
-            yp = YearPlan.objects.get(year=year)
-        except YearPlan.DoesNotExist:
-            raise CommandError(f"Geen Jaarplan gevonden voor {year}.")
-
-        def yp_item_for(code: str):
-            try:
-                return YearPlanItem.objects.get(yearplan=yp, code=code)
-            except YearPlanItem.DoesNotExist:
-                return None
-
-        # Prefetch leden + hun voorzieningen
-        households = (
-            Household.objects.all()
-            .select_related("account")
-            .prefetch_related(
-                Prefetch("member_set", queryset=Member.objects.filter(active=True).prefetch_related("memberasset_set"))
-            )
+        parser.add_argument(
+            "--year",
+            type=int,
+            default=timezone.now().year,
+            help="Jaar waarvoor te factureren (default: huidig jaar).",
+        )
+        parser.add_argument(
+            "--commit",
+            action="store_true",
+            help="Pas effectief toe (zonder deze vlag is het een dry-run log).",
         )
 
-        created_invoices = 0
-        preview_invoices = 0
-        total_lines = 0
+    def handle(self, *args, **opts):
+        year = opts["year"]
+        do_commit = opts["commit"]
+
+        try:
+            plan = YearPlan.objects.get(year=year)
+        except YearPlan.DoesNotExist:
+            raise CommandError(f"Geen YearPlan gevonden voor jaar {year}. Maak die eerst aan.")
+
+        # Sla YearPlanItems op in dict per code
+        items = {i.code: i for i in YearPlanItem.objects.filter(yearplan=plan)}
+        ref_date = date(year, 1, 1)
+        issue_dt = first_monday(year)
+
+        created = 0
+        skipped = 0
+
+        # We factureren per gezin (Household). Voor elk gezin: één factuur naar het facturatieaccount.
+        households = Household.objects.all().select_related("account")
+        self.stdout.write(f"Gevonden huishoudens: {households.count()}")
 
         for hh in households:
-            members = list(hh.member_set.all())
-            if not members:
+            # Actieve leden in dit gezin
+            leden = list(Member.objects.filter(household=hh, active=True))
+            if not leden:
+                skipped += 1
                 continue
+
+            # Gezinshoofd + partner (volwassenen)
+            volwassenen = [m for m in leden if m.household_role in ("GEZINSHOOFD", "PARTNER")]
+            kinderen = [m for m in leden if m not in volwassenen]
 
             if not hh.account:
-                self.stdout.write(self.style.WARNING(f"[{hh.name}] Geen facturatieaccount gekoppeld — overgeslagen."))
+                self.stdout.write(f"- SKIP {hh}: geen facturatieaccount")
+                skipped += 1
                 continue
 
-            # Stel de lijnen samen (alleen Jaarplan-prijzen)
-            lines = []
+            # Start conceptfactuur
+            inv = Invoice(account=hh.account, issue_date=issue_dt, doc_type="FACTUUR", status="CONCEPT")
+            lines_to_add = []
 
-            # 1) Ledenvoorzieningen (Soort = code, Nummer = identifier)
-            for m in members:
-                for ass in m.memberasset_set.all():
-                    code = (ass.asset_type or "").strip()
-                    if not code:
-                        self.stdout.write(self.style.WARNING(f"[{hh.name}] Voorziening zonder code — overgeslagen."))
-                        continue
+            def add_by_code(code: str, fallback_desc: str, qty=1, override_price=None):
+                item = items.get(code)
+                if item:
+                    unit = q2(override_price if override_price is not None else item.price_excl)
+                    vat = item.vat_rate
+                    desc = item.description or fallback_desc
+                    lines_to_add.append(dict(description=desc, quantity=qty, unit_price_excl=unit, vat_rate=vat))
+                else:
+                    self.stdout.write(f"  ! ontbrekend YearPlanItem code={code} → lijn overgeslagen")
 
-                    ypi = yp_item_for(code)
-                    if not ypi:
-                        self.stdout.write(self.style.WARNING(f"[{hh.name}] Geen Jaarplan-onderdeel met code '{code}' ({year})."))
-                        continue
+            # 1) Lidgeld volwassenen (Normaal/Flex + individueel/koppel)
+            # Regels:
+            # - "Normaal lid" is wat vroeger "INVEST" heette (we kijken naar membership_mode op leden).
+            # - Als er ≥2 volwassenen zijn, factureren we als koppel; anders individueel.
+            # - Als één van de volwassenen FLEX is → koppel = FLEX.
+            # Let op: 60+/70+ intredegeld is beleidsmatig; dat vangen we met aparte lijnen, niet hier.
+            if volwassenen:
+                if len(volwassenen) >= 2:
+                    is_flex = any(v.membership_mode == "FLEX" for v in volwassenen)
+                    code = "MEMB_FLEX_COUPLE" if is_flex else "MEMB_NORMAL_COUPLE"
+                    add_by_code(code, "Lidgeld koppel")
+                else:
+                    volw = volwassenen[0]
+                    code = "MEMB_FLEX_INDIV" if volw.membership_mode == "FLEX" else "MEMB_NORMAL_INDIV"
+                    add_by_code(code, "Lidgeld individueel")
 
-                    desc = ypi.description or code
-                    if ass.identifier:
-                        desc = f"{desc} – nr. {ass.identifier}"
+            # 2) Kinderen/YA-categorieën (leeftijd op 1 januari)
+            for k in kinderen:
+                a = age_on(k.date_of_birth, ref_date)
+                if a <= 15:
+                    add_by_code("KID_0_15", f"Lidgeld kind t.e.m. 15 jaar: {k.first_name} {k.last_name}")
+                elif a <= 21:
+                    add_by_code("KID_16_21", f"Lidgeld kind t.e.m. 21 jaar: {k.first_name} {k.last_name}")
+                elif a <= 26:
+                    add_by_code("YA_22_26", f"Young Adult 22–26: {k.first_name} {k.last_name}")
+                elif a <= 29:
+                    add_by_code("YA_27_29", f"Young Adult 27–29: {k.first_name} {k.last_name}")
+                elif a <= 35:
+                    add_by_code("YA_30_35", f"Young Adult 30–35: {k.first_name} {k.last_name}")
+                # >35 vallen in volwassenen, die verrekenden we hierboven
 
-                    product = Product.objects.filter(code=code).first()
+            # 3) Federatiebijdrage (via club)
+            for m in leden:
+                if m.federation_via_club:
+                    a = age_on(m.date_of_birth, ref_date)
+                    if a <= 21:
+                        add_by_code("FED_14", f"Federatiebijdrage (GV) {m.first_name} {m.last_name}")
+                    else:
+                        add_by_code("FED_67", f"Federatiebijdrage (GV) {m.first_name} {m.last_name}")
 
-                    lines.append(
-                        InvoiceLine(
-                            product=product,
-                            description=desc,
-                            quantity=1,
-                            unit_price_excl=ypi.price_excl,
-                            vat_rate=ypi.vat_rate,
-                        )
-                    )
+            # 4) Ledenvoorzieningen (kasts, kar, e-kar) voor dit jaar
+            assets = MemberAsset.objects.filter(member__in=leden, active=True)
+            for asset in assets:
+                desc = f"{asset.get_asset_type_display()} — {asset.identifier or ''}".strip()
+                lines_to_add.append(dict(
+                    description=desc,
+                    quantity=1,
+                    unit_price_excl=q2(asset.price_excl),
+                    vat_rate=asset.vat_rate,
+                ))
 
-            # 2) (Optioneel) Lidgelden, federatie, intredegeld
-            # Wil je ook deze uitsluitend via Jaarplan laten lopen, definieer dan in Jaarplan-onderdelen de juiste codes
-            # en plaats hieronder jouw logica die per lid/huishouden de juiste code(s) kiest en steeds ypi.price_excl / ypi.vat_rate gebruikt.
-            # Voor nu: we laten bestaande lidgeldlogica met rust als die elders draait; deze command voegt zeker de voorzieningen toe met Jaarplan-prijzen.
+            # 5) Intredegeld (optioneel): we verwachten YearPlanItem code 'ENTRY_TRANCHE' of 'ENTRY_FULL' met juiste BTW.
+            #    Hoeveelheid & bedrag bepaal je zelf: zet voor elk gezinshoofd desgewenst een apart YearPlanItem met correcte prijs,
+            #    of maak (voor dit jaar) een losse "tranche" als YearPlanItem en gebruik die code hieronder.
+            #    Als je liever automatische verdeling in X schijven wil: zeg het, dan voegen we velden + logica toe via migratie.
+            # Voor nu: als code aanwezig is, voegen we één schijf toe.
+            if items.get("ENTRY_TRANCHE"):
+                add_by_code("ENTRY_TRANCHE", "Intredegeld (jaarlijkse schijf)")
 
-            if not lines:
+            # Skip lege facturen
+            if not lines_to_add:
+                skipped += 1
                 continue
 
-            if commit:
+            if do_commit:
                 with transaction.atomic():
-                    inv = Invoice.objects.create(
-                        account=hh.account,
-                        issue_date=timezone.now().date(),
-                        # laat status/doc_type op default (concept)
-                    )
-                    for ln in lines:
-                        ln.invoice = inv
-                    InvoiceLine.objects.bulk_create(lines)
-                created_invoices += 1
-                total_lines += len(lines)
-                self.stdout.write(self.style.SUCCESS(f"Factuur aangemaakt voor '{hh.name}' met {len(lines)} lijnen."))
+                    inv.save()
+                    for l in lines_to_add:
+                        InvoiceLine.objects.create(invoice=inv, **l)
+                created += 1
+                self.stdout.write(f"+ Factuur aangemaakt voor {hh.name or str(hh.account)}")
             else:
-                preview_invoices += 1
-                total_lines += len(lines)
-                self.stdout.write(f"[PROEFRUN] '{hh.name}': {len(lines)} lijnen (Jaarplan: {year}).")
+                self.stdout.write(f"[DRY-RUN] zou factuur maken voor {hh.name or str(hh.account)} met {len(lines_to_add)} lijnen.")
 
-        msg = f"Klaar. {'Aangemaakt: ' + str(created_invoices) if commit else 'Proef: ' + str(preview_invoices)} facturen, totaal {total_lines} lijnen."
-        self.stdout.write(self.style.SUCCESS(msg))
+        self.stdout.write(self.style.SUCCESS(
+            f"Klaar: aangemaakt={created}, overgeslagen={skipped}, jaar={year}, datum={issue_dt}"
+        ))
