@@ -6,13 +6,9 @@ class CoreConfig(AppConfig):
     verbose_name = "Fakturatie"
 
     def ready(self):
-        # Nummering / signaalhandlers
-        try:
-            from . import numbering  # noqa: F401
-        except Exception:
-            pass
+        from . import numbering  # activeer nummering
 
-        # Modellellenamen NL in admin (zonder migrations)
+        # Zet NL modelnamen in de admin
         def set_names(model_label, enkelvoud, meervoud):
             try:
                 m = apps.get_model("core", model_label)
@@ -34,10 +30,3 @@ class CoreConfig(AppConfig):
         set_names("PricingRule", "Prijsregel", "Prijsregels")
         set_names("MemberAsset", "Ledenvoorziening", "Ledenvoorzieningen")
         set_names("OrganizationProfile", "Organisatieprofiel", "Organisatieprofielen")
-
-        # Laad onze admin-uitbreiding (knop "Genereer jaarfacturen…")
-        try:
-            from . import admin_generate  # noqa: F401
-        except Exception:
-            # Niet blokkeren als er iets mis gaat; admin blijft werken
-            pass

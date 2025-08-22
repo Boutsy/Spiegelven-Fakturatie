@@ -1,18 +1,14 @@
-from django.contrib import admin
-from django.urls import path, include
-from core.print_views import invoice_preview
-from core import views as core_views  # JSON endpoint voor admin-autofill
+from django.urls import path
+from . import print_views, views
 
 urlpatterns = [
-    # JSON endpoint dat admin JS gebruikt (prijzen/btw bij productkeuze)
-    path("admin/core/product_defaults/<int:pk>/", core_views.product_defaults, name="product-defaults"),
+    # Voorbeeld/print van een factuur
+    path("facturen/<int:pk>/voorbeeld/", print_views.invoice_preview, name="invoice_preview"),
 
-    # Admin
-    path("admin/", admin.site.urls),
+    # Gezin → jaar kiezen → conceptfactuur maken
+    path("gezinnen/<int:pk>/genereer/", views.household_generate_invoice, name="household_generate_invoice"),
 
-    # Auth
-    path("accounts/", include("django.contrib.auth.urls")),
-
-    # NIEUW: Factuur-preview
-    path("facturen/<int:pk>/voorbeeld/", invoice_preview, name="invoice_preview"),
+    # Jaarplan → prognose inkomsten (HTML + CSV)
+    path("jaarplan/<int:year>/prognose/", views.yearplan_forecast, name="yearplan_forecast"),
+    path("jaarplan/<int:year>/prognose.csv", views.yearplan_forecast_csv, name="yearplan_forecast_csv"),
 ]

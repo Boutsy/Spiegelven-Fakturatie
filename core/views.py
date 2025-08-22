@@ -1,346 +1,268 @@
-import csv
-import os
-import uuid
-from datetime import datetime
-from typing import Dict, List, Tuple
+from __future__ import annotations
+from dataclasses import dataclass
+from decimal import Decimal
+from typing import List, Optional, Dict, Tuple
+import datetime as dt
 
-from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
-from .models import Member, Household, ImportMapping
+from .models import (
+    Household, Member, MemberAsset, YearPlan, YearPlanItem,
+    Invoice, InvoiceLine, InvoiceAccount,
+)
 
-# -------- Helper: veilige temp-map ----------
-TMP_DIR = os.path.join(settings.BASE_DIR, "tmp")
-os.makedirs(TMP_DIR, exist_ok=True)
+# ---------------------------
+# Helpers
+# ---------------------------
 
-# -------- Welke velden van Member ondersteunen we? ----------
-# key = modelveld; value = label dat je in de UI ziet
-MEMBER_FIELDS: Dict[str, str] = {
-    "first_name": "Voornaam",
-    "last_name": "Naam",
-    "email": "E-mail",
-    "phone": "Telefoon",
-    "street": "Straat",
-    "postal_code": "Postcode",
-    "city": "Gemeente",
-    "country": "Land",
-    "date_of_birth": "Geboortedatum",
-    "membership_mode": "Lidmaatschapsmodus (investment/flex)",
-    "federation_via_club": "Federatie via club (ja/nee)",
-    "active": "Actief (ja/nee)",
-    # virtuele velden voor koppelingen:
-    "household_name": "Gezinsnaam (maakt/gebruikt Household)",
-    "household_role": "Gezinsrol (head/partner/child/other)",
-}
+def first_monday_of_year(year: int) -> dt.date:
+    d = dt.date(year, 1, 1)
+    # maandag = 0
+    offset = (7 - d.weekday()) % 7
+    return d + dt.timedelta(days=offset)
 
-# -------- Hulpfuncties ----------
-def _try_decode(raw: bytes) -> str:
-    """Probeer UTF-8 (met BOM) en val terug op latin-1."""
+def get_yearplan_item(year: int, code: str) -> Optional[YearPlanItem]:
     try:
-        return raw.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        return raw.decode("latin-1", errors="ignore")
+        return YearPlanItem.objects.get(year=year, code=code)
+    except YearPlanItem.DoesNotExist:
+        return None
 
-def _read_csv(filepath: str) -> Tuple[List[str], List[Dict[str, str]]]:
-    """Lees CSV en geef (headers, rows) terug."""
-    with open(filepath, "rb") as f:
-        text = _try_decode(f.read())
-    sniffer = csv.Sniffer()
-    dialect = sniffer.sniff(text.splitlines()[0] if text.splitlines() else ",")
-    reader = csv.DictReader(text.splitlines(), dialect=dialect)
-    headers = reader.fieldnames or []
-    rows = [row for row in reader]
-    return headers, rows
+@dataclass
+class DraftLine:
+    description: str
+    quantity: Decimal
+    unit_price_excl: Decimal
+    vat_rate: Decimal
+    product_id: Optional[int] = None
 
-def _guess_mapping(headers: List[str]) -> Dict[str, str]:
-    """Eenvoudige gok: match op lowercase zonder spaties/accents."""
-    import re
-    def norm(s: str) -> str:
-        s = s.lower().strip()
-        s = s.replace("é", "e").replace("è", "e").replace("ê", "e").replace("à", "a").replace("ä", "a").replace("ö","o")
-        return re.sub(r"[^a-z0-9]+", "", s)
+def age_on(member: Member, on_date: dt.date) -> int:
+    if not member.date_of_birth:
+        return 200  # geen DOB? behandel als volwassen
+    b = member.date_of_birth
+    return on_date.year - b.year - ((on_date.month, on_date.day) < (b.month, b.day))
 
-    norm_headers = {norm(h): h for h in headers}
-    candidates = {
-        "first_name": ["voornaam", "firstname", "first"],
-        "last_name": ["naam", "achternaam", "lastname", "last"],
-        "email": ["email", "e-mailadres", "mail"],
-        "phone": ["telefoon", "gsm", "phone", "mobile"],
-        "street": ["straat", "address", "adres", "adreslijn1", "line1"],
-        "postal_code": ["postcode", "zip", "postnr", "postalcode"],
-        "city": ["gemeente", "stad", "city", "plaats"],
-        "country": ["land", "country"],
-        "date_of_birth": ["geboortedatum", "dob", "birthdate", "geboren"],
-        "membership_mode": ["membershipmode", "mode", "lidmaatschap", "flexinvestment"],
-        "federation_via_club": ["federatieviaclub", "gvvia", "gv", "federation"],
-        "active": ["actief", "active"],
-        "household_name": ["gezin", "gezinshoofd", "household", "familie"],
-        "household_role": ["gezinsrol", "rol", "role"],
+def collect_asset_lines(year: int, members: List[Member]) -> Tuple[List[DraftLine], List[str]]:
+    """
+    Vertaalt MemberAsset → YearPlanItem via codes.
+    Verwachte YearPlanItem codes (pas aan in het jaarplan):
+      - VESTIAIREKAST
+      - KARKAST
+      - EKARKAST
+    """
+    code_map = {
+        "VESTIAIRE": "VESTIAIREKAST",
+        "KAR": "KARKAST",
+        "E_KAR": "EKARKAST",
     }
-    mapping = {}
-    for field, opts in candidates.items():
-        for opt in opts:
-            if norm(opt) in norm_headers:
-                mapping[field] = norm_headers[norm(opt)]
-                break
-    return mapping
+    warnings: List[str] = []
+    out: List[DraftLine] = []
 
-def _parse_bool(v: str) -> bool | None:
-    if v is None: return None
-    v = str(v).strip().lower()
-    if v in {"1", "ja", "true", "y", "yes"}: return True
-    if v in {"0", "nee", "false", "n", "no"}: return False
-    return None
-
-def _parse_date(v: str):
-    if not v: return None
-    v = v.strip()
-    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%m/%d/%Y", "%d.%m.%Y"):
-        try:
-            return datetime.strptime(v, fmt).date()
-        except ValueError:
+    assets = MemberAsset.objects.filter(member__in=members, active=True)
+    for a in assets:
+        key = (a.asset_type or "").upper()
+        target_code = code_map.get(key)
+        if not target_code:
+            warnings.append(f"Onbekende voorziening '{a.asset_type}' – voeg mapping toe.")
             continue
-    return None
+        ypi = get_yearplan_item(year, target_code)
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: code={target_code} ({year})")
+            continue
+        out.append(DraftLine(
+            description=ypi.description or target_code,
+            quantity=Decimal("1"),
+            unit_price_excl=ypi.price_excl or Decimal("0"),
+            vat_rate=ypi.vat_rate or Decimal("21"),
+        ))
+    return out, warnings
 
-def _norm_membership_mode(v: str) -> str | None:
-    if not v: return None
-    v = v.strip().lower()
-    if v.startswith("inv"): return "investment"
-    if v.startswith("flex"): return "flex"
-    return None
+def collect_membership_and_federation_lines(year: int, household: Household) -> Tuple[List[DraftLine], List[str]]:
+    """
+    Lidgelden + federatiebijdrage op basis van leeftijd en gezinssamenstelling.
+    Vereiste YearPlanItem codes (pas aan aan je jaarplan):
+      - LID_INDIV
+      - LID_KOPPEL
+      - KID_U15
+      - KID_U21
+      - YA_22_26
+      - YA_27_29
+      - YA_30_35
+      - FED_14
+      - FED_67
+    """
+    ref_date = dt.date(year, 1, 1)
+    members = list(Member.objects.filter(household=household, active=True))
+    warnings: List[str] = []
+    lines: List[DraftLine] = []
 
-def _household_role(v: str) -> str | None:
-    if not v: return None
-    v = v.strip().lower()
-    if v.startswith("hoof"): return "head"
-    if v.startswith("part") or v.startswith("partner"): return "partner"
-    if v.startswith("kind") or v.startswith("child"): return "child"
-    return "other"
+    # Bepaal volwassenen (head/partner) en jongeren
+    adults = [m for m in members if age_on(m, ref_date) >= 30]  # ruwe cut-off voor "volwassen"
+    ya_22_26 = [m for m in members if 22 <= age_on(m, ref_date) <= 26]
+    ya_27_29 = [m for m in members if 27 <= age_on(m, ref_date) <= 29]
+    ya_30_35 = [m for m in members if 30 <= age_on(m, ref_date) <= 35]
+    kids_u15 = [m for m in members if age_on(m, ref_date) <= 15]
+    kids_u21 = [m for m in members if 16 <= age_on(m, ref_date) <= 21]
 
-# -------- Views ----------
-@login_required
-def dashboard(request: HttpRequest) -> HttpResponse:
-    return render(request, "dashboard.html", {})
-
-@login_required
-def import_upload(request: HttpRequest) -> HttpResponse:
-    # reset sessie
-    for k in ("csv_path", "csv_headers", "import_mapping", "unique_by"):
-        request.session.pop(k, None)
-
-    if request.method == "POST":
-        f = request.FILES.get("csvfile")
-        if not f:
-            messages.error(request, "Kies een CSV-bestand.")
-            return redirect("import_upload")
-        ext = os.path.splitext(f.name)[1].lower()
-        if ext not in (".csv", ".txt"):
-            messages.error(request, "Alleen .csv of .txt is toegestaan.")
-            return redirect("import_upload")
-        dest = os.path.join(TMP_DIR, f"import_{uuid.uuid4().hex}.csv")
-        with open(dest, "wb") as out:
-            for chunk in f.chunks():
-                out.write(chunk)
-        headers, _ = _read_csv(dest)
-        request.session["csv_path"] = dest
-        request.session["csv_headers"] = headers
-        return redirect("import_map")
-
-    saved_maps = ImportMapping.objects.filter(model="Member").order_by("name")
-    return render(request, "import/upload.html", {"saved_maps": saved_maps})
-
-@login_required
-def import_map(request: HttpRequest) -> HttpResponse:
-    csv_path = request.session.get("csv_path")
-    headers = request.session.get("csv_headers") or []
-    if not csv_path or not os.path.exists(csv_path):
-        messages.error(request, "Geen geüpload CSV-bestand gevonden. Start opnieuw.")
-        return redirect("import_upload")
-
-    initial_map = _guess_mapping(headers)
-
-    # Als user een bestaande mapping kiest/opslaat
-    if request.method == "POST":
-        # Laden van bestaande mapping
-        load_id = request.POST.get("load_mapping_id")
-        if load_id:
-            try:
-                im = ImportMapping.objects.get(pk=load_id)
-                mapping: Dict[str, str] = im.mapping or {}
-            except ImportMapping.DoesNotExist:
-                mapping = {}
+    # Lidgeld: koppel vs individueel (normaal lid)
+    if len(adults) >= 2:
+        ypi = get_yearplan_item(year, "LID_KOPPEL")
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: LID_KOPPEL ({year})")
         else:
-            # Lezen van form selects
-            mapping = {}
-            for field in MEMBER_FIELDS.keys():
-                col = request.POST.get(f"map_{field}") or ""
-                if col:
-                    mapping[field] = col
+            lines.append(DraftLine(ypi.description or "Lidgeld koppel", Decimal("1"),
+                                   ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("6")))
+    elif len(adults) >= 1:
+        ypi = get_yearplan_item(year, "LID_INDIV")
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: LID_INDIV ({year})")
+        else:
+            lines.append(DraftLine(ypi.description or "Lidgeld individueel", Decimal("1"),
+                                   ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("6")))
 
-            # Optioneel opslaan
-            save_name = (request.POST.get("save_mapping_name") or "").strip()
-            if save_name:
-                obj, _ = ImportMapping.objects.get_or_create(
-                    name=save_name,
-                    defaults={"model": "Member", "mapping": mapping},
-                )
-                if _ is False:
-                    obj.model = "Member"
-                    obj.mapping = mapping
-                    obj.save()
+    # Jongeren / YA opsommen per persoon
+    def add_per_person(members_list: List[Member], code: str, fallback_desc: str):
+        nonlocal lines, warnings
+        if not members_list:
+            return
+        ypi = get_yearplan_item(year, code)
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: {code} ({year})")
+            return
+        for _ in members_list:
+            lines.append(DraftLine(ypi.description or fallback_desc, Decimal("1"),
+                                   ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("6")))
 
-        request.session["import_mapping"] = mapping
-        return redirect("import_confirm")
+    add_per_person(kids_u15, "KID_U15", "Kids t.e.m. 15")
+    add_per_person(kids_u21, "KID_U21", "Kids t.e.m. 21")
+    add_per_person(ya_22_26, "YA_22_26", "YA 22–26")
+    add_per_person(ya_27_29, "YA_27_29", "YA 27–29")
+    add_per_person(ya_30_35, "YA_30_35", "YA 30–35")
 
-    saved_maps = ImportMapping.objects.filter(model="Member").order_by("name")
-    return render(
-        request,
-        "import/map.html",
-        {
-            "headers": headers,
-            "member_fields": MEMBER_FIELDS,
-            "initial_map": initial_map,
-            "saved_maps": saved_maps,
-        },
-    )
+    # Federatiebijdrage per persoon (14€ t/m 21 jaar, anders 67€)
+    for m in members:
+        code = "FED_14" if age_on(m, ref_date) <= 21 else "FED_67"
+        ypi = get_yearplan_item(year, code)
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: {code} ({year})")
+            continue
+        lines.append(DraftLine(ypi.description or "Federatiebijdrage", Decimal("1"),
+                               ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("0")))
+    return lines, warnings
 
-@login_required
-def import_confirm(request: HttpRequest) -> HttpResponse:
-    csv_path = request.session.get("csv_path")
-    mapping: Dict[str, str] = request.session.get("import_mapping") or {}
-    if not csv_path or not os.path.exists(csv_path) or not mapping:
-        messages.error(request, "CSV of mapping ontbreekt. Start opnieuw.")
-        return redirect("import_upload")
+def build_household_draft(year: int, household: Household) -> Tuple[List[DraftLine], List[str]]:
+    """
+    Maakt conceptregels o.b.v. Jaarplan + Ledenvoorzieningen.
+    Alles via YearPlanItem-codes zoals hierboven benoemd.
+    """
+    members = list(Member.objects.filter(household=household, active=True))
+    lines1, warn1 = collect_membership_and_federation_lines(year, household)
+    lines2, warn2 = collect_asset_lines(year, members)
+    return (lines1 + lines2), (warn1 + warn2)
 
-    headers, rows = _read_csv(csv_path)
-    preview = []
-    for row in rows[:20]:  # eerste 20
-        mapped = {f: row.get(col) for f, col in mapping.items()}
-        preview.append(mapped)
+# ---------------------------
+# Views
+# ---------------------------
+
+@staff_member_required
+def household_generate_invoice(request, pk: int):
+    household = get_object_or_404(Household, pk=pk)
+    years = list(YearPlan.objects.order_by("-year").values_list("year", flat=True))
+    if not years:
+        messages.error(request, "Geen Jaarplan gevonden. Maak eerst een Jaarplan aan.")
+        return redirect("/admin/core/yearplan/")
 
     if request.method == "POST":
-        unique_by = request.POST.get("unique_by") or "email"
-        request.session["unique_by"] = unique_by
-        return redirect("import_run")
+        year = int(request.POST.get("year"))
+        issue_date = first_monday_of_year(year)
+        with transaction.atomic():
+            account: InvoiceAccount = household.account
+            if not account:
+                messages.error(request, "Geen facturatieaccount gekoppeld aan dit gezin.")
+                return redirect("/admin/core/household/")
+            inv = Invoice.objects.create(account=account, issue_date=issue_date)
+            draft_lines, warns = build_household_draft(year, household)
+            for dl in draft_lines:
+                InvoiceLine.objects.create(
+                    invoice=inv,
+                    description=dl.description,
+                    quantity=dl.quantity,
+                    unit_price_excl=dl.unit_price_excl,
+                    vat_rate=dl.vat_rate,
+                )
+        for w in set(warns):
+            messages.warning(request, w)
+        return HttpResponseRedirect(reverse("invoice_preview", args=[inv.pk]))
 
-    return render(
-        request,
-        "import/confirm.html",
-        {"mapping": mapping, "preview": preview, "member_fields": MEMBER_FIELDS},
-    )
+    # GET → keuzescherm
+    ctx = {"household": household, "years": years}
+    return render(request, "household/generate.html", ctx)
 
-@login_required
-def import_run(request: HttpRequest) -> HttpResponse:
-    csv_path = request.session.get("csv_path")
-    mapping: Dict[str, str] = request.session.get("import_mapping") or {}
-    unique_by = request.session.get("unique_by") or "email"
+@staff_member_required
+def yearplan_forecast(request, year: int):
+    # Doorloop alle gezinnen en tel lijnen zoals in draft (zonder facturen te maken)
+    households = Household.objects.all().select_related("account")
+    rows: Dict[Tuple[str, Decimal], Dict[str, Decimal]] = {}
+    total_excl = Decimal("0")
+    total_vat = Decimal("0")
 
-    if not csv_path or not os.path.exists(csv_path) or not mapping:
-        messages.error(request, "CSV of mapping ontbreekt. Start opnieuw.")
-        return redirect("import_upload")
+    for hh in households:
+        draft, _warns = build_household_draft(year, hh)
+        for dl in draft:
+            key = (dl.description, dl.vat_rate or Decimal("0"))
+            r = rows.setdefault(key, {"qty": Decimal("0"), "excl": Decimal("0")})
+            r["qty"] += dl.quantity or Decimal("1")
+            r["excl"] += (dl.unit_price_excl or Decimal("0")) * (dl.quantity or Decimal("1"))
 
-    headers, rows = _read_csv(csv_path)
+    data = []
+    for (desc, vat), agg in sorted(rows.items(), key=lambda x: (str(x[0][0]), x[0][1])):
+        vat_amount = agg["excl"] * (vat or 0) / 100
+        incl = agg["excl"] + vat_amount
+        total_excl += agg["excl"]
+        total_vat += vat_amount
+        data.append({
+            "description": desc,
+            "vat_rate": vat,
+            "quantity": agg["qty"],
+            "total_excl": agg["excl"],
+            "total_vat": vat_amount,
+            "total_incl": incl,
+        })
 
-    created = 0
-    updated = 0
-    skipped = 0
-    errors = []
+    ctx = {
+        "year": year,
+        "rows": data,
+        "grand_excl": total_excl,
+        "grand_vat": total_vat,
+        "grand_incl": total_excl + total_vat,
+    }
+    return render(request, "yearplan/forecast.html", ctx)
 
-    @transaction.atomic
-    def _import():
-        nonlocal created, updated, skipped
-        for idx, row in enumerate(rows, start=2):  # +1 voor header, dus data vanaf 2
-            try:
-                # Bepaal zoeksleutel
-                member_obj = None
-                if unique_by == "email":
-                    email = (row.get(mapping.get("email", ""), "") or "").strip().lower()
-                    if email:
-                        member_obj = Member.objects.filter(email__iexact=email).first()
-                else:
-                    fn = (row.get(mapping.get("first_name", ""), "") or "").strip()
-                    ln = (row.get(mapping.get("last_name", ""), "") or "").strip()
-                    dob_raw = row.get(mapping.get("date_of_birth", ""), "")
-                    dob = _parse_date(dob_raw) if dob_raw else None
-                    qs = Member.objects.filter(first_name__iexact=fn, last_name__iexact=ln)
-                    if dob:
-                        qs = qs.filter(date_of_birth=dob)
-                    member_obj = qs.first()
-
-                # Nieuw of updaten
-                is_new = False
-                if member_obj is None:
-                    member_obj = Member()
-                    is_new = True
-
-                # Velden mappen
-                for field in MEMBER_FIELDS.keys():
-                    if field in ("household_name", "household_role"):
-                        continue  # later
-                    col = mapping.get(field)
-                    if not col:
-                        continue
-                    val = row.get(col)
-                    if field == "date_of_birth":
-                        val = _parse_date(val)
-                    elif field == "federation_via_club" or field == "active":
-                        b = _parse_bool(val)
-                        if b is not None:
-                            val = b
-                        else:
-                            val = False if val in (None, "",) else member_obj.__dict__.get(field, False)
-                    elif field == "membership_mode":
-                        mm = _norm_membership_mode(val)
-                        if mm:
-                            val = mm
-                        else:
-                            continue
-                    if val is not None:
-                        setattr(member_obj, field, val)
-
-                # Household
-                hh_name_col = mapping.get("household_name")
-                if hh_name_col:
-                    hh_name = (row.get(hh_name_col) or "").strip()
-                    if hh_name:
-                        hh, _ = Household.objects.get_or_create(name=hh_name)
-                        member_obj.household = hh
-                hh_role_col = mapping.get("household_role")
-                if hh_role_col:
-                    member_obj.household_role = _household_role(row.get(hh_role_col) or "")
-
-                member_obj.save()
-                created += 1 if is_new else 1 if member_obj.pk else 0
-                # “updated” tellen we als hij bestond en door ons gewijzigd is — voor nu simpel:
-                if not is_new:
-                    updated += 1
-
-            except Exception as e:
-                skipped += 1
-                errors.append(f"Rij {idx}: {e}")
-
-    _import()
-
-    # Opruimen temp
-    try:
-        os.remove(csv_path)
-    except Exception:
-        pass
-    for k in ("csv_path", "csv_headers", "import_mapping", "unique_by"):
-        request.session.pop(k, None)
-
-    return render(
-        request,
-        "import/run.html",
-        {
-            "created": created,
-            "updated": updated,
-            "skipped": skipped,
-            "errors": errors[:200],
-        },
-    )
+@staff_member_required
+def yearplan_forecast_csv(request, year: int):
+    # Zelfde berekening als HTML, maar CSV export
+    from io import StringIO
+    import csv
+    response = yearplan_forecast(request, year)  # render berekent data in ctx
+    ctx = response.context_data  # type: ignore[attr-defined]
+    output = StringIO()
+    writer = csv.writer(output, delimiter=";")
+    writer.writerow(["Omschrijving", "BTW %", "Aantal", "Totaal excl", "BTW bedrag", "Totaal incl"])
+    for r in ctx["rows"]:
+        writer.writerow([
+            r["description"],
+            f"{r['vat_rate']}",
+            f"{r['quantity']}",
+            f"{r['total_excl']:.2f}",
+            f"{r['total_vat']:.2f}",
+            f"{r['total_incl']:.2f}",
+        ])
+    out = output.getvalue()
+    resp = HttpResponse(out, content_type="text/csv; charset=utf-8")
+    resp["Content-Disposition"] = f'attachment; filename="prognose_{year}.csv"'
+    return resp
