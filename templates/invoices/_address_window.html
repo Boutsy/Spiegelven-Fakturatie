@@ -1,0 +1,17 @@
+{% if invoice and invoice.account %}
+{% with acc=invoice.account %}
+<style>
+  .sv-address{font-size:12px;line-height:1.35;margin:10px 0 18px 0}
+  .sv-address.sv-envelop .to{position:fixed; right: var(--addr-right,19mm); top: var(--addr-top,95mm); width:110mm; height:40mm}
+  .sv-guides .to{outline:1px dashed #59f; outline-offset:-1px}
+</style>
+<div class="sv-address {% if request.GET.envelop == 'venster' %}sv-envelop{% endif %}{% if request.GET.guides %} sv-guides{% endif %}">
+  <div class="to" style="--addr-right: {{ request.GET.addr_right|default:'19mm' }}; --addr-top: {{ request.GET.addr_top|default:'95mm' }};">
+    <strong>{{ acc.name }}</strong><br>
+    {% if acc.street %}{{ acc.street }}<br>{% endif %}
+    {% if acc.postal_code or acc.city %}{{ acc.postal_code }} {{ acc.city }}<br>{% endif %}
+    {% if acc.country %}{{ acc.country }}{% endif %}
+  </div>
+</div>
+{% endwith %}
+{% endif %}
