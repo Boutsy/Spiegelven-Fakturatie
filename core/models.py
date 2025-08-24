@@ -50,6 +50,7 @@ class Household(models.Model):
         return self.name
 
 class Member(models.Model):
+    billing_account = models.ForeignKey('InvoiceAccount', null=True, blank=True, on_delete=models.SET_NULL, related_name='members_billed')
     household_head = models.ForeignKey(
         "self",
         null=True,
