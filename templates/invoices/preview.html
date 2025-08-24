@@ -44,7 +44,18 @@
         .card { box-shadow:none; border-color:#ddd; }
       }
     </style>
-  </head>
+  
+<style media="print">
+  /* titel links verbergen in print */
+  .brand, .invoice-title { display: none !important; }
+
+  /* meta (Factuurnummer/Datum/Status) links zetten */
+  #invoice-meta { float: left; text-align: left; margin: 0; }
+
+  /* "Facturatie aan" en de details eronder verbergen in print */
+  .billto-title, .billto-title + div { display: none !important; }
+</style>
+</head>
   <body>
     <div class="wrap">
       <div class="toolbar">
@@ -71,7 +82,7 @@
               {% if org.enterprise_number %}{% if org.vat_number %} · {% endif %}Ond.nr: {{ org.enterprise_number }}{% endif %}
             </div>
           </div>
-          <div class="meta">
+          <div class="meta" id="invoice-meta">
             <div>Factuurnummer</div>
             <strong>{{ invoice.number|default:"(nog geen nummer)" }}</strong>
             <div>Datum</div>
@@ -85,7 +96,7 @@
 
         <div class="grid">
           <div>
-            <div class="box-title">Facturatie aan</div>
+            <div class="box-title billto-title">Facturatie aan</div>
             <div>
               <strong>{{ invoice.account.name }}</strong><br>
               {% if invoice.account.street %}{{ invoice.account.street }}<br>{% endif %}
