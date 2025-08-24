@@ -1,5 +1,6 @@
 {% load static %}
 {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}{% include "invoices/_letterhead.html" %}{% endif %}
+{% include "invoices/_address_window.html" %}
 <!doctype html>
 <html lang="nl">
   <head>
