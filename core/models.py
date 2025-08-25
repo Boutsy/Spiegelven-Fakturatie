@@ -18,6 +18,8 @@ class OrganizationProfile(models.Model):
     country = models.CharField(max_length=100, default="Belgium", blank=True)
     iban = models.CharField(max_length=34, blank=True)
     bic = models.CharField(max_length=11, blank=True)
+    email = models.EmailField(blank=True)
+    website = models.URLField(blank=True)
     vat_number = models.CharField(max_length=20, blank=True)  # BTW
     enterprise_number = models.CharField(max_length=20, blank=True)
     default_print_mode = models.CharField(max_length=20, choices=PRINT_CHOICES, default=PRINT_WITH_LOGO_FOOTER)

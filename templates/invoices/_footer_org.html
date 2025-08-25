@@ -1,0 +1,32 @@
+{% with
+  name=org.name
+  line1=org.address_line1
+  line2=org.address_line2
+  zip=org.postal_code
+  city=org.city
+  country=org.country
+  iban=org.iban
+  bic=org.bic
+  vat=org.vat_number
+  email=org.email
+  website=org.website
+%}
+<div class="invoice-footer">
+  <div class="wrap" style="padding:0 16px">
+    <div class="footer-row">
+      {% if name %}<strong>{{ name }}</strong>{% endif %}
+      {% if line1 %}<span class="footer-sep">·</span><span>{{ line1 }}</span>{% endif %}
+      {% if line2 %}<span class="footer-sep">·</span><span>{{ line2 }}</span>{% endif %}
+      {% if zip or city %}<span class="footer-sep">·</span><span>{{ zip }} {{ city }}</span>{% endif %}
+      {% if country %}<span class="footer-sep">·</span><span>{{ country }}</span>{% endif %}
+    </div>
+    <div class="footer-row" style="margin-top:4px">
+      {% if vat %}<span>BTW: {{ vat }}</span>{% endif %}
+      {% if iban %}<span class="footer-sep">·</span><span>IBAN: {{ iban }}</span>{% endif %}
+      {% if bic %}<span class="footer-sep">·</span><span>BIC: {{ bic }}</span>{% endif %}
+      {% if email %}<span class="footer-sep">·</span><span>{{ email }}</span>{% endif %}
+      {% if website %}<span class="footer-sep">·</span><span>{{ website }}</span>{% endif %}
+    </div>
+  </div>
+</div>
+{% endwith %}
