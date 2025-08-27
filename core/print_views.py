@@ -56,6 +56,10 @@ def invoice_preview(request, pk):
         summary[rate][0] += line_excl
         summary[rate][1] += vat_amount
         summary[rate][2] += line_incl
+        # << NIEUW: zorg dat de template deze velden ziet >>
+        l.line_excl  = line_excl
+        l.vat_amount = vat_amount
+        l.line_incl  = line_incl
 
     vat_summary = [
         {
