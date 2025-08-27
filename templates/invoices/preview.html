@@ -153,15 +153,6 @@
             <div>Status</div>
             <strong>{{ invoice.get_status_display|default:invoice.status }}</strong>
           </div>
-
-          <div class="org-block">
-            {% if org.address_line1 %}{{ org.address_line1 }}<br>{% endif %}
-            {% if org.address_line2 %}{{ org.address_line2 }}<br>{% endif %}
-            {% if org.postal_code or org.city %}{{ org.postal_code }} {{ org.city }}<br>{% endif %}
-            {% if org.country %}{{ org.country }}<br>{% endif %}
-            {% if org.vat_number %}BTW: {{ org.vat_number }}{% endif %}
-            {% if org.enterprise_number %}{% if org.vat_number %} · {% endif %}Ond.nr: {{ org.enterprise_number }}{% endif %}
-          </div>
         </div>
 
         <div class="notes-screen">
@@ -200,12 +191,12 @@
             {% for l in lines %}
               <tr>
                 <td>{{ l.description }}</td>
-                <td class="num">{{ l.quantity }}</td>
-                <td class="num">{{ l.unit_price_excl }}</td>
+                <td class="num">{{ l.quantity|floatformat:"0" }}</td>
+                <td class="num">{{ l.unit_price_excl|floatformat:"2" }}</td>
                 <td class="num">{{ l.vat_rate }}</td>
-                <td class="num">{{ l.line_excl }}</td>
-                <td class="num">{{ l.vat_amount }}</td>
-                <td class="num">{{ l.line_incl }}</td>
+                <td class="num">{{ l.line_excl|floatformat:"2" }}</td>
+                <td class="num">{{ l.vat_amount|floatformat:"2" }}</td>
+                <td class="num">{{ l.line_incl|floatformat:"2" }}</td>
               </tr>
             {% empty %}
               <tr>
@@ -232,15 +223,23 @@
             {% for r in vat_summary %}
             <tr>
               <td>{{ r.rate }}</td>
-              <td class="num">{{ r.excl }}</td>
-              <td class="num">{{ r.vat }}</td>
-              <td class="num">{{ r.incl }}</td>
+              <td class="num">{{ r.excl|floatformat:"2" }}</td>
+              <td class="num">{{ r.vat|floatformat:"2" }}</td>
+              <td class="num">{{ r.incl|floatformat:"2" }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
       {% endif %}
+
+      <div class="totals">
+        <div class="tbox">
+          <div class="row"><div class="muted">Totaal excl.</div><div>{{ totals.excl }}</div></div>
+          <div class="row"><div class="muted">BTW</div><div>{{ totals.vat }}</div></div>
+          <div class="row total"><div>Totaal incl.</div><div>{{ totals.incl }}</div></div>
+        </div>
+      </div>
 
       {% if payment.iban or payment.ogm %}
       <div class="paycall">

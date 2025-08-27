@@ -1,3 +1,4 @@
+from decimal import Decimal, ROUND_HALF_UP
 from decimal import Decimal
 from django.shortcuts import render, get_object_or_404
 from .models import Invoice, OrganizationProfile
@@ -82,5 +83,36 @@ def invoice_preview(request, pk):
         "vat_summary": vat_summary,
         "org": org,
         "payment": payment,
+    }
+
+    # helper voor afronding op 2 decimalen
+    Q2 = Decimal("0.01")
+    def q2(x):
+        return (Decimal(x)).quantize(Q2, rounding=ROUND_HALF_UP)
+
+    # pak de lijnen: eerst uit ctx, anders via het model
+    line_objs = list(ctx.get("lines", []))
+    if not line_objs:
+        try:
+            line_objs = list(invoice.invoiceline_set.all())
+        except Exception:
+            line_objs = list(getattr(invoice, "lines", []).all()) if hasattr(invoice, "lines") else []
+
+    tot_excl = Decimal("0")
+    tot_vat  = Decimal("0")
+
+    for l in line_objs:
+        qty   = Decimal(l.quantity)
+        unit  = Decimal(l.unit_price_excl)
+        rate  = Decimal(l.vat_rate)  # b.v. 21 voor 21%
+        line_excl = q2(qty * unit)
+        line_vat  = q2(line_excl * rate / Decimal("100"))
+        tot_excl += line_excl
+        tot_vat  += line_vat
+
+    ctx["totals"] = {
+        "excl": q2(tot_excl),
+        "vat":  q2(tot_vat),
+        "incl": q2(tot_excl + tot_vat),
     }
     return render(request, "invoices/preview.html", ctx)
