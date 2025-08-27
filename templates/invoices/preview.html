@@ -23,6 +23,24 @@
     }
 
     /* Kop */
+
+    /* Meta-balk boven de opmerking */
+    .meta-bar{
+      display:grid;
+      grid-template-columns: 1fr auto 1fr; /* links | midden | rechts */
+      align-items:center;
+      column-gap:12px;
+      margin: -6px 0 10px;   /* compact */
+      font-size:13px;
+    }
+    .meta-bar .left   { text-align:left;  }
+    .meta-bar .center { text-align:center; font-weight:700; }
+    .meta-bar .right  { text-align:right; }
+
+    @media print{
+      .meta-bar{ font-size:12px; }
+    }
+
     .head { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
     .h-left { flex: 1 1 auto; }
     .meta { color:var(--muted); }
@@ -80,6 +98,32 @@
         linear-gradient(var(--line),var(--line)) 0 4px/100% 1px no-repeat;
     }
 .note-body{ white-space:pre-wrap; }
+
+    /* Meta-box boven opmerking (zelfde breedte als note-box) */
+    .meta-box{
+      margin: -6px 0 12px;        /* klein beetje dichter tegen de hr */
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+      padding:10px 12px;
+    }
+    .meta-grid{
+      display:grid;
+      grid-template-columns: 1fr auto 1fr; /* links | midden | rechts */
+      align-items:center;
+      column-gap:12px;
+      font-size:13px;
+    }
+    .meta-cell{ display:flex; gap:6px; align-items:baseline; }
+    .meta-cell .label{ color:var(--muted); font-weight:600; }
+    .meta-cell .value{ font-weight:700; }
+    .meta-grid .left   { justify-content:flex-start; }
+    .meta-grid .center { justify-content:center;   text-align:center; }
+    .meta-grid .right  { justify-content:flex-end; text-align:right; }
+
+    @media print{
+      .meta-grid{ font-size:12px; }
+    }
 
     /* FOOTER — hard zichtbaar maken */
     .invoice-footer{
@@ -175,20 +219,24 @@
         <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo">
       {% endif %}
 
-      <div class="head">
-        <div class="h-left">
-          <div class="meta" id="invoice-meta">
-            <div>Factuurnummer</div>
-            <strong>{{ invoice.number|default:"(nog geen nummer)" }}</strong>
-            <div>Datum</div>
-            <strong>{{ invoice.issue_date|date:"d/m/Y" }}</strong>
-            <div>Status</div>
-            <strong>{{ invoice.get_status_display|default:invoice.status }}</strong>
+      <hr>
+
+      <div class="meta-box">
+        <div class="meta-grid">
+          <div class="meta-cell left">
+            <span class="label">Datum:</span>
+            <span class="value">{{ invoice.issue_date|date:"d/m/Y" }}</span>
+          </div>
+          <div class="meta-cell center">
+            <span class="label">Factuurnummer:</span>
+            <span class="value">{{ invoice.number|default:"(nog geen nummer)" }}</span>
+          </div>
+          <div class="meta-cell right">
+            <span class="label">Status:</span>
+            <span class="value">{{ invoice.get_status_display|default:invoice.status }}</span>
           </div>
         </div>
       </div>
-
-      <hr>
 
       {% if invoice.notes %}
         <div class="note-box">
