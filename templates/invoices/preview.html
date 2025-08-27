@@ -63,6 +63,24 @@
       letter-spacing:0;      /* was .5px, scheelt breedte */
     }
 
+    /* Opmerking — één box vóór de tabel, met 3 subtiele lijnen */
+    .note-box{
+      margin:14px 0 12px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+      padding:10px 12px;
+    }
+    .note-head{ font-weight:600; margin:0 0 6px; }
+    .note-top{
+      height:6px; margin:2px 0 8px;
+      background:
+        linear-gradient(var(--line),var(--line)) 0 0/100% 1px no-repeat,
+        linear-gradient(var(--line),var(--line)) 0 2px/100% 1px no-repeat,
+        linear-gradient(var(--line),var(--line)) 0 4px/100% 1px no-repeat;
+    }
+.note-body{ white-space:pre-wrap; }
+
     /* FOOTER — hard zichtbaar maken */
     .invoice-footer{
       position: fixed;
@@ -101,8 +119,6 @@
       body { background:white; }
       .card { box-shadow:none; border-color:#ddd; }
       .brand-logo { width:38mm; }
-      .notes-screen { display:none !important; }
-      .notes-print { display:block !important; margin-bottom:8px; }
       .invoice-footer{ bottom: 5mm; }
       /* print: kleiner, gecentreerd, één regel — forceer met !important */
       .paycall{
@@ -112,6 +128,7 @@
         white-space: nowrap !important;
         padding: 6px 8px !important;
       }
+      .notes-print { display:none; }
     }
 
     /* Scherm */
@@ -154,25 +171,17 @@
             <strong>{{ invoice.get_status_display|default:invoice.status }}</strong>
           </div>
         </div>
-
-        <div class="notes-screen">
-          {% if invoice.notes %}
-            <div class="box-title">Opmerking</div>
-            <div style="white-space:pre-wrap; margin-top:12px">{{ invoice.notes }}</div>
-          {% endif %}
-        </div>
       </div>
 
       <hr>
 
-      {# Opmerking voor print (boven de tabel) #}
-      <div class="notes-print">
-        {% if invoice.notes %}
-          <div class="box-title">Opmerking</div>
-          <div style="white-space:pre-wrap">{{ invoice.notes }}</div>
-          <hr>
-        {% endif %}
-      </div>
+      {% if invoice.notes %}
+        <div class="note-box">
+          <div class="note-head">Opmerking</div>
+          <div class="note-top"></div>
+          <div class="note-body">{{ invoice.notes }}</div>
+        </div>
+      {% endif %}
 
       <div class="table">
         <table>
