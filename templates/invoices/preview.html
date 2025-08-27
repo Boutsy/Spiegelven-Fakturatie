@@ -142,6 +142,21 @@
     {% include "invoices/_letterhead.html" %}
   {% endif %}
 
+  {# Forceer adresvenster zichtbaar op scherm bij papier=digitaal #}
+  {% if request.GET.papier|default:"digitaal" == "digitaal" %}
+    <style id="address-screen-override">
+      @media screen{
+        .address-window{
+          display:block !important;
+          visibility:visible !important;
+          opacity:1 !important;
+          z-index:60 !important;      /* boven de kaart/inhoud */
+          pointer-events:none;         /* kliks niet blokkeren */
+        }
+      }
+    </style>
+  {% endif %}
+
   {# Adresvenster (positie & guides geregeld in _address_window.html) #}
   {% include "invoices/_address_window.html" %}
 
