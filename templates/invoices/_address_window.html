@@ -1,0 +1,35 @@
+{% load static %}
+<style>
+  /* Standaard: niet tonen op scherm */
+  .addrwin{ display:none; }
+
+  @media print{
+    .addrwin{
+      position: fixed;
+      /* Positie voor jouw vensterenvelop */
+      left: 113mm;
+      top: 31mm;
+      width: 110mm;
+
+      /* Forceren dat dit BOVEN alles komt en niet weggestyled wordt */
+      display: block !important;
+      visibility: visible !important;
+      z-index: 9999 !important;
+
+      font-size: 15px;
+      line-height: 1.28;
+      /* geen outline/border meer */
+      outline: none !important;
+      background: transparent !important;
+    }
+  }
+</style>
+
+<div class="addrwin">
+  <strong>{{ invoice.account.name }}</strong><br>
+  {% if invoice.account.street %}{{ invoice.account.street }}<br>{% endif %}
+  {% if invoice.account.postal_code or invoice.account.city %}
+    {{ invoice.account.postal_code }} {{ invoice.account.city }}<br>
+  {% endif %}
+  {% if invoice.account.country %}{{ invoice.account.country }}{% endif %}
+</div>

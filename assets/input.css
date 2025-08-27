@@ -1,0 +1,48 @@
+/* assets/input.css (Tailwind v3) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Componenten die altijd aanwezig zijn (onafhankelijk van scan) ---- */
+.btn { @apply inline-flex items-center px-4 py-2 rounded-md border text-sm font-medium; }
+.btn-primary { @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700; }
+.btn-ghost { @apply border-slate-300 bg-white hover:bg-slate-50; }
+
+.card { @apply bg-white rounded-xl shadow-sm border border-slate-200; }
+.card-body { @apply p-6; }
+
+.label { @apply block text-sm font-medium text-slate-700 mb-1; }
+.input { @apply w-full rounded-md border border-slate-300 px-3 py-2 bg-white; }
+
+.table { @apply w-full border-collapse; }
+.table th { @apply text-left border-b border-slate-200 py-2; }
+.table td { @apply border-b border-slate-100 py-2; }
+
+.alert { @apply rounded-md p-3 border; }
+.alert-info { @apply bg-blue-50 border-blue-200 text-blue-800; }
+.alert-warn { @apply bg-amber-50 border-amber-200 text-amber-800; }
+
+/* ---- Basis form-styling (werkt ook zonder extra classes) ---- */
+@layer base {
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="date"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    @apply w-full rounded-md border border-slate-300 px-3 py-2 bg-white;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    @apply align-middle;
+  }
+}
+
+/* Layout utilities die we gebruiken in templates (altijd aanwezig) */
+.page-wrap { @apply max-w-5xl mx-auto p-4 md:p-6; }
+.topbar { @apply bg-white border-b border-slate-200; }
+.topbar-inner { @apply page-wrap flex items-center justify-between; }
+.links a { @apply text-sm; }

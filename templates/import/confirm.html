@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Bevestigen{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-semibold mb-6">Controle & bevestiging</h1>
+
+  <div class="mb-6">
+    <h2 class="font-semibold mb-2">Unieke sleutel voor bestaande leden</h2>
+    <form method="post" class="flex items-center gap-4">
+      {% csrf_token %}
+      <select name="unique_by" class="border rounded p-2">
+        <option value="email">E-mail (aanbevolen)</option>
+        <option value="name_dob">Voornaam + Naam (+ Geboortedatum)</option>
+      </select>
+      <button class="px-4 py-2 rounded bg-slate-900 text-white">Importeren</button>
+      <a href="{% url 'import_map' %}" class="text-slate-600 hover:underline">Kolommen wijzigen</a>
+    </form>
+  </div>
+
+  <div class="rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          {% for f,label in member_fields.items %}<th class="text-left p-2">{{ label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview %}
+          <tr class="border-t">
+            {% for f,label in member_fields.items %}
+              <td class="p-2">{{ row|get_item:f }}</td>
+            {% endfor %}
+          </tr>
+        {% empty %}
+          <tr><td class="p-3 text-slate-500">Geen voorbeeldregels gevonden.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% load static %}

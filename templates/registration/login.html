@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Inloggen · Spiegelven{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto">
+  <div class="card">
+    <div class="card-body">
+      <h1 class="text-lg font-semibold mb-4">Inloggen</h1>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-warn">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for f in form.visible_fields %}
+          <div>
+            <label class="label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+            {{ f }}  {# krijgt basis-styling via @layer base #}
+            {% if f.errors %}<p class="text-sm text-red-600 mt-1">{{ f.errors|striptags }}</p>{% endif %}
+          </div>
+        {% endfor %}
+        <button class="btn btn-primary">Inloggen</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

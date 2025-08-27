@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Import resultaat · Spiegelven{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">Stap 4 — Import resultaat</h1>
+
+{% if dry_run %}
+  <div class="alert alert-warn mb-4"><strong>Dry-run:</strong> er is niets weggeschreven.</div>
+{% endif %}
+{% if saved_mapping_name %}
+  <div class="alert alert-info mb-4">
+    Koppeling <strong>“{{ saved_mapping_name }}”</strong> is opgeslagen.
+  </div>
+{% endif %}
+
+<p class="mb-4"><strong>{{ created }}</strong> nieuw, <strong>{{ updated }}</strong> bijgewerkt.</p>
+
+{% if errors_count %}
+  <div class="card"><div class="card-body">
+    <h2 class="font-medium mb-2">Fouten ({{ errors_count }})</h2>
+    <ul class="list-disc pl-6 space-y-1">
+      {% for line, err in errors %}
+        <li>Rij {{ line }} — {{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div></div>
+{% else %}
+  <p>Geen fouten 🎉</p>
+{% endif %}
+
+<div class="mt-4 flex gap-3">
+  <a class="btn btn-ghost" href="/admin/core/member/">Naar Members</a>
+  <a class="btn btn-ghost" href="/import/upload">Nogmaals importeren</a>
+  <a class="btn btn-primary" href="/">Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{# Extra “Voorbeeld”-knoppen rechtsboven in de admin (object-tools) #}
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if original and original.pk %}
+    <li>
+      <a class="viewsitelink" target="_blank" rel="noopener"
+         href="/facturen/{{ original.pk }}/voorbeeld/?papier=digitaal">
+        Voorbeeld (digitaal)
+      </a>
+    </li>
+    <li>
+      <a class="viewsitelink" target="_blank" rel="noopener"
+         href="/facturen/{{ original.pk }}/voorbeeld/?papier=voorbedrukt">
+        Voorbedrukt
+      </a>
+    </li>
+    <li>
+      <a class="viewsitelink" target="_blank" rel="noopener"
+         href="/facturen/{{ original.pk }}/voorbeeld/?papier=digitaal&envelop=venster&guides=1">
+        Venster + gidslijnen
+      </a>
+    </li>
+  {% endif %}
+{% endblock %}

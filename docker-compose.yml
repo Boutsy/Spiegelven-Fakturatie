@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    image: spiegelven-app:dev
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  css:
+    image: spiegelven-app:dev
+    command: sh -c "mkdir -p static/css && tailwindcss -c tailwind.config.js -i ./assets/input.css -o ./static/css/tailwind.css --watch"
+    volumes:
+      - .:/app
+    restart: unless-stopped

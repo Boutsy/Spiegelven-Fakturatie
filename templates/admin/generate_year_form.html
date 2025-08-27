@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+  <div class="content">
+    <h1 style="margin-bottom:1rem">{{ title }}</h1>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="module aligned">
+        {{ form.as_p }}
+      </div>
+      <div class="submit-row">
+        <input type="submit" value="Uitvoeren" class="default">
+        <a href="{% url 'admin:core_invoice_changelist' %}" class="button cancel-link">Annuleren</a>
+      </div>
+    </form>
+    <p style="margin-top:1rem;color:#555">
+      Tip: laat <em>Factuurdatum</em> leeg als jouw generator die al automatisch op de eerste maandag zet.
+    </p>
+  </div>
+{% endblock %}

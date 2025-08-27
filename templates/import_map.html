@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Kolommen koppelen · Spiegelven{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">Stap 2 — Kolommen koppelen</h1>
+
+{% if saved_mappings %}
+  <div class="alert alert-info mb-4">
+    <strong>Opgeslagen koppelingen:</strong>
+    {% for m in saved_mappings %}
+      <a class="underline mr-3" href="?use={{ m.id }}">{{ m.name }}</a>
+    {% endfor %}
+    <span class="text-slate-600 ml-1">(klik om te laden)</span>
+  </div>
+{% endif %}
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="grid md:grid-cols-2 gap-4">
+      {% csrf_token %}
+      {% for field in form %}
+        {% if field.name in "dry_run save_mapping mapping_name"|split:" " %}
+          {# opties komen in het onderste blok #}
+        {% else %}
+          <div class="md:col-span-1">
+            <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|striptags }}</p>{% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="md:col-span-2 border-t border-slate-200 pt-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="label" for="{{ form.dry_run.id_for_label }}">{{ form.dry_run.label }}</label>
+            {{ form.dry_run }}
+          </div>
+          <div>
+            <label class="label" for="{{ form.save_mapping.id_for_label }}">{{ form.save_mapping.label }}</label>
+            {{ form.save_mapping }}
+          </div>
+          <div class="md:col-span-2">
+            <label class="label" for="{{ form.mapping_name.id_for_label }}">{{ form.mapping_name.label }}</label>
+            {{ form.mapping_name }}
+            <p class="text-xs text-slate-500 mt-1">{{ form.mapping_name.help_text }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 flex gap-2">
+        <button class="btn btn-primary">Volgende</button>
+        <a href="/import/upload" class="btn btn-ghost">Terug</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
