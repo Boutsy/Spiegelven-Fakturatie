@@ -1,25 +1,86 @@
 from decimal import Decimal
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
-from .models import Invoice
+from django.shortcuts import render, get_object_or_404
+from .models import Invoice, OrganizationProfile
 
-@login_required
-def invoice_preview(request, pk: int):
-    inv = get_object_or_404(Invoice, pk=pk)
+def _D(x):
+    try:
+        return Decimal(x or 0)
+    except Exception:
+        return Decimal(0)
 
-    # Veilig de gerelateerde lijnen ophalen (ondersteunt zowel related_name='lines' als default)
-    lines_rel = getattr(inv, "lines", None) or getattr(inv, "invoiceline_set", None)
-    lines = lines_rel.select_related("product").all() if lines_rel else []
+def invoice_preview(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    lines_qs = getattr(invoice, "lines", None)
+    lines_qs = lines_qs.all().order_by("id") if lines_qs is not None else []
+    lines = list(lines_qs)
 
-    total_excl = sum((l.unit_price_excl or Decimal("0")) * (l.quantity or 1) for l in lines)
-    total_vat = sum(((l.unit_price_excl or Decimal("0")) * (l.quantity or 1)) * (l.vat_rate or Decimal("0")) / 100 for l in lines)
-    total_incl = total_excl + total_vat
+    # ---- totalen & BTW-samenvatting berekenen ----
+    tot_excl = Decimal("0")
+    tot_vat  = Decimal("0")
+    tot_incl = Decimal("0")
+
+    # per BTW-tarief groeperen: rate -> [excl, vat, incl]
+    summary = {}
+
+    for l in lines:
+        qty   = _D(getattr(l, "quantity", 0))
+        unit  = _D(getattr(l, "unit_price_excl", 0))
+        rate  = _D(getattr(l, "vat_rate", 0))  # bv. 21 voor 21%
+
+        # bestaande velden gebruiken als ze er zijn, anders berekenen
+        line_excl = getattr(l, "line_excl", None)
+        if line_excl is None:
+            line_excl = qty * unit
+        else:
+            line_excl = _D(line_excl)
+
+        vat_amount = getattr(l, "vat_amount", None)
+        if vat_amount is None:
+            vat_amount = (line_excl * rate) / Decimal("100")
+        else:
+            vat_amount = _D(vat_amount)
+
+        line_incl = getattr(l, "line_incl", None)
+        if line_incl is None:
+            line_incl = line_excl + vat_amount
+        else:
+            line_incl = _D(line_incl)
+
+        tot_excl += line_excl
+        tot_vat  += vat_amount
+        tot_incl += line_incl
+
+        if rate not in summary:
+            summary[rate] = [Decimal("0"), Decimal("0"), Decimal("0")]
+        summary[rate][0] += line_excl
+        summary[rate][1] += vat_amount
+        summary[rate][2] += line_incl
+
+    vat_summary = [
+        {
+            "rate": f"{int(r)}%" if r == r.to_integral() else f"{r}%",
+            "excl": v[0],
+            "vat":  v[1],
+            "incl": v[2],
+        }
+        for r, v in sorted(summary.items(), key=lambda t: t[0])
+    ]
+
+    # organisatie t.b.v. footer
+    org = OrganizationProfile.objects.order_by("id").first()
+
+    payment = {
+        "iban": getattr(org, "iban", "") if org else "",
+        "bic": getattr(org, "bic", "") if org else "",
+        "ogm": getattr(invoice, "structured_message", ""),
+    }
 
     ctx = {
-        "invoice": inv,
+        "invoice": invoice,
         "lines": lines,
-        "total_excl": total_excl,
-        "total_vat": total_vat,
-        "total_incl": total_incl,
+        "totals": {"excl": tot_excl, "vat": tot_vat, "incl": tot_incl},
+        "vat_summary": vat_summary,
+        "org": org,
+        "payment": payment,
     }
     return render(request, "invoices/preview.html", ctx)

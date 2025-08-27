@@ -1,226 +1,219 @@
 {% load static %}
 <!doctype html>
 <html lang="nl">
-  <head>
-    <meta charset="utf-8" />
-    <title>Factuurvoorbeeld {{ invoice.number|default:"(concept)" }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      :root { --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; --chip:#eef2ff; --brand:#0f766e; }
-      * { box-sizing: border-box; }
-      body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:#f1f5f9; }
-      .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px 112px; } /* extra ruimte voor footer op scherm */
-      .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-      .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:white; text-decoration:none; color:var(--fg); }
-      .btn.primary { background:var(--brand); color:white; border-color:var(--brand); }
-      .card { background:white; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow: 0 2px 8px rgba(15,23,42,.04); position: relative; }
-      .h-title { font-size:20px; font-weight:700; letter-spacing:.2px; }
-      .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:var(--chip); color:#3730a3; font-size:12px; margin-left:8px; }
-      hr { border:0; height:1px; background:var(--line); margin:20px 0; }
+<head>
+  <meta charset="utf-8" />
+  <title>Factuurvoorbeeld {{ invoice.number|default:"(concept)" }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; --chip:#eef2ff; --brand:#0f766e; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:#f1f5f9; }
+    .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:white; text-decoration:none; color:var(--fg); }
+    .btn.primary { background:var(--brand); color:white; border-color:var(--brand); }
+    .card { background:white; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow: 0 2px 8px rgba(15,23,42,.04); position: relative; }
 
-      .muted { color:var(--muted); }
-      .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
-      .notes { margin-top: 18mm; } /* Opmerkingen duidelijk lager */
+    /* Kop */
+    .head { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
+    .h-left { flex: 1 1 auto; }
+    .meta { color:var(--muted); }
+    .meta strong { display:block; color:var(--fg); font-size:16px; margin-top:4px; }
+    .org-block { color:var(--muted); margin-top:6px; }
 
-      table { width:100%; border-collapse: collapse; }
-      th, td { padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
-      thead th { background:var(--soft); text-align:left; font-weight:600; }
-      td.num, th.num { text-align:right; white-space:nowrap; }
-      .totals { margin-top:12px; display:flex; justify-content:flex-end; }
-      .totals .tbox { width: min(420px, 100%); }
-      .row { display:flex; justify-content:space-between; padding:6px 0; }
-      .row.total { border-top:1px solid var(--line); margin-top:6px; padding-top:10px; font-weight:700; }
+    /* Logo alleen digitaal */
+    .brand-logo { width: 38mm; height:auto; display:block; margin:0 0 8mm 0; }
 
-      /* Logo bovenaan (alleen bij digitaal papier) */
-      .brand-logo { width: 38mm; height: auto; display:block; margin: 0 0 8mm 0; }
+    hr { border:0; height:1px; background:var(--line); margin:20px 0; }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
+    .box-title { font-weight:600; margin-bottom:4px; }
+    .muted { color:var(--muted); }
 
-      /* Betaalbanner (net boven footer) */
-      .pay-banner{
-        margin: 18px auto 0;
-        max-width: 900px;
-        background:#fff;
-        border:1px solid var(--line);
-        border-radius:12px;
-        padding:12px 16px;
-        font-size:14px;
-      }
-      .pay-banner strong{ font-weight:700; }
-      .ogm { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.5px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+    thead th { background:var(--soft); text-align:left; font-weight:600; }
+    td.num, th.num { text-align:right; white-space:nowrap; }
 
-      /* Footerbanner (alleen digitaal papier) */
-      .invoice-footer{
-        position: sticky; bottom: 0; left:0; right:0;
-        background: #fff; border-top:1px solid var(--line);
-        padding: 10px 16px; font-size:12px; color:var(--muted);
-      }
-      .footer-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:baseline; }
-      .footer-sep{ margin:0 6px; opacity:.8; }
+    .totals { margin-top:12px; display:flex; justify-content:flex-end; }
+    .totals .tbox { width: min(420px, 100%); }
+    .row { display:flex; justify-content:space-between; padding:6px 0; }
+    .row.total { border-top:1px solid var(--line); margin-top:6px; padding-top:10px; font-weight:700; }
 
-      @media print {
-        .toolbar { display:none !important; }
-        body { background:white; }
-        .card { box-shadow:none; border-color:#ddd; }
+    /* Betaling callout */
+    .paycall { margin:18px 0 12px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:#fafafa; font-size:15px; }
+    .ogm { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.5px; }
 
-        .brand-logo { width: 38mm; }
+    /* FOOTER — hard zichtbaar maken */
+    .invoice-footer{
+      position: fixed;
+      left: 0; right: 0;
+      bottom: 10mm;                 /* lager/hoger zetten kan hier */
+      z-index: 2147483647;          /* boven álles */
+      border-top: 1px solid #e2e8f0;
+      background: #ffffff;          /* eigen achtergrond */
+      padding-top: 6px;
+      font-size: 12px;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    .footer-row{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; }
+    .footer-sep{ opacity:.6; }
 
-        /* Footer nog lager op het blad (lijn zakt mee) */
-        .invoice-footer{
-          position: fixed; left:0; right:0; bottom:-4mm; /* duwt iets in de ondermarge */
-          padding: 5mm 12mm; font-size:11px; border-top:1px solid #ddd; background:#fff;
-        }
+    /* Print */
+    @media print {
+      .toolbar { display:none !important; }
+      body { background:white; }
+      .card { box-shadow:none; border-color:#ddd; }
+      .brand-logo { width:38mm; }
+      .notes-screen { display:none !important; }
+      .notes-print { display:block !important; margin-bottom:8px; }
+      .invoice-footer{ bottom: 10mm; }
+    }
 
-        .pay-banner{ page-break-inside: avoid; }
-      }
-    </style>
-  </head>
-  <body>
-    {% include "invoices/_address_window.html" %}
+    /* Scherm */
+    .notes-print { display:none; }
+  </style>
+</head>
+<body>
 
-    <div class="wrap">
-      <div class="toolbar">
-        <div class="h-title">Voorbeeld factuur</div>
-        <div>
-          <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
-          <a href="/admin/core/invoice/{{ invoice.pk }}/change/" class="btn">Terug naar admin</a>
-        </div>
+  {# Briefpapier-achtergrond enkel digitaal #}
+  {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}
+    {% include "invoices/_letterhead.html" %}
+  {% endif %}
+
+  {# Adresvenster (positie & guides geregeld in _address_window.html) #}
+  {% include "invoices/_address_window.html" %}
+
+  <div class="wrap">
+    <div class="toolbar">
+      <div style="font-weight:700;">Voorbeeld factuur</div>
+      <div>
+        <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
+        <a href="/admin/core/invoice/{{ invoice.pk }}/change/" class="btn">Terug naar admin</a>
       </div>
+    </div>
 
-      <div class="card">
-        {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}
-          <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo">
-        {% endif %}
+    <div class="card">
+      {# Logo alleen bij digitaal papier #}
+      {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}
+        <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo">
+      {% endif %}
 
-        <div class="h-title">
-          {% if not invoice.number %}<span class="badge">CONCEPT</span>{% endif %}
-        </div>
-
-        <hr>
-
-        <!-- LINKS: meta (Factuurnummer/Datum/Status) — RECHTS: Opmerkingen -->
-        <div class="grid2">
-          <div id="invoice-meta" class="muted" style="text-align:left">
+      <div class="head">
+        <div class="h-left">
+          <div class="meta" id="invoice-meta">
             <div>Factuurnummer</div>
-            <strong style="color:var(--fg)">{{ invoice.number|default:"(nog geen nummer)" }}</strong>
-            <div style="margin-top:6px">Datum</div>
-            <strong style="color:var(--fg)">{{ invoice.issue_date|date:"d/m/Y" }}</strong>
-            <div style="margin-top:6px">Status</div>
-            <strong style="color:var(--fg)">{{ invoice.get_status_display|default:invoice.status }}</strong>
+            <strong>{{ invoice.number|default:"(nog geen nummer)" }}</strong>
+            <div>Datum</div>
+            <strong>{{ invoice.issue_date|date:"d/m/Y" }}</strong>
+            <div>Status</div>
+            <strong>{{ invoice.get_status_display|default:invoice.status }}</strong>
           </div>
-          <div class="notes">
-            {% if invoice.notes %}
-              <div class="box-title">Opmerkingen</div>
-              <div style="white-space:pre-wrap">{{ invoice.notes }}</div>
-            {% endif %}
-          </div>
-        </div>
 
-        <hr>
-
-        <div class="table">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:46%">Omschrijving</th>
-                <th class="num" style="width:9%">Aantal</th>
-                <th class="num" style="width:15%">Eenheidsprijs</th>
-                <th class="num" style="width:8%">BTW</th>
-                <th class="num" style="width:11%">Excl.</th>
-                <th class="num" style="width:11%">BTW-bedrag</th>
-                <th class="num" style="width:11%">Incl.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for l in lines %}
-                <tr>
-                  <td>{{ l.description }}</td>
-                  <td class="num">{{ l.quantity }}</td>
-                  <td class="num">{{ l.unit_price_excl }}</td>
-                  <td class="num">{{ l.vat_rate }}</td>
-                  <td class="num">{{ l.line_excl }}</td>
-                  <td class="num">{{ l.vat_amount }}</td>
-                  <td class="num">{{ l.line_incl }}</td>
-                </tr>
-              {% empty %}
-                <tr>
-                  <td colspan="7" class="muted">Geen regels.</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        {% if vat_summary %}
-        <div style="margin-top:12px">
-          <div class="box-title">Samenvatting per BTW-tarief</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tarief</th>
-                <th class="num">Excl.</th>
-                <th class="num">BTW</th>
-                <th class="num">Incl.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for r in vat_summary %}
-              <tr>
-                <td>{{ r.rate }}</td>
-                <td class="num">{{ r.excl }}</td>
-                <td class="num">{{ r.vat }}</td>
-                <td class="num">{{ r.incl }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% endif %}
-
-        <div class="totals">
-          <div class="tbox">
-            <div class="row"><div class="muted">Totaal excl.</div><div>{{ totals.excl }}</div></div>
-            <div class="row"><div class="muted">BTW</div><div>{{ totals.vat }}</div></div>
-            <div class="row total"><div>Totaal incl.</div><div>{{ totals.incl }}</div></div>
+          <div class="org-block">
+            {% if org.address_line1 %}{{ org.address_line1 }}<br>{% endif %}
+            {% if org.address_line2 %}{{ org.address_line2 }}<br>{% endif %}
+            {% if org.postal_code or org.city %}{{ org.postal_code }} {{ org.city }}<br>{% endif %}
+            {% if org.country %}{{ org.country }}<br>{% endif %}
+            {% if org.vat_number %}BTW: {{ org.vat_number }}{% endif %}
+            {% if org.enterprise_number %}{% if org.vat_number %} · {% endif %}Ond.nr: {{ org.enterprise_number }}{% endif %}
           </div>
         </div>
-      </div>
-    </div>
 
-    {% if payment.iban or payment.ogm %}
-      <div class="pay-banner">
-        <strong>Gelieve te betalen op naam {% firstof org.name "Spiegelven" %}</strong>
-        – IBAN: <strong>{{ payment.iban|default:"—" }}</strong>
-        {% if payment.bic %}(BIC {{ payment.bic }}){% endif %}
-        {% if payment.ogm %} – gestructureerde mededeling:
-          <strong class="ogm">{{ payment.ogm }}</strong>
-        {% endif %}
-      </div>
-    {% endif %}
-
-    {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}
-    <div class="invoice-footer">
-      <div class="wrap" style="padding:0 16px">
-        <div class="footer-row">
-          <strong>{% firstof org.name "Spiegelven" %}</strong>
-          {% if org.address_line1 or org.street %}<span class="footer-sep">·</span><span>{% firstof org.address_line1 org.street %}</span>{% endif %}
-          {% if org.address_line2 or org.house_no %}<span class="footer-sep">·</span><span>{% firstof org.address_line2 org.house_no %}</span>{% endif %}
-          {% if org.postal_code or org.city or org.zip or org.town %}
-            <span class="footer-sep">·</span><span>{% firstof org.postal_code org.zip %} {% firstof org.city org.town %}</span>
+        <div class="notes-screen">
+          {% if invoice.notes %}
+            <div class="box-title">Opmerking</div>
+            <div style="white-space:pre-wrap; margin-top:12px">{{ invoice.notes }}</div>
           {% endif %}
-          {% if org.country %}<span class="footer-sep">·</span><span>{{ org.country }}</span>{% endif %}
-        </div>
-        <div class="footer-row" style="margin-top:4px">
-          {% if org.phone or org.telephone or org.mobile %}<span>Tel: {% firstof org.phone org.telephone org.mobile %}</span>{% endif %}
-          {% if org.email %}<span class="footer-sep">·</span><span>{{ org.email }}</span>{% endif %}
-          {% if org.website or org.url %}<span class="footer-sep">·</span><span>{% firstof org.website org.url %}</span>{% endif %}
-        </div>
-        <div class="footer-row" style="margin-top:4px">
-          {% if org.vat_number %}<span>BTW: {{ org.vat_number }}</span>{% endif %}
-          {% if org.enterprise_number %}<span class="footer-sep">·</span><span>Ond.nr: {{ org.enterprise_number }}</span>{% endif %}
-          {% if org.iban %}<span class="footer-sep">·</span><span>IBAN: {{ org.iban }}</span>{% endif %}
-          {% if org.bic %}<span class="footer-sep">·</span><span>BIC: {{ org.bic }}</span>{% endif %}
         </div>
       </div>
-    </div>
-    {% endif %}
-  </body>
+
+      <hr>
+
+      {# Opmerking voor print (boven de tabel) #}
+      <div class="notes-print">
+        {% if invoice.notes %}
+          <div class="box-title">Opmerking</div>
+          <div style="white-space:pre-wrap">{{ invoice.notes }}</div>
+          <hr>
+        {% endif %}
+      </div>
+
+      <div class="table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:46%">Omschrijving</th>
+              <th class="num" style="width:9%">Aantal</th>
+              <th class="num" style="width:15%">Eenheidsprijs</th>
+              <th class="num" style="width:8%">BTW</th>
+              <th class="num" style="width:11%">Excl.</th>
+              <th class="num" style="width:11%">BTW-bedrag</th>
+              <th class="num" style="width:11%">Incl.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in lines %}
+              <tr>
+                <td>{{ l.description }}</td>
+                <td class="num">{{ l.quantity }}</td>
+                <td class="num">{{ l.unit_price_excl }}</td>
+                <td class="num">{{ l.vat_rate }}</td>
+                <td class="num">{{ l.line_excl }}</td>
+                <td class="num">{{ l.vat_amount }}</td>
+                <td class="num">{{ l.line_incl }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="muted">Geen regels.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if vat_summary %}
+      <div style="margin-top:12px">
+        <div class="box-title">Samenvatting per BTW-tarief</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Tarief</th>
+              <th class="num">Excl.</th>
+              <th class="num">BTW</th>
+              <th class="num">Incl.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in vat_summary %}
+            <tr>
+              <td>{{ r.rate }}</td>
+              <td class="num">{{ r.excl }}</td>
+              <td class="num">{{ r.vat }}</td>
+              <td class="num">{{ r.incl }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {% if payment.iban or payment.ogm %}
+      <div class="paycall">
+        <strong>Gelieve te betalen op naam van {{ org.name }}</strong>
+        {% if payment.iban %} — IBAN: <strong>{{ payment.iban }}</strong>{% endif %}
+        {% if payment.ogm %} — Gestructureerde mededeling (OGM): <strong class="ogm">{{ payment.ogm }}</strong>{% endif %}
+        {% if payment.bic %} — BIC: {{ payment.bic }}{% endif %}
+      </div>
+      {% endif %}
+
+    </div> <!-- /.card -->
+  </div>   <!-- /.wrap -->
+
+  {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}
+    {% include "invoices/_footer_org.html" %}
+  {% endif %}
+
+</body>
 </html>

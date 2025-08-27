@@ -258,6 +258,9 @@ class InvoiceAdmin(admin.ModelAdmin):
     @admin.display(description=_("Totaal excl."))
     def total_excl_display(self, obj):
         return _money(getattr(obj, "total_excl", None))
+    
+    # … laat je bestaande opties staan (list_display, inlines, …)
+    change_form_template = "admin/core/invoice/change_form.html"
 
     @admin.display(description=_("BTW"))
     def total_vat_display(self, obj):
