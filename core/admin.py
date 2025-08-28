@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.apps import apps
 from decimal import Decimal, ROUND_HALF_UP
+from django import forms
 
 from .models import (
     Member,
@@ -135,11 +136,41 @@ class MemberAssetInline(admin.TabularInline):
     fields = ("asset_type", "identifier", "active", "price_excl", "vat_rate")
     autocomplete_fields = ()
 
+# --- Admin form: hernoem lege keuze naar 'Individueel' en verberg 'Overig'
+class MemberAdminForm(forms.ModelForm):
+    class Meta:
+        model = Member
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fld = self.fields.get("household_role")
+        if not fld:
+            return
+
+        # 1) 'Overig' uit de lijst filteren (op label)
+        cleaned = []
+        for value, label in list(fld.choices):
+            if (label or "").strip().casefold() == "overig":
+                continue
+            cleaned.append((value, label))
+
+        # 2) lege keuze (value == '' of None) tonen als 'Individueel'
+        new_choices = []
+        for value, label in cleaned:
+            if value in ("", None):
+                new_choices.append(("", "Individueel"))
+            else:
+                new_choices.append((value, label))
+
+        fld.choices = new_choices
+
 # ---------- Member ----------
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
     ordering = ("last_name", "first_name")
+    form = MemberAdminForm
 
     # Gebruik NL methoden i.p.v. veldnamen om NL-kolomtitels te tonen
     _cols = ["achternaam", "voornaam", "e_mail", "is_household_head_display"]
