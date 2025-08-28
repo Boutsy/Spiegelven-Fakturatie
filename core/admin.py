@@ -17,6 +17,24 @@ from .models import (
     OrganizationProfile,
 )
 
+# --- Factuurlijnen inline ---
+class InvoiceLineInline(admin.TabularInline):
+    model = InvoiceLine
+    extra = 1
+    fields = (
+        "description",
+        "quantity",
+        "unit_price_excl",
+        "vat_rate",
+        "line_excl",
+        "vat_amount",
+        "line_incl",
+    )
+    readonly_fields = ("line_excl", "vat_amount", "line_incl")
+
+    class Media:
+        js = ("admin/invoice_line.js",)  # laat staan; bestaat al bij jou
+
 # ---------- Helpers ----------
 
 def _money(v):
@@ -259,9 +277,6 @@ class InvoiceAdmin(admin.ModelAdmin):
     def total_excl_display(self, obj):
         return _money(getattr(obj, "total_excl", None))
     
-    # … laat je bestaande opties staan (list_display, inlines, …)
-    change_form_template = "admin/core/invoice/change_form.html"
-
     @admin.display(description=_("BTW"))
     def total_vat_display(self, obj):
         return _money(getattr(obj, "total_vat", None))
