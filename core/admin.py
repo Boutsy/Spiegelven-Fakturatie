@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.apps import apps
+from decimal import Decimal, ROUND_HALF_UP
 
 from .models import (
     Member,
@@ -21,20 +22,51 @@ from .models import (
 class InvoiceLineInline(admin.TabularInline):
     model = InvoiceLine
     extra = 1
+
+    # toon schrijfbare modelvelden
     fields = (
         "description",
         "quantity",
         "unit_price_excl",
         "vat_rate",
-        "line_excl",
-        "vat_amount",
-        "line_incl",
+        # berekende, alleen-lezen kolommen:
+        "line_excl_calc",
+        "vat_amount_calc",
+        "line_incl_calc",
     )
-    readonly_fields = ("line_excl", "vat_amount", "line_incl")
+
+    # markeer de berekende kolommen als readonly (ze zijn methods hieronder)
+    readonly_fields = ("line_excl_calc", "vat_amount_calc", "line_incl_calc")
 
     class Media:
-        js = ("admin/invoice_line.js",)  # laat staan; bestaat al bij jou
+        js = ("admin/invoice_line.js",)
 
+    # ------ berekende weergaves (alleen-lezen) ------
+    @admin.display(description="Excl.")
+    def line_excl_calc(self, obj):
+        q = Decimal(getattr(obj, "quantity", 0) or 0)
+        p = Decimal(getattr(obj, "unit_price_excl", 0) or 0)
+        return f"€ {(q*p).quantize(Decimal('0.01')):.2f}"
+
+    @admin.display(description="BTW-bedrag")
+    def vat_amount_calc(self, obj):
+        q = Decimal(getattr(obj, "quantity", 0) or 0)
+        p = Decimal(getattr(obj, "unit_price_excl", 0) or 0)
+        r = Decimal(getattr(obj, "vat_rate", 0) or 0)
+        excl = q * p
+        vat  = (excl * r) / Decimal("100")
+        return f"€ {vat.quantize(Decimal('0.01')):.2f}"
+
+    @admin.display(description="Incl.")
+    def line_incl_calc(self, obj):
+        q = Decimal(getattr(obj, "quantity", 0) or 0)
+        p = Decimal(getattr(obj, "unit_price_excl", 0) or 0)
+        r = Decimal(getattr(obj, "vat_rate", 0) or 0)
+        excl = q * p
+        vat  = (excl * r) / Decimal("100")
+        incl = excl + vat
+        return f"€ {incl.quantize(Decimal('0.01')):.2f}"
+    
 # ---------- Helpers ----------
 
 def _money(v):
@@ -272,6 +304,8 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_filter = ("status", "doc_type")
     search_fields = ("number", "account__name", "account__email")
     autocomplete_fields = ("account",)
+
+    inlines = [InvoiceLineInline]
 
     @admin.display(description=_("Totaal excl."))
     def total_excl_display(self, obj):
