@@ -1,4 +1,4 @@
-{% load static %}
+{% load static helpers %}
 <!doctype html>
 <html lang="nl">
 <head>
@@ -49,6 +49,9 @@
 
     /* Logo alleen digitaal */
     .brand-logo { width: 38mm; height:auto; display:block; margin:0 0 8mm 0; }
+    @media print{
+      .screen-only{ display:none !important; }
+    }
 
     hr { border:0; height:1px; background:var(--line); margin:20px 0; }
     .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
@@ -255,16 +258,23 @@
 
     <div class="card">
 
-    {# Stempel rechtsboven: FACTUUR of CREDITNOTA #}
-    <div class="doc-stamp">
-      {% with kind=invoice.doc_type|stringformat:"s"|lower %}
-        {% if kind == "credit" or kind == "creditnote" or kind == "credit_note" or kind == "cn" %}
-          CREDITNOTA
-        {% else %}
-          FACTUUR
-        {% endif %}
-      {% endwith %}
-    </div>
+      {# Logo: altijd zichtbaar op scherm; print alleen bij digitaal #}
+      {% if request.GET.papier|default:"digitaal" == "voorbedrukt" %}
+        <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo screen-only">
+      {% else %}
+        <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo">
+      {% endif %}
+
+      {# Stempel rechtsboven: FACTUUR of CREDITNOTA #}
+      <div class="doc-stamp">
+        {% with kind=invoice.doc_type|stringformat:"s"|lower %}
+          {% if kind == "credit" or kind == "creditnote" or kind == "credit_note" or kind == "cn" %}
+            CREDITNOTA
+          {% else %}
+            FACTUUR
+          {% endif %}
+        {% endwith %}
+      </div>
 
       <hr>
 
@@ -310,12 +320,12 @@
             {% for l in lines %}
               <tr>
                 <td>{{ l.description }}</td>
-                <td class="num">{{ l.quantity|floatformat:"0" }}</td>
-                <td class="num">{{ l.unit_price_excl|floatformat:"2" }}</td>
+                <td class="num">{{ l.quantity|eur:"0" }}</td>
+                <td class="num">{{ l.unit_price_excl|eur }}</td>
                 <td class="num">{{ l.vat_rate }}</td>
-                <td class="num">{{ l.line_excl|floatformat:"2" }}</td>
-                <td class="num">{{ l.vat_amount|floatformat:"2" }}</td>
-                <td class="num">{{ l.line_incl|floatformat:"2" }}</td>
+                <td class="num">{{ l.line_excl|eur }}</td>
+                <td class="num">{{ l.vat_amount|eur }}</td>
+                <td class="num">{{ l.line_incl|eur }}</td> 
               </tr>
             {% empty %}
               <tr>
@@ -342,9 +352,9 @@
             {% for r in vat_summary %}
             <tr>
               <td>{{ r.rate }}</td>
-              <td class="num">{{ r.excl|floatformat:"2" }}</td>
-              <td class="num">{{ r.vat|floatformat:"2" }}</td>
-              <td class="num">{{ r.incl|floatformat:"2" }}</td>
+              <td class="num">{{ r.excl|eur }}</td>
+              <td class="num">{{ r.vat|eur }}</td>
+              <td class="num">{{ r.incl|eur }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -354,9 +364,9 @@
 
       <div class="totals">
         <div class="tbox">
-          <div class="row"><div class="muted">Totaal excl.</div><div>{{ totals.excl }}</div></div>
-          <div class="row"><div class="muted">BTW</div><div>{{ totals.vat }}</div></div>
-          <div class="row total"><div>Totaal incl.</div><div>{{ totals.incl }}</div></div>
+          <div class="row"><div class="muted">Totaal excl.</div><div>{{ totals.excl|eur }}</div></div>
+          <div class="row"><div class="muted">BTW</div><div>{{ totals.vat|eur }}</div></div>
+          <div class="row total"><div>Totaal incl.</div><div>{{ totals.incl|eur }}</div></div>
         </div>
       </div>
 
