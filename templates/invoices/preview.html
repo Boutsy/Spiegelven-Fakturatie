@@ -89,14 +89,14 @@
       }
     }
 
-/* Zorg dat hij op scherm zeker zichtbaar is */
-@media screen{
-  .doc-stamp{
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-}
+    /* Zorg dat hij op scherm zeker zichtbaar is */
+    @media screen{
+      .doc-stamp{
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
 
     /* Betaling callout — kleiner en op één regel */
     .paycall{
@@ -140,7 +140,7 @@
       }
     }
 
-.note-body{ white-space:pre-wrap; }
+    .note-body{ white-space:pre-wrap; }
 
     /* Meta-box boven opmerking (zelfde breedte als note-box) */
     .meta-box{
@@ -221,6 +221,27 @@
     /* Scherm */
     .notes-print { display:none; }
   </style>
+
+  {% if request.GET.papier|default:"digitaal" == "voorbedrukt" %}
+  <style>
+    /* Alleen voor VOORBEDRUKT papier:
+       - Reserveer plaats onder het adresvenster
+      - Positioneer de stempel netjes binnen het papier
+    */
+
+    /* Voor het voorbeeld op scherm ook laten zien */
+    @media screen{
+      .card{ padding-top: 58mm; }     /* pas 54–62mm aan naar smaak */
+      .doc-stamp{ top: 16mm; }
+    }
+
+    /* Echte print / PDF */
+    @media print{
+      .card{ padding-top: 38mm !important; }  /* ruimte onder adresvak */
+      .doc-stamp{ top: 16mm !important; }     /* stempel blijft mooi rechtsboven */
+    }
+  </style>
+  {% endif %}
 </head>
 <body>
 
