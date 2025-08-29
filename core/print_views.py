@@ -119,4 +119,19 @@ def invoice_preview(request, pk):
         "vat":  q2(tot_vat),
         "incl": q2(tot_excl + tot_vat),
     }
+
+    # --- helper: BE-notatie (duizendtallen met '.', decimalen met ',') + opsplitsen ---
+    def _fmt_be_parts(x):
+        q = (Decimal(x)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        s = f"{q:,.2f}"                # bv. '12,345.67' (US)
+        s = s.replace(",", "§").replace(".", ",").replace("§", ".")  # → '12.345,67'
+        left, right = s.split(",")
+        return {"int": left, "dec": right}
+
+    ctx["totals_parts"] = {
+        "excl": _fmt_be_parts(ctx["totals"]["excl"]),
+        "vat":  _fmt_be_parts(ctx["totals"]["vat"]),
+        "incl": _fmt_be_parts(ctx["totals"]["incl"]),
+    }
+
     return render(request, "invoices/preview.html", ctx)

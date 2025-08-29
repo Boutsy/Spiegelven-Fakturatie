@@ -63,10 +63,38 @@
     thead th { background:var(--soft); text-align:left; font-weight:600; }
     td.num, th.num { text-align:right; white-space:nowrap; }
 
+    /* Totalen: kadertje rechts, waarden decimaal uitgelijnd en 1cm van rechterrand */
     .totals { margin-top:12px; display:flex; justify-content:flex-end; }
-    .totals .tbox { width: min(420px, 100%); }
-    .row { display:flex; justify-content:space-between; padding:6px 0; }
-    .row.total { border-top:1px solid var(--line); margin-top:6px; padding-top:10px; font-weight:700; }
+    .totals-card{
+      width: min(420px, 100%);
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+      padding:10px 12px;
+    }
+    .totals-card .row{
+      display:grid;
+      grid-template-columns: 1fr auto; /* label | waarde */
+      align-items:baseline;
+      padding:4px 0;
+    }
+    .totals-card .row.total{
+      border-top:1px solid var(--line);
+      margin-top:6px;
+      padding-top:8px;
+      font-weight:700;
+    }
+    .totals-card .label{ color:var(--muted); }
+    .totals-card .value{
+      display:inline-flex;
+      align-items:baseline;
+      gap:2px;
+      padding-right:10mm;         /* ⇠ cijfers ±1cm naar links t.o.v. rand */
+      font-variant-numeric: tabular-nums; /* gelijke tekenbreedte */
+    }
+    .totals-card .value .curr{ margin-right:2px; }
+    .totals-card .value .int{ text-align:right; }
+    .totals-card .value .dec{ min-width: 2ch; } /* ',00' blijft mooi uitgelijnd */
 
     /* Stempel rechtsboven OP het papier (binnen .card) */
     .doc-stamp{
@@ -384,10 +412,28 @@
       {% endif %}
 
       <div class="totals">
-        <div class="tbox">
-          <div class="row"><div class="muted">Totaal excl.</div><div>€ {{ totals.excl }}</div></div>
-          <div class="row"><div class="muted">BTW</div><div>€ {{ totals.vat }}</div></div>
-          <div class="row total"><div>Totaal incl.</div><div>€ {{ totals.incl }}</div></div>
+        <div class="totals-card">
+          <div class="row">
+            <div class="label">Totaal excl.</div>
+            <div class="value">
+              <span class="curr">€</span>
+              <span class="int">{{ totals_parts.excl.int }}</span><span class="dec">,{{ totals_parts.excl.dec }}</span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label">BTW</div>
+            <div class="value">
+              <span class="curr">€</span>
+              <span class="int">{{ totals_parts.vat.int }}</span><span class="dec">,{{ totals_parts.vat.dec }}</span>
+            </div>
+          </div>
+          <div class="row total">
+            <div class="label">Totaal incl.</div>
+            <div class="value">
+              <span class="curr">€</span>
+              <span class="int">{{ totals_parts.incl.int }}</span><span class="dec">,{{ totals_parts.incl.dec }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
