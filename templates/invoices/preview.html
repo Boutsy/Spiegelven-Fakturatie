@@ -507,11 +507,12 @@
           </div>
           {% endif %}
 
-          {% if payment.ogm %}
-          <div class="row">
-            <span class="label">Gestructureerde mededeling:</span>
-            <span class="value ogm">{{ payment.ogm }}</span>
-          </div>
+          {% firstof payment.ogm invoice.structured_message invoice.payment_reference_raw invoice.payment_reference as ogm_val %}
+          {% if ogm_val %}
+            <div class="row">
+              <span class="label">Gestructureerde mededeling:</span>
+              <span class="value ogm">{{ ogm_val }}</span>
+            </div>
           {% endif %}
         </div>
 

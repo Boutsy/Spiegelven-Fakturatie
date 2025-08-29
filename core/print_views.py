@@ -77,7 +77,11 @@ def invoice_preview(request, pk):
     payment = {
         "iban": getattr(org, "iban", "") if org else "",
         "bic": getattr(org, "bic", "") if org else "",
-        "ogm": getattr(invoice, "structured_message", ""),
+        "ogm": (
+            getattr(invoice, "structured_message", "")
+            or getattr(invoice, "payment_reference_raw", "")
+            or getattr(invoice, "payment_reference", "")
+        ),
     }
 
     ctx = {
