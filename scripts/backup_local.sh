@@ -1,42 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Altijd vanuit de projectroot werken
 cd "$(dirname "$0")/.."
 
+mkdir -p .backups
+
+# Volgnummer bijhouden
+COUNTER_FILE=".backups/.counter"
+if [[ -f "$COUNTER_FILE" ]]; then
+  n="$(cat "$COUNTER_FILE")"
+else
+  n=0
+fi
+n=$((n+1))
+printf '%d' "$n" > "$COUNTER_FILE"
+seq="$(printf 'bk-%04d' "$n")"
+
 ts="$(date '+%Y-%m-%d_%H-%M-%S')"
-msg="${1:-backup: lokaal herstelpunt $ts}"
+label="${1:-}"
+slug="$(printf '%s' "$label" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+|-+$//g')"
+msg="backup ${seq} ${ts}${slug:+ — ${slug}}"
 
-mkdir -p backups
+# Zorg dat we in een Git-repo zitten
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  git init
+  git checkout -b main || true
+fi
 
-# 1) Commit (alleen als er iets te committen is)
+# Commit met (desnoods lege) snapshot
 git add -A
-if git diff --cached --quiet && git diff --quiet; then
-  echo "ℹ️  Geen wijzigingen om te committen."
+if ! git commit -m "$msg" >/dev/null 2>&1; then
+  git commit --allow-empty -m "$msg" >/dev/null
+fi
+
+# Annotated tag
+if git rev-parse -q --verify "refs/tags/${seq}" >/dev/null; then
+  echo "⚠️ Tag ${seq} bestaat al (vreemd)."
 else
-  git commit -m "$msg"
+  git tag -a "$seq" -m "$msg"
 fi
 
-# 2) Tag als herstelpunt
-tag="backup-$ts"
-git tag -a "$tag" -m "$msg" || true
+# Zip-archief (zonder .git / .backups / cache)
+zip_path=".backups/${seq}_${ts}${slug:+_${slug}}.zip"
+zip -qr "$zip_path" . -x ".git/*" ".backups/*" "*/__pycache__/*" "*.pyc" ".DS_Store" || true
 
-# 3) DB-backup (indien aanwezig)
-if [ -f db.sqlite3 ]; then
-  cp -p db.sqlite3 "backups/db-$ts.sqlite3"
-fi
-
-# 4) Git bundle (volledige repo)
-git bundle create "backups/repo-$ts.bundle" --all
-
-# 5) ZIP van de werkmap (zonder .git en zonder vorige backups)
-if command -v zip >/dev/null 2>&1; then
-  zip -qr "backups/tree-$ts.zip" . -x '.git/*' 'backups/*'
-else
-  tar -czf "backups/tree-$ts.tgz" --exclude-vcs --exclude='./backups' .
-fi
-
-echo "✅ Backup klaar:"
-echo " - tag: $tag"
-[ -f "backups/repo-$ts.bundle" ] && echo " - bundle: backups/repo-$ts.bundle"
-[ -f "backups/tree-$ts.zip" ] && echo " - zip: backups/tree-$ts.zip"
-[ -f "backups/tree-$ts.tgz" ] && echo " - tgz: backups/tree-$ts.tgz"
-[ -f "backups/db-$ts.sqlite3" ] && echo " - db : backups/db-$ts.sqlite3"
+echo "✅ Backup gemaakt:"
+echo " • Git tag : $seq"
+echo " • Zip     : $zip_path"
+echo "(Push later: git push origin main --tags  — als je remote is ingesteld)"
