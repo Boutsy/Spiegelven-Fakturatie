@@ -434,7 +434,7 @@
               <th style="width:46%">Omschrijving</th>
               <th class="num" style="width:9%">Aantal</th>
               <th class="num" style="width:15%">Eenheidsprijs</th>
-              
+          <th class="num" style="width:8%"></th>              
               <th class="num" style="width:11%">Excl.</th>
               <th class="num" style="width:11%">BTW</th>
               <th class="num" style="width:11%">Incl.</th>
@@ -446,7 +446,7 @@
                 <td>{{ l.description }}</td>
                 <td class="num">{{ l.quantity|eur:"0" }}</td>
                 <td class="num">{{ l.unit_price_excl|eur }}</td>
-                <td class="num">{{ l.line_excl|eur }}</td>
+          <td class="num">{{ l.vat_rate|floatformat:"0" }}%</td>                <td class="num">{{ l.line_excl|eur }}</td>
                 <td class="num">{{ l.vat_amount|eur }}</td>
                 <td class="num">{{ l.line_incl|eur }}</td> 
               </tr>
