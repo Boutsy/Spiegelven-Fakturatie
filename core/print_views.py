@@ -74,14 +74,17 @@ def invoice_preview(request, pk):
     # organisatie t.b.v. footer
     org = OrganizationProfile.objects.order_by("id").first()
 
+    ogm_raw = (
+        getattr(invoice, "structured_message", None)
+        or getattr(invoice, "payment_reference_raw", None)
+        or getattr(invoice, "payment_reference", None)
+        or ""
+    )
+
     payment = {
         "iban": getattr(org, "iban", "") if org else "",
         "bic": getattr(org, "bic", "") if org else "",
-        "ogm": (
-            getattr(invoice, "structured_message", "")
-            or getattr(invoice, "payment_reference_raw", "")
-            or getattr(invoice, "payment_reference", "")
-        ),
+        "ogm": ogm_raw,   # ← gebruik het samengevoegde OGM uit 1a)
     }
 
     ctx = {

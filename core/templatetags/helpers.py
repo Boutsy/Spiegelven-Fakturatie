@@ -26,9 +26,11 @@ def eur(value, digits=2):
 @register.filter(name="ogm")
 def ogm(value):
     """
-    Belgische OGM als +++123/4567/89012+++ (12 cijfers). Anders ongewijzigd.
+    Formatteer een Belgische gestructureerde mededeling:
+    12 cijfers -> +++123/4567/89012+++
+    Anders: originele waarde teruggeven.
     """
     s = "".join(ch for ch in str(value or "") if ch.isdigit())
     if len(s) == 12:
         return f"+++{s[0:3]}/{s[3:7]}/{s[7:12]}+++"
-    return str(value or "")
+    return value or ""
