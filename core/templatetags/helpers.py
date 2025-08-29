@@ -50,3 +50,17 @@ def eur(value, digits=2):
         if len(s) == 12:
             return f"+++{s[0:3]}/{s[3:7]}/{s[7:12]}+++"
         return str(value or "")
+# -- Register ogm template filter (wrap bestaande format_ogm) --
+from django import template as _dj_template  # safe re-import
+try:
+    register
+except NameError:
+    register = _dj_template.Library()
+
+def ogm(value):
+    try:
+        return format_ogm(value)
+    except Exception:
+        return value or ""
+
+register.filter('ogm', ogm)
