@@ -245,9 +245,9 @@
 </head>
 <body>
 
-  {# Briefpapier-achtergrond enkel digitaal #}
-  {% if request.GET.papier|default:"digitaal" != "voorbedrukt" %}
-    {% include "invoices/_letterhead.html" %}
+  {# Footer : alleen bij digitaal #}
+  {% if request.GET.papier|default:"digitaal" == "digitaal" %}
+    {% include "invoices/_footer_org.html" %}
   {% endif %}
 
   {# Forceer adresvenster zichtbaar op scherm bij papier=digitaal #}
@@ -403,6 +403,10 @@
     </div> <!-- /.card -->
 
   </div>   <!-- /.wrap -->
+
+  {% if request.GET.papier|default:"digitaal" == "digitaal" %}
+    {% include "invoices/_footer_org.html" %}
+  {% endif %}
 
 </body>
 </html>
