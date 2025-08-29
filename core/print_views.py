@@ -84,7 +84,7 @@ def invoice_preview(request, pk):
     payment = {
         "iban": getattr(org, "iban", "") if org else "",
         "bic": getattr(org, "bic", "") if org else "",
-        "ogm": ogm_raw,   # ← gebruik het samengevoegde OGM uit 1a)
+        "ogm": ogm_raw,   # ← gebruik de variabele die je eerder samenstelde
     }
 
     ctx = {

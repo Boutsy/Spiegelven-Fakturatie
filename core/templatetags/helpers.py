@@ -1,5 +1,5 @@
-from django import template
 from decimal import Decimal, ROUND_HALF_UP
+from django import template
 
 register = template.Library()
 
@@ -12,23 +12,25 @@ def get_item(d, key):
 @register.filter
 def eur(value, digits=2):
     """
-    Europese notatie: 1.234,56 — gebruik {{ bedrag|eur }} of {{ qty|eur:"0" }}
+    Europese notatie: duizendtallen met '.', decimalen met ','.
+    Voorbeeld: 1234.5 -> '1.234,50'
+    Gebruik: {{ bedrag|eur }} of {{ qty|eur:"0" }}
     """
     try:
         d = Decimal(value)
     except Exception:
         return value
-    q = Decimal("1").scaleb(-int(digits))          # 10^-digits
+    q = Decimal("1").scaleb(-int(digits))  # 10^-digits
     d = d.quantize(q, rounding=ROUND_HALF_UP)
-    s = f"{d:,.{int(digits)}f}"                    # 1,234.56
-    return s.replace(",", "§").replace(".", ",").replace("§", ".")
+    s = f"{d:,.{int(digits)}f}"                  # '12,345.67' (US)
+    return s.replace(",", "§").replace(".", ",").replace("§", ".")  # -> '12.345,67'
 
 @register.filter(name="ogm")
 def ogm(value):
     """
-    Formatteer een Belgische gestructureerde mededeling:
+    Belgische gestructureerde mededeling:
     12 cijfers -> +++123/4567/89012+++
-    Anders: originele waarde teruggeven.
+    Anders: originele waarde.
     """
     s = "".join(ch for ch in str(value or "") if ch.isdigit())
     if len(s) == 12:
