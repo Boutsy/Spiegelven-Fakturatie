@@ -91,6 +91,7 @@
       grid-template-columns: 1fr auto; /* label | waarde */
       align-items:baseline;
       padding:4px 0;
+      column-gap: 10mm;  /* ≈ 1 cm extra ruimte tussen titel en bedrag */
     }
     .totals-card .row.total{
       border-top:1px solid var(--line);
@@ -103,7 +104,7 @@
       display:inline-flex;
       align-items:baseline;
       gap:2px;
-      padding-right:10mm;         /* ⇠ cijfers ±1cm naar links t.o.v. rand */
+      padding-right:5mm;         /* ⇠ cijfers ±1cm naar links t.o.v. rand */
       font-variant-numeric: tabular-nums; /* gelijke tekenbreedte */
     }
     .totals-card .value .curr{ margin-right:2px; }
