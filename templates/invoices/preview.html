@@ -165,8 +165,6 @@
       background:#fff;
       padding:10px 12px;
     }
-    .note-head{ font-weight:600; margin:0 0 6px; }
-    .note-top{
       height:6px; margin:2px 0 8px;
       background:
         linear-gradient(var(--line),var(--line)) 0 0/100% 1px no-repeat,
@@ -425,8 +423,6 @@
 
       {% if invoice.notes %}
         <div class="note-box">
-          <div class="note-head">Opmerking</div>
-          <div class="note-top"></div>
           <div class="note-body">{{ invoice.notes }}</div>
         </div>
       {% endif %}
