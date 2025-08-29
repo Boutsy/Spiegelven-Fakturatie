@@ -64,7 +64,21 @@
     td.num, th.num { text-align:right; white-space:nowrap; }
 
     /* Totalen: kadertje rechts, waarden decimaal uitgelijnd en 1cm van rechterrand */
-    .totals { margin-top:12px; display:flex; justify-content:flex-end; }
+    /* Plaats totalen rechts, linkerrand exact op het midden van de pagina */
+    .totals{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr; /* links en rechts elk 50% */
+      column-gap:12px;
+      align-items:start;
+      justify-items:end; 
+    }
+    .totals > .totals-card{
+      grid-column: 2;     /* in de rechterkolom */
+      justify-self: end;  /* tegen de rechterrand van kolom 2 */
+      width: auto;        /* laat de inhoud de breedte bepalen */
+      max-width: 420px;   /* jouw bestaande max-breedte behouden */
+    }
     .totals-card{
       width: min(420px, 100%);
       border:1px solid var(--line);
