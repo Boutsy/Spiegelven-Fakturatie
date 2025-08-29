@@ -27,6 +27,7 @@ def invoice_preview(request, pk):
         qty   = _D(getattr(l, "quantity", 0))
         unit  = _D(getattr(l, "unit_price_excl", 0))
         rate  = _D(getattr(l, "vat_rate", 0))  # bv. 21 voor 21%
+        l.vat_rate_display = int(rate)  # UI: 0/6/12/21
 
         # bestaande velden gebruiken als ze er zijn, anders berekenen
         line_excl = getattr(l, "line_excl", None)
