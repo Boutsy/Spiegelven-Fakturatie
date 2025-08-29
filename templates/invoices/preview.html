@@ -263,6 +263,40 @@
 
     /* Scherm */
     .notes-print { display:none; }
+
+    /* Rij met links: betaling (flexibel), rechts: totalen (vaste breedte) */
+    .summary-row{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr auto;  /* links vult over, rechts houdt eigen breedte */
+      column-gap:12px;
+      align-items:start;
+    }
+
+    /* Pay-kaart: zelfde look als totalen, maar vult links-kolom volledig */
+    .pay-card{
+      width: 100%;                 /* neemt alle resterende ruimte links in */
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+      padding:10px 12px;
+      font-size:14px;
+      line-height:1.4;
+    }
+    .pay-card .row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:baseline;
+      padding:4px 0;
+    }
+    .pay-card .label{ color:var(--muted); font-weight:600; }
+    .pay-card .value{ font-weight:700; }
+    .pay-card .ogm{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing:.3px;
+    }
+
   </style>
 
   {% if request.GET.papier|default:"digitaal" == "voorbedrukt" %}
@@ -426,7 +460,33 @@
       </div>
       {% endif %}
 
-      <div class="totals">
+      <div class="summary-row">
+
+        <div class="pay-card">
+          <div class="row">
+            <span class="label">Ten name van</span>
+            <span class="value">{{ org.name }}</span>
+          </div>
+          {% if payment.iban %}
+          <div class="row">
+            <span class="label">IBAN</span>
+            <span class="value">{{ payment.iban }}</span>
+          </div>
+          {% endif %}
+          {% if payment.bic %}
+          <div class="row">
+            <span class="label">BIC</span>
+            <span class="value">{{ payment.bic }}</span>
+          </div>
+          {% endif %}
+          {% if payment.ogm %}
+          <div class="row">
+            <span class="label">OGM</span>
+            <span class="value ogm">{{ payment.ogm }}</span>
+          </div>
+          {% endif %}
+        </div>
+
         <div class="totals-card">
           <div class="row">
             <div class="label">Totaal excl.</div>
@@ -450,6 +510,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       {% if payment.iban or payment.ogm %}
