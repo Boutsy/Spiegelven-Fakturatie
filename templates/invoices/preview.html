@@ -507,13 +507,14 @@
           </div>
           {% endif %}
 
-          {% firstof payment.ogm invoice.structured_message invoice.payment_reference_raw invoice.payment_reference as ogm_val %}
-          {% if ogm_val %}
-            <div class="row">
-              <span class="label">Gestructureerde mededeling:</span>
-              <span class="value ogm">{{ ogm_val }}</span>
-            </div>
-          {% endif %}
+          {% with ogm_raw=payment.ogm|default:invoice.structured_message|default:invoice.payment_reference_raw|default:invoice.payment_reference %}
+            {% if ogm_raw %}
+              <div class="row">
+                <span class="label">Gestructureerde mededeling:</span>
+                <span class="value ogm">{{ ogm_raw|ogm }}</span>
+              </div>
+            {% endif %}
+          {% endwith %}
         </div>
 
         <div class="totals-card">
