@@ -316,6 +316,14 @@
     }
     .pay-card .sep{ opacity:.6; margin:0 6px; }
 
+    /* Pay-kaart: titel en centreren van alle regels */
+    .pay-card{ text-align: center; }
+    .pay-card .row{ justify-content: center; }
+    .pay-card .pay-title{
+      font-weight: 700;
+      margin: 2px 0 6px;
+    }
+
     /* totalenkaart ook laten meerekken in de grid-rij */
     .totals-card{ height:100%; }
 
@@ -485,6 +493,7 @@
       <div class="summary-row">
 
         <div class="pay-card">
+          <div class="pay-title">Betalingsgegevens :</div>
           <div class="row">
             <span class="label">Op naam van</span>
             <span class="value">{{ org.name }}</span>
