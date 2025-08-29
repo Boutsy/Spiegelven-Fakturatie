@@ -264,28 +264,46 @@
     /* Scherm */
     .notes-print { display:none; }
 
+    .pay-card .label{ color:var(--muted); font-weight:600; }
+    .pay-card .value{ font-weight:700; }
+    .pay-card .ogm{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing:.3px;
+    }
+
     /* Rij met links: betaling (flexibel), rechts: totalen (vaste breedte) */
     .summary-row{
       margin-top:12px;
       display:grid;
       grid-template-columns: 1fr auto;  /* links vult over, rechts houdt eigen breedte */
       column-gap:12px;
-      align-items:start;
+      align-items: stretch;              /* kaarten even hoog */
+    }
+
+    /* Forceer plaatsing in de grid: pay links, totalen rechts */
+    .summary-row .pay-card{ grid-column: 1; }
+    .summary-row .totals-card{
+      grid-column: 2;
+      justify-self: end;     /* rechts uitlijnen */
+      width: min(420px, 100%);
     }
 
     /* Pay-kaart: zelfde look als totalen, maar vult links-kolom volledig */
     .pay-card{
-      width: 100%;                 /* neemt alle resterende ruimte links in */
+      width: 100%;
       border:1px solid var(--line);
       border-radius:10px;
       background:#fff;
       padding:10px 12px;
       font-size:14px;
       line-height:1.4;
+      height:100%;                       /* gelijke hoogte met totalen */
+      display:flex;
+      flex-direction:column;
     }
     .pay-card .row{
       display:flex;
-      gap:8px;
+      gap:10px;
       flex-wrap:wrap;
       align-items:baseline;
       padding:4px 0;
@@ -296,6 +314,10 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       letter-spacing:.3px;
     }
+    .pay-card .sep{ opacity:.6; margin:0 6px; }
+
+    /* totalenkaart ook laten meerekken in de grid-rij */
+    .totals-card{ height:100%; }
 
   </style>
 
@@ -464,24 +486,25 @@
 
         <div class="pay-card">
           <div class="row">
-            <span class="label">Ten name van</span>
+            <span class="label">Op naam van</span>
             <span class="value">{{ org.name }}</span>
           </div>
+
           {% if payment.iban %}
           <div class="row">
             <span class="label">IBAN</span>
             <span class="value">{{ payment.iban }}</span>
+            {% if payment.bic %}
+              <span class="sep">·</span>
+              <span class="label">BIC</span>
+              <span class="value">{{ payment.bic }}</span>
+            {% endif %}
           </div>
           {% endif %}
-          {% if payment.bic %}
-          <div class="row">
-            <span class="label">BIC</span>
-            <span class="value">{{ payment.bic }}</span>
-          </div>
-          {% endif %}
+
           {% if payment.ogm %}
           <div class="row">
-            <span class="label">OGM</span>
+            <span class="label">Gestructureerde mededeling:</span>
             <span class="value ogm">{{ payment.ogm }}</span>
           </div>
           {% endif %}
@@ -512,15 +535,6 @@
         </div>
 
       </div>
-
-      {% if payment.iban or payment.ogm %}
-      <div class="paycall">
-        <strong>Gelieve te betalen op naam van {{ org.name }}</strong>
-        {% if payment.iban %} — IBAN: <strong>{{ payment.iban }}</strong>{% endif %}
-        {% if payment.ogm %} — Gestructureerde mededeling (OGM): <strong class="ogm">{{ payment.ogm }}</strong>{% endif %}
-        {% if payment.bic %} — BIC: {{ payment.bic }}{% endif %}
-      </div>
-      {% endif %}
 
     </div> <!-- /.card -->
 
