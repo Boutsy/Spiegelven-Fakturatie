@@ -345,6 +345,18 @@
     /* totalenkaart ook laten meerekken in de grid-rij */
     .totals-card{ height:100%; }
 
+    /* OGM “chip” (inverted, één regel) */
+    .ogm-chip{
+      display:inline-block;
+      padding:2px 6px;
+      border-radius:6px;
+      background:#0f172a;  /* donker */
+      color:#fff;          /* licht */
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing:.4px;
+      white-space:nowrap;  /* op één regel houden */
+    }
+
   </style>
 
   {% if request.GET.papier|default:"digitaal" == "voorbedrukt" %}
@@ -529,7 +541,7 @@
           {% if payment.ogm %}
             <div class="row">
               <span class="label">Gestructureerde mededeling:</span>
-              <span class="value ogm">{{ payment.ogm|ogm }}</span>
+              <span class="ogm-chip">{{ payment.ogm|ogm }}</span>
             </div>
           {% endif %}
         </div>
