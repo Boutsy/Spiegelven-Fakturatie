@@ -63,6 +63,26 @@
     thead th { background:var(--soft); text-align:left; font-weight:600; }
     td.num, th.num { text-align:right; white-space:nowrap; }
 
+    /* --- COMPACTERE FACTUURLIJNEN (alleen de tabel) --- */
+    .table thead th{
+  font-size:12.5px;    /* was ~14px */
+  padding:6px 6px;     /* was 10px 8px */
+  line-height:1.25;
+    }
+    .table tbody td{
+      font-size:12.5px;
+      padding:4px 6px;     /* iets minder verticale padding => lagere rijhoogte */
+      line-height:1.25;
+    }
+    @media print{
+      .table thead th,
+      .table tbody td{
+        font-size:11.5px;  /* print nóg iets compacter */
+        padding:3px 5px;
+        line-height:1.18;
+      }
+    }
+
     /* Totalen: kadertje rechts, waarden decimaal uitgelijnd en 1cm van rechterrand */
     /* Plaats totalen rechts, linkerrand exact op het midden van de pagina */
     .totals{
