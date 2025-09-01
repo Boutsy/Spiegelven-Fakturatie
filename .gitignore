@@ -16,3 +16,6 @@ db.backup*.sqlite3
 
 # Build/static outputs die je lokaal genereert
 staticfiles/
+backups/
+*.tar.gz
+*.pyc
