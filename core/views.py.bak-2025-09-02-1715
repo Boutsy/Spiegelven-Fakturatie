@@ -1,0 +1,268 @@
+from __future__ import annotations
+from dataclasses import dataclass
+from decimal import Decimal
+from typing import List, Optional, Dict, Tuple
+import datetime as dt
+
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
+
+from .models import (
+    Household, Member, MemberAsset, YearPlan, YearPlanItem,
+    Invoice, InvoiceLine, InvoiceAccount,
+)
+
+# ---------------------------
+# Helpers
+# ---------------------------
+
+def first_monday_of_year(year: int) -> dt.date:
+    d = dt.date(year, 1, 1)
+    # maandag = 0
+    offset = (7 - d.weekday()) % 7
+    return d + dt.timedelta(days=offset)
+
+def get_yearplan_item(year: int, code: str) -> Optional[YearPlanItem]:
+    try:
+        return YearPlanItem.objects.get(year=year, code=code)
+    except YearPlanItem.DoesNotExist:
+        return None
+
+@dataclass
+class DraftLine:
+    description: str
+    quantity: Decimal
+    unit_price_excl: Decimal
+    vat_rate: Decimal
+    product_id: Optional[int] = None
+
+def age_on(member: Member, on_date: dt.date) -> int:
+    if not member.date_of_birth:
+        return 200  # geen DOB? behandel als volwassen
+    b = member.date_of_birth
+    return on_date.year - b.year - ((on_date.month, on_date.day) < (b.month, b.day))
+
+def collect_asset_lines(year: int, members: List[Member]) -> Tuple[List[DraftLine], List[str]]:
+    """
+    Vertaalt MemberAsset → YearPlanItem via codes.
+    Verwachte YearPlanItem codes (pas aan in het jaarplan):
+      - VESTIAIREKAST
+      - KARKAST
+      - EKARKAST
+    """
+    code_map = {
+        "VESTIAIRE": "VESTIAIREKAST",
+        "KAR": "KARKAST",
+        "E_KAR": "EKARKAST",
+    }
+    warnings: List[str] = []
+    out: List[DraftLine] = []
+
+    assets = MemberAsset.objects.filter(member__in=members, active=True)
+    for a in assets:
+        key = (a.asset_type or "").upper()
+        target_code = code_map.get(key)
+        if not target_code:
+            warnings.append(f"Onbekende voorziening '{a.asset_type}' – voeg mapping toe.")
+            continue
+        ypi = get_yearplan_item(year, target_code)
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: code={target_code} ({year})")
+            continue
+        out.append(DraftLine(
+            description=ypi.description or target_code,
+            quantity=Decimal("1"),
+            unit_price_excl=ypi.price_excl or Decimal("0"),
+            vat_rate=ypi.vat_rate or Decimal("21"),
+        ))
+    return out, warnings
+
+def collect_membership_and_federation_lines(year: int, household: Household) -> Tuple[List[DraftLine], List[str]]:
+    """
+    Lidgelden + federatiebijdrage op basis van leeftijd en gezinssamenstelling.
+    Vereiste YearPlanItem codes (pas aan aan je jaarplan):
+      - LID_INDIV
+      - LID_KOPPEL
+      - KID_U15
+      - KID_U21
+      - YA_22_26
+      - YA_27_29
+      - YA_30_35
+      - FED_14
+      - FED_67
+    """
+    ref_date = dt.date(year, 1, 1)
+    members = list(Member.objects.filter(household=household, active=True))
+    warnings: List[str] = []
+    lines: List[DraftLine] = []
+
+    # Bepaal volwassenen (head/partner) en jongeren
+    adults = [m for m in members if age_on(m, ref_date) >= 30]  # ruwe cut-off voor "volwassen"
+    ya_22_26 = [m for m in members if 22 <= age_on(m, ref_date) <= 26]
+    ya_27_29 = [m for m in members if 27 <= age_on(m, ref_date) <= 29]
+    ya_30_35 = [m for m in members if 30 <= age_on(m, ref_date) <= 35]
+    kids_u15 = [m for m in members if age_on(m, ref_date) <= 15]
+    kids_u21 = [m for m in members if 16 <= age_on(m, ref_date) <= 21]
+
+    # Lidgeld: koppel vs individueel (normaal lid)
+    if len(adults) >= 2:
+        ypi = get_yearplan_item(year, "LID_KOPPEL")
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: LID_KOPPEL ({year})")
+        else:
+            lines.append(DraftLine(ypi.description or "Lidgeld koppel", Decimal("1"),
+                                   ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("6")))
+    elif len(adults) >= 1:
+        ypi = get_yearplan_item(year, "LID_INDIV")
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: LID_INDIV ({year})")
+        else:
+            lines.append(DraftLine(ypi.description or "Lidgeld individueel", Decimal("1"),
+                                   ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("6")))
+
+    # Jongeren / YA opsommen per persoon
+    def add_per_person(members_list: List[Member], code: str, fallback_desc: str):
+        nonlocal lines, warnings
+        if not members_list:
+            return
+        ypi = get_yearplan_item(year, code)
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: {code} ({year})")
+            return
+        for _ in members_list:
+            lines.append(DraftLine(ypi.description or fallback_desc, Decimal("1"),
+                                   ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("6")))
+
+    add_per_person(kids_u15, "KID_U15", "Kids t.e.m. 15")
+    add_per_person(kids_u21, "KID_U21", "Kids t.e.m. 21")
+    add_per_person(ya_22_26, "YA_22_26", "YA 22–26")
+    add_per_person(ya_27_29, "YA_27_29", "YA 27–29")
+    add_per_person(ya_30_35, "YA_30_35", "YA 30–35")
+
+    # Federatiebijdrage per persoon (14€ t/m 21 jaar, anders 67€)
+    for m in members:
+        code = "FED_14" if age_on(m, ref_date) <= 21 else "FED_67"
+        ypi = get_yearplan_item(year, code)
+        if not ypi:
+            warnings.append(f"Jaarplan-item ontbreekt: {code} ({year})")
+            continue
+        lines.append(DraftLine(ypi.description or "Federatiebijdrage", Decimal("1"),
+                               ypi.price_excl or Decimal("0"), ypi.vat_rate or Decimal("0")))
+    return lines, warnings
+
+def build_household_draft(year: int, household: Household) -> Tuple[List[DraftLine], List[str]]:
+    """
+    Maakt conceptregels o.b.v. Jaarplan + Ledenvoorzieningen.
+    Alles via YearPlanItem-codes zoals hierboven benoemd.
+    """
+    members = list(Member.objects.filter(household=household, active=True))
+    lines1, warn1 = collect_membership_and_federation_lines(year, household)
+    lines2, warn2 = collect_asset_lines(year, members)
+    return (lines1 + lines2), (warn1 + warn2)
+
+# ---------------------------
+# Views
+# ---------------------------
+
+@staff_member_required
+def household_generate_invoice(request, pk: int):
+    household = get_object_or_404(Household, pk=pk)
+    years = list(YearPlan.objects.order_by("-year").values_list("year", flat=True))
+    if not years:
+        messages.error(request, "Geen Jaarplan gevonden. Maak eerst een Jaarplan aan.")
+        return redirect("/admin/core/yearplan/")
+
+    if request.method == "POST":
+        year = int(request.POST.get("year"))
+        issue_date = first_monday_of_year(year)
+        with transaction.atomic():
+            account: InvoiceAccount = household.account
+            if not account:
+                messages.error(request, "Geen facturatieaccount gekoppeld aan dit gezin.")
+                return redirect("/admin/core/household/")
+            inv = Invoice.objects.create(account=account, issue_date=issue_date)
+            draft_lines, warns = build_household_draft(year, household)
+            for dl in draft_lines:
+                InvoiceLine.objects.create(
+                    invoice=inv,
+                    description=dl.description,
+                    quantity=dl.quantity,
+                    unit_price_excl=dl.unit_price_excl,
+                    vat_rate=dl.vat_rate,
+                )
+        for w in set(warns):
+            messages.warning(request, w)
+        return HttpResponseRedirect(reverse("invoice_preview", args=[inv.pk]))
+
+    # GET → keuzescherm
+    ctx = {"household": household, "years": years}
+    return render(request, "household/generate.html", ctx)
+
+@staff_member_required
+# def yearplan_forecast(request, year: int):  # disabled
+    # Doorloop alle gezinnen en tel lijnen zoals in draft (zonder facturen te maken)
+    households = Household.objects.all().select_related("account")
+    rows: Dict[Tuple[str, Decimal], Dict[str, Decimal]] = {}
+    total_excl = Decimal("0")
+    total_vat = Decimal("0")
+
+    for hh in households:
+        draft, _warns = build_household_draft(year, hh)
+        for dl in draft:
+            key = (dl.description, dl.vat_rate or Decimal("0"))
+            r = rows.setdefault(key, {"qty": Decimal("0"), "excl": Decimal("0")})
+            r["qty"] += dl.quantity or Decimal("1")
+            r["excl"] += (dl.unit_price_excl or Decimal("0")) * (dl.quantity or Decimal("1"))
+
+    data = []
+    for (desc, vat), agg in sorted(rows.items(), key=lambda x: (str(x[0][0]), x[0][1])):
+        vat_amount = agg["excl"] * (vat or 0) / 100
+        incl = agg["excl"] + vat_amount
+        total_excl += agg["excl"]
+        total_vat += vat_amount
+        data.append({
+            "description": desc,
+            "vat_rate": vat,
+            "quantity": agg["qty"],
+            "total_excl": agg["excl"],
+            "total_vat": vat_amount,
+            "total_incl": incl,
+        })
+
+    ctx = {
+        "year": year,
+        "rows": data,
+        "grand_excl": total_excl,
+        "grand_vat": total_vat,
+        "grand_incl": total_excl + total_vat,
+    }
+    return render(request, "yearplan/forecast.html", ctx)
+
+@staff_member_required
+# def yearplan_forecast_csv(request, year: int):  # disabled
+    # Zelfde berekening als HTML, maar CSV export
+    from io import StringIO
+    import csv
+    response = yearplan_forecast(request, year)  # render berekent data in ctx
+    ctx = response.context_data  # type: ignore[attr-defined]
+    output = StringIO()
+    writer = csv.writer(output, delimiter=";")
+    writer.writerow(["Omschrijving", "BTW %", "Aantal", "Totaal excl", "BTW bedrag", "Totaal incl"])
+    for r in ctx["rows"]:
+        writer.writerow([
+            r["description"],
+            f"{r['vat_rate']}",
+            f"{r['quantity']}",
+            f"{r['total_excl']:.2f}",
+            f"{r['total_vat']:.2f}",
+            f"{r['total_incl']:.2f}",
+        ])
+    out = output.getvalue()
+    resp = HttpResponse(out, content_type="text/csv; charset=utf-8")
+    resp["Content-Disposition"] = f'attachment; filename="prognose_{year}.csv"'
+    return resp

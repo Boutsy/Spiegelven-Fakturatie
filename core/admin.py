@@ -442,19 +442,18 @@ class InvoiceAccountAdmin(admin.ModelAdmin):
 # ---------- YearSequence ----------
 
 @admin.register(YearSequence)
-# 0
-    _cols = []
-    if _has_field(YearSequence, "year"):
-        _cols.append("year")
-    if _has_field(YearSequence, "next_invoice_number"):
-        _cols.append("next_invoice_number")
-    else:
-        _cols.append("next_display")
-    list_display = tuple(_cols)
+class YearSequenceAdmin(admin.ModelAdmin):
+    def get_list_display(self, request):
+        cols = []
+        if _has_field(YearSequence, "year"): cols.append("year")
+        if _has_field(YearSequence, "next_invoice_number"):
+            cols.append("next_invoice_number")
+        else:
+            cols.append("next_display")
+        return tuple(cols)
 
-    _lf = tuple([f for f in ("year",) if _has_field(YearSequence, f)])
-    list_filter = _lf
-    search_fields = _lf
+    list_filter = tuple(f for f in ("year",) if _has_field(YearSequence, f))
+    search_fields = list_filter
 
     @admin.display(description=_("Volgend nummer"))
     def next_display(self, obj):
