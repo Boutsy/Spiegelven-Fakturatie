@@ -1,8 +1,8 @@
 from __future__ import annotations
-from decimal import Decimal
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _from decimal import Decimal
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 class OrganizationProfile(models.Model):
     PRINT_WITH_LOGO_FOOTER = "logo_footer"
@@ -283,6 +283,9 @@ class YearPricing(models.Model):
 from django.db import models as _models
 
 class YearRule(_models.Model):
+    class Meta:
+        verbose_name = _('Jaarregel')
+        verbose_name_plural = _('Jaarregels')
     year = _models.PositiveIntegerField()
     code = _models.CharField(max_length=40)
     order = _models.PositiveIntegerField(default=0)
@@ -295,8 +298,6 @@ class YearRule(_models.Model):
     active = _models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = _("Jaarregel")
-        verbose_name_plural = _("Jaarregels")
         unique_together = (("year", "code", "order"),)
         ordering = ["year", "order", "code"]
 
