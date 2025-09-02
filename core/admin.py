@@ -543,3 +543,14 @@ if YearPricing:
         list_display  = ("year", "code", "description", "amount", "vat_rate", "active")
         list_filter   = ("year", "vat_rate", "active")
         search_fields = ("code", "description")
+
+# ---------- YearRule (hoe factureren) ----------
+try:
+    from .models import YearRule
+    @admin.register(YearRule)
+    class YearRuleAdmin(admin.ModelAdmin):
+        list_display = ("year","code","pricing","applies_role","course","age_bucket","federation","invest_mode","bill_to","quantity","order","active")
+        list_filter  = ("year","applies_role","course","age_bucket","federation","invest_mode","bill_to","active")
+        search_fields = ("code",)
+except Exception as e:
+    pass
