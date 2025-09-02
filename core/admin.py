@@ -389,55 +389,55 @@ class InvoiceAccountAdmin(admin.ModelAdmin):
 
 # ---------- YearPlan ----------
 
-@admin.register(YearPlan)
-class YearPlanAdmin(admin.ModelAdmin):
-    _yd = []
-    for f in ("year", "name", "membership_vat", "federation_vat"):
-        if _has_field(YearPlan, f):
-            _yd.append(f)
-    list_display = tuple(_yd) if _yd else ("id",)
-    search_fields = tuple([f for f in ("year", "name") if _has_field(YearPlan, f)])
-    _lf = [f for f in ("year",) if _has_field(YearPlan, f)]
-    list_filter = tuple(_lf)
+#@admin.register(YearPlan)
+#class YearPlanAdmin(admin.ModelAdmin):
+#    _yd = []
+#    for f in ("year", "name", "membership_vat", "federation_vat"):
+#        if _has_field(YearPlan, f):
+#            _yd.append(f)
+#    list_display = tuple(_yd) if _yd else ("id",)
+#    search_fields = tuple([f for f in ("year", "name") if _has_field(YearPlan, f)])
+#    _lf = [f for f in ("year",) if _has_field(YearPlan, f)]
+#    list_filter = tuple(_lf)
 
 # ---------- YearPlanItem ----------
 
-@admin.register(YearPlanItem)
-class YearPlanItemAdmin(admin.ModelAdmin):
-    _cols = []
-    for f in ("yearplan", "code", "description"):
-        if _has_field(YearPlanItem, f):
-            _cols.append(f)
-    _cols.append("price_excl_display")
-    if _has_field(YearPlanItem, "vat_rate"):
-        _cols.append("vat_rate")
-    if _has_field(YearPlanItem, "product"):
-        _cols.append("product")
-    list_display = tuple(_cols)
-
-    _lf = []
-    for f in ("yearplan", "code"):
-        if _has_field(YearPlanItem, f):
-            _lf.append(f)
-    if _has_field(YearPlanItem, "product"):
-        _lf.append("product")
-    list_filter = tuple(_lf)
-
-    search_fields = tuple([f for f in ("code", "description") if _has_field(YearPlanItem, f)])
-
-    _ac = []
-    if _has_field(YearPlanItem, "yearplan"):
-        _ac.append("yearplan")
-    if _has_field(YearPlanItem, "product"):
-        _ac.append("product")
-    autocomplete_fields = tuple(_ac)
-
-    @admin.display(description=_("Prijs (excl.)"))
-    def price_excl_display(self, obj):
-        for attr in ("price_excl", "unit_price_excl", "unit_price", "price"):
-            if hasattr(obj, attr):
-                return _money(getattr(obj, attr))
-        return ""
+#@admin.register(YearPlanItem)
+#class YearPlanItemAdmin(admin.ModelAdmin):
+#    _cols = []
+#    for f in ("yearplan", "code", "description"):
+#        if _has_field(YearPlanItem, f):
+#            _cols.append(f)
+#    _cols.append("price_excl_display")
+#    if _has_field(YearPlanItem, "vat_rate"):
+#        _cols.append("vat_rate")
+#    if _has_field(YearPlanItem, "product"):
+#        _cols.append("product")
+#    list_display = tuple(_cols)
+#
+#    _lf = []
+#    for f in ("yearplan", "code"):
+#        if _has_field(YearPlanItem, f):
+#            _lf.append(f)
+#    if _has_field(YearPlanItem, "product"):
+#        _lf.append("product")
+#    list_filter = tuple(_lf)
+#
+#    search_fields = tuple([f for f in ("code", "description") if _has_field(YearPlanItem, f)])
+#
+#    _ac = []
+#    if _has_field(YearPlanItem, "yearplan"):
+#        _ac.append("yearplan")
+#    if _has_field(YearPlanItem, "product"):
+#        _ac.append("product")
+#    autocomplete_fields = tuple(_ac)
+#
+#    @admin.display(description=_("Prijs (excl.)"))
+#    def price_excl_display(self, obj):
+#        for attr in ("price_excl", "unit_price_excl", "unit_price", "price"):
+#            if hasattr(obj, attr):
+#                return _money(getattr(obj, attr))
+#        return ""
 
 # ---------- YearSequence ----------
 
@@ -514,4 +514,19 @@ if Household is not None:
     try:
         admin.site.unregister(Household)
     except NotRegistered:
-        pass
+        pass# --- Hide YearPlan-related models behind feature flag ---
+from django.conf import settings as _settings
+from django.contrib import admin as _admin
+from django.apps import apps as _apps
+
+if not getattr(_settings, "ENABLE_YEAR_PLANS", False):
+    for _name in ("YearPlan", "YearPlanPart", "PricingRule"):
+        try:
+            _model = _apps.get_model("core", _name)
+            try:
+                _admin.site.unregister(_model)
+            except _admin.sites.NotRegistered:
+                pass
+        except LookupError:
+            # model bestaat niet in deze codebase; stilletjes overslaan
+            pass
