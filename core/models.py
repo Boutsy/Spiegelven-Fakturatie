@@ -253,3 +253,25 @@ class InvoiceLine(models.Model):
         return (self.line_total_excl() + self.line_total_vat()).quantize(Decimal("0.01"))
     def __str__(self) -> str:
         return self.description or f"Regel #{self.pk}"
+
+# ===== annual_v2: YearPricing =====
+from django.db import models
+
+VAT_CHOICES = [(0, "0%"), (6, "6%"), (12, "12%"), (21, "21%")]
+
+class YearPricing(models.Model):
+    year = models.PositiveIntegerField(db_index=True)
+    code = models.CharField(max_length=32)  # vb. afkorting uit Excel
+    description = models.CharField(max_length=255, blank=True)
+    vat_rate = models.PositiveSmallIntegerField(choices=VAT_CHOICES, default=21)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("year", "code")
+        ordering = ["year", "code"]
+        verbose_name = "Jaarprijs"
+        verbose_name_plural = "Jaarprijzen"
+
+    def __str__(self):
+        return f"{self.year} {self.code}: {self.amount} ({self.vat_rate}%)"
