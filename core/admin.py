@@ -529,3 +529,17 @@ if not getattr(_settings, "ENABLE_YEAR_PLANS", False):
         except LookupError:
             # model bestaat niet in deze codebase; stilletjes overslaan
             pass
+
+# ===== annual_v2: admin =====
+try:
+    from .models import YearPricing
+except Exception:
+    YearPricing = None
+
+if YearPricing:
+    from django.contrib import admin
+    @admin.register(YearPricing)
+    class YearPricingAdmin(admin.ModelAdmin):
+        list_display  = ("year", "code", "description", "amount", "vat_rate", "active")
+        list_filter   = ("year", "vat_rate", "active")
+        search_fields = ("code", "description")
