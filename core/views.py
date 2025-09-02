@@ -204,7 +204,7 @@ def household_generate_invoice(request, pk: int):
     return render(request, "household/generate.html", ctx)
 
 @staff_member_required
-def yearplan_forecast(request, year: int):
+# def yearplan_forecast(request, year: int):  # disabled
     # Doorloop alle gezinnen en tel lijnen zoals in draft (zonder facturen te maken)
     households = Household.objects.all().select_related("account")
     rows: Dict[Tuple[str, Decimal], Dict[str, Decimal]] = {}
@@ -244,7 +244,7 @@ def yearplan_forecast(request, year: int):
     return render(request, "yearplan/forecast.html", ctx)
 
 @staff_member_required
-def yearplan_forecast_csv(request, year: int):
+# def yearplan_forecast_csv(request, year: int):  # disabled
     # Zelfde berekening als HTML, maar CSV export
     from io import StringIO
     import csv
