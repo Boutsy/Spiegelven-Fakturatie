@@ -442,7 +442,7 @@ class InvoiceAccountAdmin(admin.ModelAdmin):
 # ---------- YearSequence ----------
 
 @admin.register(YearSequence)
-class YearSequenceAdmin(admin.ModelAdmin):
+# 0
     _cols = []
     if _has_field(YearSequence, "year"):
         _cols.append("year")
