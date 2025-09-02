@@ -278,3 +278,25 @@ class YearPricing(models.Model):
 
 # annual-v2 rules
 from .annual_v2_rules import YearRule  # noqa: F401
+
+# ---- YearRule (annual v2 “hoe factureren” regels) ----
+from django.db import models as _models
+
+class YearRule(_models.Model):
+    year = _models.PositiveIntegerField()
+    code = _models.CharField(max_length=40)
+    order = _models.PositiveIntegerField(default=0)
+
+    # vrije velden om je regels uit te drukken
+    condition = _models.TextField(blank=True, default="")
+    action = _models.TextField(blank=True, default="")
+    data = _models.JSONField(blank=True, default=dict)
+
+    active = _models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (("year", "code", "order"),)
+        ordering = ["year", "order", "code"]
+
+    def __str__(self):
+        return f"{self.year} · {self.code} · #{self.order}"
