@@ -76,3 +76,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ---- Feature flags ----
 ENABLE_YEAR_PLANS = False
+
+# ---- Annual Invoicing v2 feature flag ----
+ENABLE_ANNUAL_V2 = False   # zet tijdelijk True om te testen
