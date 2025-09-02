@@ -277,7 +277,6 @@ class YearPricing(models.Model):
         return f"{self.year} {self.code}: {self.amount} ({self.vat_rate}%)"
 
 # annual-v2 rules
-from .models import YearRule  # noqa: F401
 
 # ---- YearRule (annual v2 “hoe factureren” regels) ----
 from django.db import models as _models
