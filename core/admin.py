@@ -554,3 +554,33 @@ try:
         search_fields = ("code",)
 except Exception as e:
     pass
+# --- Safe fallback YearRuleAdmin override (toont enkel bestaande velden) ---
+try:
+    from django.contrib import admin as _admin
+    from .models import YearRule  # het model dat we willen beheren
+
+    # Als er al een registratie bestaat, haal die weg
+    try:
+        _admin.site.unregister(YearRule)
+    except Exception:
+        pass
+
+    @_admin.register(YearRule)
+    class YearRuleAdmin(_admin.ModelAdmin):
+        def get_list_display(self, request):
+            cols = []
+            for fld in (
+                "year", "code", "order", "active",
+                # toekomstige (optionele) velden – alleen tonen als ze bestaan:
+                "pricing", "applies_role", "course", "age_bucket",
+                "federation", "invest_mode", "bill_to", "quantity",
+            ):
+                if hasattr(YearRule, fld):
+                    cols.append(fld)
+            return tuple(cols) or ("id",)
+
+        list_filter  = tuple(f for f in ("year","active") if hasattr(YearRule, f))
+        search_fields = tuple(f for f in ("code",)       if hasattr(YearRule, f))
+except Exception:
+    # Als models nog niet klaar zijn tijdens import, rustig negeren
+    pass
