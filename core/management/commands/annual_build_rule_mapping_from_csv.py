@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from core.models import ImportMapping
-import os, csv, re, json, unicodedata
+import os, csv, re, unicodedata
 
 def _norm_header(s: str) -> str:
     s = s or ""
