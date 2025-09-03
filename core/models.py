@@ -324,3 +324,26 @@ class YearInvestScale(models.Model):
 
     def __str__(self) -> str:
         return f"{self.age}+ {self.get_role_display()}: {self.amount_normal} (FLEX {self.amount_flex_yearly})"
+
+# === Degressieve investering 60-69 (IND/PRT) ===
+class YearInvestScale(models.Model):
+    ROLE_IND = "IND"
+    ROLE_PRT = "PRT"
+    ROLE_CHOICES = [(ROLE_IND, "Individueel"), (ROLE_PRT, "Partner")]
+
+    age = models.PositiveSmallIntegerField(help_text="Leeftijd (jaren)")
+    role = models.CharField(max_length=3, choices=ROLE_CHOICES)
+    amount_normal = models.DecimalField(max_digits=10, decimal_places=2)
+    amount_flex_yearly = models.DecimalField(max_digits=10, decimal_places=2,
+                                             help_text="Jaarbedrag voor FLEX: (normaal * 1.17) / 7, afgerond op 2 dec.")
+    vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal("0.00"))
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (("age", "role"),)
+        ordering = ["age", "role"]
+        verbose_name = _("Degressieve investeringsbedrag")
+        verbose_name_plural = _("Degressieve investeringsbedragen")
+
+    def __str__(self) -> str:
+        return f"{self.age}+ {self.get_role_display()}: {self.amount_normal} (FLEX {self.amount_flex_yearly})"
