@@ -93,8 +93,8 @@ class Command(BaseCommand):
 
         # Basisinfo
         self.stdout.write(self.style.MIGRATE_HEADING(f"Preview {year} voor lid #{member.id}: {member}"))
-        self.stdout.write(f" - household_role: {getattr(member, household_role, )}")
-        self.stdout.write(f" - membership_mode: {getattr(member, membership_mode, )}")
+        self.stdout.write(f" - household_role: {getattr(member, 'household_role', '')}")
+        self.stdout.write(f" - membership_mode: {getattr(member, 'membership_mode', '')}")
         self.stdout.write(f" - geboortedatum: {getattr(member, date_of_birth, None)}  (leeftijd@{year}: {age_on_year(getattr(member,date_of_birth,None), year)})")
 
         # Assets overzicht
