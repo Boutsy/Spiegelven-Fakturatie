@@ -93,6 +93,14 @@ class Command(BaseCommand):
             rows_planned.append((exists, row))
 
         self.stdout.write(self.style.MIGRATE_HEADING(f"Year {year}: {len(rows_planned)} te verwerken (mapping)"))
+        # alias-normalisatie voor missings (bv. KAE_KLN -> KAR_KLN)
+
+        missing_in_pricing = [ {'KAE_KLN':'KAR_KLN'}.get(c, c) for c in missing_in_pricing ]
+
+        # verwijder items die, na normalisatie, wél bestaan in YearPricing
+
+        missing_in_pricing = [ c for c in missing_in_pricing if not YearPricing.objects.filter(year=year, code=c).exists() ]
+
         if missing_in_pricing:
             self.stdout.write(self.style.WARNING(f"Ontbreken in YearPricing ({year}): {sorted(set(missing_in_pricing))}"))
 
