@@ -19,3 +19,7 @@ staticfiles/
 backups/
 *.tar.gz
 *.pyc
+
+# lokale backups
+core/management/commands/*.bak.*
+core/prijslijst.csv
