@@ -101,7 +101,7 @@ class Command(BaseCommand):
         assets = list(MemberAsset.objects.filter(member=member, active=True, released_on__isnull=True)
                       .values_list("asset_type","identifier"))
         if assets:
-            self.stdout.write(" - actieve assets: " + ", ".join(f"{t}:{i or -}" for t,i in assets))
+            self.stdout.write(" - actieve assets: " + ", ".join(f"{t}:{(i or '-')}" for t,i in assets))
         else:
             self.stdout.write(" - actieve assets: (geen)")
 
