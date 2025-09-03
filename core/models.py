@@ -53,6 +53,11 @@ class Household(models.Model):
         return self.name
 
 class Member(models.Model):
+    COURSE_CHOICES = [
+        ('CC', 'Championship Course'),
+        ('P3', 'Par-3'),
+    ]
+    course = models.CharField(max_length=3, choices=COURSE_CHOICES, blank=True, null=True, db_index=True)
     billing_account = models.ForeignKey('InvoiceAccount', null=True, blank=True, on_delete=models.SET_NULL, related_name='members_billed')
     household_head = models.ForeignKey(
         "self",
