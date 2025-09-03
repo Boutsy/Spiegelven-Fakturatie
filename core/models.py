@@ -80,6 +80,8 @@ class Member(models.Model):
     country = models.CharField(max_length=100, default="Belgium", blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     membership_mode = models.CharField(max_length=20, choices=MODE_CHOICES, default=MODE_INVEST, blank=True)
+    invest_flex_start_year = models.PositiveIntegerField(null=True, blank=True, help_text="Jaar waarin flex-investering startte (1/7)")
+    invest_flex_locked_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Vaste jaarlijkse flex-investeringsbijdrage (berekend bij start)")
     federation_via_club = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
     household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL)
