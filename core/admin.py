@@ -584,3 +584,11 @@ try:
 except Exception:
     # Als models nog niet klaar zijn tijdens import, rustig negeren
     pass
+
+# --- YearInvestScale in admin ---
+from .models import YearInvestScale
+@admin.register(YearInvestScale)
+class YearInvestScaleAdmin(admin.ModelAdmin):
+    list_display = ("age","role","amount_normal","amount_flex_yearly","active")
+    list_filter = ("role","active")
+    ordering = ("age","role")
