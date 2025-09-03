@@ -30,7 +30,7 @@ def rule_match(member, data, year):
     if "age_min" in data and a is not None and a < int(data["age_min"]):
         match = False; notes.append(f"leeftijd {a} < min {data[age_min]}")
     if "age_max" in data and a is not None and a > int(data["age_max"]):
-        match = False; notes.append(f"leeftijd {a} > max {data[age_max]}")
+        match = False; notes.append(f"leeftijd {a} > max {data['age_max']}")
     if a is None and any(k in data for k in ("age_min","age_max")):
         notes.append("leeftijd onbekend (kan invloed hebben)")
 
