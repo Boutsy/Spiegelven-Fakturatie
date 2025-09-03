@@ -51,7 +51,7 @@ def rule_match(member, data, year):
             match = False; notes.append(f"role={actual} <> vereist={role_req}")
 
     # course (let op: veld bestaat (nog) niet in model)
- (let op: veld bestaat (nog) niet in model)
+ # (let op: veld bestaat (nog) niet in model)
     course_req = data.get("course")
     if course_req:
         actual = getattr(member, "course", None)  # bestaat mogelijk niet
