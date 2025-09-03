@@ -92,7 +92,7 @@ class Command(BaseCommand):
             row = dict(year=year, code=code, order=1, active=False, data=payload)
             rows_planned.append((exists, row))
 
-        self.stdout.write(self.style.MIGRATE_HEADING(f"Year {year}: {len(rows_planned)} te verwerken (mapping)")))
+        self.stdout.write(self.style.MIGRATE_HEADING(f"Year {year}: {len(rows_planned)} te verwerken (mapping)"))
         if missing_in_pricing:
             self.stdout.write(self.style.WARNING(f"Ontbreken in YearPricing ({year}): {sorted(set(missing_in_pricing))}"))
 
