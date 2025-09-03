@@ -69,7 +69,7 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            locked_yearly = (base * DEC("1.17") / DEC("7")).quantize(DEC("0.01"))
+            locked_yearly = (base * DEC("1.17") / DEC("7")).quantize(DEC('1'))
 
             need_save = False
             changes = []
