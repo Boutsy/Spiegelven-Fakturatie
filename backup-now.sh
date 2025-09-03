@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# ---- Setup ----
 STAMP=$(date +"%Y-%m-%d-%H%M")
 mkdir -p backups
 
@@ -16,34 +15,38 @@ git commit -m "backup $STAMP" || true
 git tag -a "backup-$STAMP" -m "pre-next-session backup" || true
 
 echo "== Repo tarball =="
+# Sluit 'backups/' uit zodat het tar-bestand niet zichzelf meeneemt.
 tar --exclude=.git --exclude=venv --exclude=.venv --exclude=node_modules \
+    --exclude=backups \
     -czf "backups/repo-$STAMP.tgz" .
 
 echo "== Django dumpdata =="
+# Bouw de exclude-lijst dynamisch (alleen authtoken als geïnstalleerd)
+EXCLUDES=(--natural-foreign --natural-primary
+          --exclude contenttypes --exclude admin --exclude sessions
+          --exclude auth.permission)
+
+if docker compose exec -T web python manage.py shell -c \
+  "from django.conf import settings; import sys; sys.stdout.write('1' if 'rest_framework.authtoken' in settings.INSTALLED_APPS else '0')" \
+  | grep -q 1; then
+  EXCLUDES+=(--exclude authtoken)
+fi
+
 docker compose exec -T web python manage.py dumpdata \
-  --natural-foreign --natural-primary \
-  --exclude contenttypes --exclude admin --exclude sessions \
-  --exclude auth.permission --exclude authtoken \
-  --indent 2 > "backups/django-fixture-$STAMP.json"
+  "${EXCLUDES[@]}" --indent 2 > "backups/django-fixture-$STAMP.json"
 
 echo "== Database dump (Postgres) =="
-# Probeer service 'db', anders 'postgres'; sla over als geen van beide bestaat
 if CID=$(docker compose ps -q db 2>/dev/null) && [ -n "$CID" ]; then
-  if ! docker compose exec -T db bash -lc 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
-       > "backups/pgdump-$STAMP.sql"; then
-    echo "⚠️  pg_dump via service 'db' mislukte (ga door zonder DB dump)."
-  fi
+  docker compose exec -T db bash -lc 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+    > "backups/pgdump-$STAMP.sql" || echo "⚠️  pg_dump via service 'db' mislukte (overslaan)."
 elif CID=$(docker compose ps -q postgres 2>/dev/null) && [ -n "$CID" ]; then
-  if ! docker compose exec -T postgres bash -lc 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
-       > "backups/pgdump-$STAMP.sql"; then
-    echo "⚠️  pg_dump via service 'postgres' mislukte (ga door zonder DB dump)."
-  fi
+  docker compose exec -T postgres bash -lc 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+    > "backups/pgdump-$STAMP.sql" || echo "⚠️  pg_dump via service 'postgres' mislukte (overslaan)."
 else
   echo "ℹ️  Geen database-service 'db' of 'postgres' gevonden; sla DB dump over."
 fi
 
 echo "== Media-archief =="
-# Archiveer /app/media indien aanwezig
 if docker compose exec -T web sh -lc 'cd /app && [ -d media ]'; then
   docker compose exec -T web sh -lc 'cd /app && tar -czf - media' \
     > "backups/media-$STAMP.tgz"
