@@ -142,7 +142,7 @@ class Command(BaseCommand):
         unknown: Dict[str, List[str]] = {}
 
         for r in rows:
-            if not r or len(r)<=max(idx.values()):
+            if not r or len(r) <= max([i for i in idx.values() if i is not None] or [-1]):
                 continue
             code = (r[idx["code"]] or "").strip()
             if not code:
