@@ -23,3 +23,5 @@ backups/
 # lokale backups
 core/management/commands/*.bak.*
 core/prijslijst.csv
+
+backups/
