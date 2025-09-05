@@ -1,7 +1,10 @@
+from .invoice_views import invoice_preview
 from django.urls import path
 from . import print_views, views
 
 urlpatterns = [
+    path('admin/invoice/preview/<int:member_id>/<int:year>/', invoice_preview, name='invoice_preview'),
+    path('admin/invoice/preview/<int:member_id>/', invoice_preview, name='invoice_preview_current'),
     # Voorbeeld/print van een factuur
     path("facturen/<int:pk>/voorbeeld/", print_views.invoice_preview, name="invoice_preview"),
 

@@ -1,4 +1,9 @@
+from .invoice_views import invoice_preview
+from django.urls import path
+from . import invoice_views
 from django.contrib import admin
+from django.urls import reverse
+from django.utils import timezone
 
 ASSET_LABELS = {
     "VST_KAST": "Kast",
@@ -18,6 +23,8 @@ class AssetTypeFilter(admin.SimpleListFilter):
         return queryset.filter(asset_type=val) if val else queryset
 
 from django.contrib import admin
+from django.urls import reverse
+from django.utils import timezone
 
 from .models import (
     Member, MemberAsset,
@@ -35,7 +42,33 @@ class MemberAssetInline(admin.TabularInline):
 
 
 @admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        try:
+            year = timezone.now().year + 1
+            extra_context['preview_next_year_url'] = reverse('admin-invoice-preview', args=[object_id, year])
+        except Exception:
+            extra_context['preview_next_year_url'] = None
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
+    change_form_template = "admin/core/member/change_form.html"
+
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        try:
+            mid = int(object_id) if object_id is not None else None
+        except (TypeError, ValueError):
+            mid = None
+        year = timezone.now().year + 1
+        if mid:
+            try:
+                url = reverse("admin-invoice-preview", args=[mid, year])
+                extra_context["invoice_preview_next_url"] = url
+            except Exception:
+                pass
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
 
     def get_fieldsets(self, request, obj=None):
         M = self.model
@@ -152,7 +185,15 @@ class MemberAssetAdmin(admin.ModelAdmin):
         return ASSET_LABELS.get(obj.asset_type, obj.asset_type)
     asset_type_label.short_description = 'Type'
 
-class MemberAdmin(admin.ModelAdmin):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        try:
+            year = timezone.now().year + 1
+            extra_context['preview_next_year_url'] = reverse('admin-invoice-preview', args=[object_id, year])
+        except Exception:
+            extra_context['preview_next_year_url'] = None
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
     # UX
     save_on_top = True
     ordering = ("last_name","first_name")
@@ -203,6 +244,8 @@ class MemberAdmin(admin.ModelAdmin):
 
 # === Member list UI v2 (smalle lijst + zoeken op naam/leeftijd/course) ===
 from django.contrib import admin
+from django.urls import reverse
+from django.utils import timezone
 from django.db.models import Q
 from datetime import date, timedelta
 from .models import Member
@@ -213,7 +256,16 @@ except Exception:
     pass
 
 @admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        try:
+            year = timezone.now().year + 1
+            extra_context['preview_next_year_url'] = reverse('admin-invoice-preview', args=[object_id, year])
+        except Exception:
+            extra_context['preview_next_year_url'] = None
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
     save_on_top = True
     ordering = ("last_name","first_name")
     list_per_page = 50
@@ -286,6 +338,8 @@ class MemberAdmin(admin.ModelAdmin):
 
 # --- BEGIN: MemberAsset admin patch (type met NL-label) ---
 from django.contrib import admin
+from django.urls import reverse
+from django.utils import timezone
 from .models import MemberAsset
 
 _ASSET_LABELS_NL = {
@@ -309,3 +363,52 @@ class MemberAssetAdmin(admin.ModelAdmin):
     def asset_type_label(self, obj):
         return ASSET_LABELS.get(obj.asset_type, obj.asset_type)
     asset_type_label.short_description = 'Type'
+
+
+# === Auto-register alle nog niet geregistreerde core-modellen (development) ===
+try:
+    from django.apps import apps as _apps
+    from django.contrib import admin as _admin
+    for _m in _apps.get_app_config("core").get_models():
+        try:
+            _admin.site.register(_m)
+        except _admin.sites.AlreadyRegistered:
+            pass
+except Exception:
+    # zwijgend negeren als dit ergens faalt
+    pass
+
+
+# --- custom invoice preview urls ---
+def _inject_invoice_preview_urls(get_urls):
+    from django.contrib import admin  # local import to be safe
+    def _urls():
+        return [
+            path('invoice/preview/<int:member_id>/<int:year>/', admin.site.admin_view(invoice_preview), name='invoice_preview'),
+            path('invoice/preview/<int:member_id>/', admin.site.admin_view(invoice_preview), name='invoice_preview_current'),
+        ] + get_urls()
+    return _urls
+
+try:
+    from django.contrib import admin
+    admin.site.get_urls = _inject_invoice_preview_urls(admin.site.get_urls)
+except Exception:
+    # Laat niets crashen in dev
+    pass
+# --- end custom invoice preview urls ---
+
+
+# --- Extra admin URLs (invoice preview) ---
+def _get_admin_urls(_orig_get_urls):
+    def _urls():
+        my = [
+            path(
+                'invoice/preview/<int:member_id>/<int:year>/',
+                admin.site.admin_view(invoice_views.invoice_preview),
+                name='admin-invoice-preview',
+            ),
+        ]
+        return my + _orig_get_urls()
+    return _urls
+
+admin.site.get_urls = _get_admin_urls(admin.site.get_urls)

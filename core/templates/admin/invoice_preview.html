@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Factuur-voorbeeld — {{ member.last_name }}, {{ member.first_name }} ({{ year }})</title>
+  <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/changelists.css' %}">
+  <style>
+    body { padding: 16px; }
+    .totals { text-align:right; font-weight: 600; }
+    .notes { margin-top: 1rem; color: #a33; }
+    table.vlist { width: 100%; border-collapse: collapse; }
+    table.vlist th, table.vlist td { border-bottom: 1px solid #ddd; padding: 6px 8px; }
+    .right { text-align:right; }
+  </style>
+</head>
+<body>
+  <h1>Factuur-voorbeeld</h1>
+  <p><strong>Lid:</strong> {{ member.last_name }}, {{ member.first_name }} — <strong>Jaar:</strong> {{ year }}</p>
+
+  <table class="vlist">
+    <thead>
+      <tr>
+        <th style="width:18%">Code</th>
+        <th>Omschrijving</th>
+        <th class="right" style="width:10%">Aantal</th>
+        <th class="right" style="width:12%">Eenheidsprijs</th>
+        <th class="right" style="width:12%">Totaal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in lines %}
+      <tr>
+        <td>{{ l.code }}</td>
+        <td>{{ l.desc }}</td>
+        <td class="right">{{ l.qty }}</td>
+        <td class="right">€ {{ l.unit|floatformat:2 }}</td>
+        <td class="right">€ {{ l.total|floatformat:2 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5"><em>Geen lijnen gevonden.</em></td></tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4" class="totals">Totaal te factureren</td>
+        <td class="right totals">€ {{ total|floatformat:2 }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  {% if notes %}
+  <div class="notes">
+    <strong>Opmerkingen / ontbrekende prijzen:</strong>
+    <ul>{% for n in notes %}<li>{{ n }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+</body>
+</html>

@@ -1,24 +1,5 @@
 from django.contrib import admin
 
-ASSET_LABELS = {
-    "VST_KAST": "Kast",
-    "KAR_KLN":  "Kar-kast",
-    "KAR_ELEC": "E-kar-kast",
-}
-
-class AssetTypeFilter(admin.SimpleListFilter):
-    title = "Type"
-    parameter_name = "asset_type"
-
-    def lookups(self, request, model_admin):
-        return [(k, v) for k, v in ASSET_LABELS.items()]
-
-    def queryset(self, request, queryset):
-        val = self.value()
-        return queryset.filter(asset_type=val) if val else queryset
-
-from django.contrib import admin
-
 from .models import (
     Member, MemberAsset,
     YearPricing, YearRule, YearSequence, YearInvestScale)
@@ -140,12 +121,25 @@ class MemberAdmin(admin.ModelAdmin):
 
 
 @admin.register(MemberAsset)
+ASSET_LABELS = {
+    'VST_KAST': 'Kast',
+    'KAR_KLN': 'Kar-kast',
+    'KAR_ELEC': 'E-kar-kast',
+}
 
+class AssetTypeFilter(admin.SimpleListFilter):
+    title = 'Type'
+    parameter_name = 'asset_type'
+    def lookups(self, request, model_admin):
+        return [(k, v) for k, v in ASSET_LABELS.items()]
+    def queryset(self, request, queryset):
+        v = self.value()
+        return queryset.filter(asset_type=v) if v else queryset
 
 
 class MemberAssetAdmin(admin.ModelAdmin):
     list_display = ('member', 'asset_type_label', 'identifier', 'active')
-    list_filter  = (AssetTypeFilter, 'active')
+    list_filter = (AssetTypeFilter, 'active')
     search_fields = ('member__last_name', 'member__first_name', 'identifier')
 
     def asset_type_label(self, obj):
@@ -300,10 +294,9 @@ asset_type_nl.short_description = 'Type'
 asset_type_nl.admin_order_field = 'asset_type'
 
 
-
 class MemberAssetAdmin(admin.ModelAdmin):
     list_display = ('member', 'asset_type_label', 'identifier', 'active')
-    list_filter  = (AssetTypeFilter, 'active')
+    list_filter = (AssetTypeFilter, 'active')
     search_fields = ('member__last_name', 'member__first_name', 'identifier')
 
     def asset_type_label(self, obj):

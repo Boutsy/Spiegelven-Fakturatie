@@ -42,6 +42,15 @@ class InvoiceAccount(models.Model):
     def __str__(self) -> str:
         return self.name
 
+class Household(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    head = models.ForeignKey("Member", related_name="headed_households", null=True, blank=True, on_delete=models.SET_NULL)
+    account = models.ForeignKey(InvoiceAccount, null=True, blank=True, on_delete=models.SET_NULL,
+                                help_text="Optioneel: factureren op deze account i.p.v. gezins-/ledennaam.")
+    prefer_billing = models.BooleanField(default=True)
+    def __str__(self) -> str:
+        return self.name
+
 class Member(models.Model):
 
     phone_private = models.CharField('Tel. Privé', max_length=32, blank=True, null=True)
@@ -51,14 +60,6 @@ class Member(models.Model):
     phone_work    = models.CharField('Tel. Werk', max_length=32, blank=True, null=True)
 
     external_id = models.CharField(max_length=50, blank=True, null=True, db_index=True)
-
-    # voor investeringsbijdrage
-    investment_years_total = models.PositiveIntegerField(default=0)
-    investment_years_remaining = models.PositiveIntegerField(default=0)
-
-    # voor flex
-    flex_years_total = models.PositiveIntegerField(default=7)
-    flex_years_remaining = models.PositiveIntegerField(default=0)
 
     COURSE_CHOICES = [
         ('CC', 'Championship Course'),
@@ -95,7 +96,7 @@ class Member(models.Model):
     invest_flex_locked_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Vaste jaarlijkse flex-investeringsbijdrage (berekend bij start)")
     federation_via_club = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
-    #household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL)
+    household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL)
     household_role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_OTHER, blank=True)
     def __str__(self) -> str:
         name = f"{self.first_name} {self.last_name}".strip()
@@ -196,7 +197,7 @@ class Invoice(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_DRAFT)
     issue_date = models.DateField(default=timezone.now)
     account = models.ForeignKey(InvoiceAccount, null=True, blank=True, on_delete=models.SET_NULL)
-    #household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL)
+    household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL)
     member = models.ForeignKey(Member, null=True, blank=True, on_delete=models.SET_NULL)
     number = models.CharField(max_length=20, unique=True, null=True, blank=True)  # 202500001
     payment_reference_raw = models.CharField(max_length=20, blank=True)  # 12 cijfers OGM

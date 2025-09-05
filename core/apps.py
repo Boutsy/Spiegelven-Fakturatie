@@ -1,11 +1,16 @@
 from django.apps import AppConfig
 
 class CoreConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "core"
-    verbose_name = "Spiegelven"
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'core'
 
     def ready(self):
-        from . import admin_cleanup_patch
-        from . import admin_member_patch
-        from . import nl_labels  # noqa
+        # Optionele (legacy) patches; nooit hard falen in admin-opstart
+        try:
+            from . import admin_member_patch  # kan ontbreken
+        except Exception:
+            pass
+        try:
+            from . import admin_cleanup_patch  # kan ontbreken
+        except Exception:
+            pass

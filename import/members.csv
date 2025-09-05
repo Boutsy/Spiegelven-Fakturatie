@@ -1,0 +1,642 @@
+﻿external_id;first_name;last_name;street;postal_code;city;country;birth_date;couple_status;course;active;email;phone_mobile;phone_private;phone_work
+1006/1;Frans;Berghof;Rue Provinciale 722;4450;Slins;UK;1942-01-19;Individueel;CC;true;berghof.frans@teledisnet.be;;0485-664001;
+1020/1;Albert;Bouts;;;;BE;1933-10-29;Koppel;CC;true;albert.bouts@icloud.com;0476/588235;;089/35.96.16
+1019/2;Milou;Daenen;De Gerlachestraat 2 / 5;3500;Hasselt;BE;1933-09-30;Individueel;CC;true;;0475-371613;011/21.17.02;011/22.69.01
+1020/2;Ria;Bouts - Dirix;;;;BE;1939-06-08;Koppel;CC;true;;;;089/35.96.16
+1244/1;Patrick;Colemont;Hoekvijverslaan 2;3500;Hasselt;BE;1961-04-12;Individueel;CC;true;;0475-773192;011/25.63.47;
+1046/1;Danny;De Preter;Krekelstraat 1;3560;Lummen;BE;1949-09-07;Individueel;CC;true;daniel.depreter@telenet.be;0499-77.15.11;013/52.10.39;
+1064/2;Annelies;Freson - Castermans;Bremakkerstraat 27;3600;Genk;BE;1950-08-03;Koppel;CC;true;;0473-800136;089/30.84.54;
+1064/1;Jos;Freson;Bremakkerstraat 27;3600;Genk;BE;1948-09-19;Koppel;CC;true;jos.freson@skynet.be;0475/249555;089/30.84.54;089/36.37.01
+1066/2;Ann;Geelissen - Hinoul;Grote Kerkstraat 31;3680;Maaseik;BE;1945-03-20;Koppel;CC;true;info@margema.be;0472-488337;089/56.48.24;089/56.58.30
+1066/1;Bert;Geelissen;Grote Kerkstraat 31;3680;Maaseik;BE;1939-10-24;Koppel;CC;true;lambert.geelissen@telenet.be;0472-488337;089/56.48.24;089/56.58.30
+1088/1;Fons;Henckens;Looierijstraat 10 bus 4;3290;Diest;BE;1956-12-05;Individueel;CC;true;fons.henckens@telenet.be;0475/441177;0475-441177;011/57.94.94
+1087/2;Virginie;Henckens - Agten;Don Boscostraat 87;3940;Hechtel-Eksel;BE;1960-08-19;Koppel;CC;true;;;011/73.49.26;011-631841
+1087/1;Ward;Henckens;Don Boscostraat 87;3940;Hechtel-Eksel;BE;1960-08-05;Koppel;CC;true;w.henckens@telenet.be;0496-529590;011/73.49.26;011/63.18.41
+1094/2;Marleen;Heylen - Indekeu;Weg Naar As 155;3600;Genk;BE;1960-01-10;Koppel;CC;true;;;089/36.14.42;0478-841412
+1094/1;Rene;Heylen;Weg Naar As 155;3600;Genk;BE;1956-10-13;Koppel;CC;true;;0475-438732;089/36.14.42;089/325005
+1095/1;Harrie jr.;Hinzen;Hoolstraat 14;6367;GC Voerendaal NL;NL;1950-04-09;Koppel;CC;true;;31-654224147;31-455750332;
+1101/1;Paul;Huygens;A. Rodenbachstraat 2;3500;Hasselt;BE;1957-12-04;Individueel;CC;true;paul.huygens@telenet.be;0477-391893;011/22.19.22;
+1112/2;Trees;Jongen - Bosten;Burg. Vinckenlaan 10;3630;Maasmechelen;NL;1956-04-30;Individueel;CC;true;;31-622465769;089/24.33.31;31/455740900
+1134/2;Christine;Matterne - Cuypers;Nieuwe Kuilenweg 15 bus 21;3600;Genk;BE;1959-06-01;Koppel;CC;true;;0477-495641;0477-495641;
+1134/1;Luc;Matterne;Nieuwe Kuilenweg 15 bus 21;3600;Genk;BE;1959-08-01;Koppel;CC;true;luc.matterne@a-curo.com;0475-299230;0475-299230;089/32.96.80
+1148/1;Mike;Mulder;Mockstraat 36-38;6226;CC Maastricht NL;NL;1952-09-13;Koppel;CC;true;muldermike@ziggo.nl;31-6-55173626;31/43/3637295;
+1152/1;Erik;Niville;Onderwijslaan 23;3600;Genk;BE;1954-01-14;Individueel;CC;true;;0476/221670;089/38.55.57;
+1159/2;Hermien;Peumans - Coenegrachts;Kapelveldstraat 23;3690;Zutendaal;BE;1947-12-31;Koppel;CC;true;hermien.coenegrachts@asap.be;0479-863338;089/61.18.55;323032
+1159/1;Hugo;Peumans;Kapelveldstraat 23;3690;Zutendaal;BE;1944-11-12;Koppel;CC;true;;;089/61.18.55;323032
+1161/2;Fabienne;Pijls - Cornelis;Laatgoedstraat 1;3600;Genk;BE;1954-11-17;Koppel;CC;true;;;089/36.39.88;089/38.21.01
+1167/2;Grietje;Remans - Van Emelen;Weg Naar As 123;3600;Genk;BE;1939-03-07;Koppel;CC;true;;;089-354395;
+1167/1;Jan;Remans;Weg Naar As 123;3600;Genk;BE;1940-01-01;Koppel;CC;true;remans.jan@icloud.com;0477-324511;089/35.43.95;089/36.29.36
+1173/1;Jan;Roex;Herebosstraat 12;3460;Bekkevoort;BE;1964-10-28;Individueel;CC;true;;0478-940044;0478-940044;
+1174/1;Dieter;Sadar;Kleine Eggestraat 2;3520;Zonhoven;;1957-06-25;Individueel;CC;true;d.sadar@belgacom.net;;0475-37.10.41;770732
+1187/1;Bert;Schreurs;Herenstraat 232;3600;Genk;BE;1951-03-15;Koppel;CC;true;;0475-247969;089/36.18.50;
+1188/2;Mady;Schreurs - Tachelet;Oude Asserweg 1 bus 9;3660;Oudsbergen;BE;1950-07-17;Individueel;CC;true;;0497-469009;089/85.52.15;
+1203/1;Joep;Theeuwen;Neerharenweg 38;3620;Lanaken;NL;1943-01-07;Individueel;CC;true;;;089/72.13.94;0478-338412
+1219/1;Bart;van Kerckhoven;Bochtlaan 27 bus 31;3600;Genk;BE;1965-11-02;Individueel;CC;true;bart@spiegelven.be;0477/87.02.25;089/35.96.16;089/35.96.16
+1231/1;Armand;Vanschoenbeek;Zonhoverweg 9;3600;Genk;BE;1934-11-04;Koppel;CC;true;;;089/35.40.20;
+1231/2;Monda;Vanschoenbeek - Vandeboel;Zonhoverweg 9;3600;Genk;BE;1936-09-10;Koppel;CC;true;;;089/35.40.20;
+1242/1;Marielle;Claesen;Wijerdriesstraat 49;3600;Genk;BE;1951-09-08;Individueel;CC;true;marielle_claesen@telenet.be;0498-582805;089/35.96.60;
+1015/1;Jef;Wouters;Kattevennerweg 9;3690;Zutendaal;BE;1947-01-27;Individueel;CC;true;joseph.wouters@telenet.be;0499/707274;089/61.21.60;
+1749/1;Johan;Gutschoven;Oude Markt 8 bus 2;3600;Genk;BE;1964-09-09;Individueel;CC;true;;0478-303971;0478/30.39.71;014/25.35.74
+1910/1;Nathalie;Lanoo;Bresserstraat 27 E 2.1;3600;Genk;BE;1968-06-26;Individueel;CC;true;info@lanoo.be;;0477-521982;
+1917/1;Gaston;Nelissen;Kiezelweg 451;3620;Lanaken-Kesselt;BE;1941-01-02;Individueel;CC;true;nelissen.gaston@nelissen.be;0475-425168;012/44.02.40;012/44.02.41
+1087/4;Toon;Henckens;Don Boscostraat 87;3940;Hechtel-Eksel;BE;1990-02-05;;CC;true;toon-h@hotmail.com;0498/119073;011/73.49.26;011/63.18.41
+2449/1;Jos;Pijls;Hans Memlingstraat 2;3620;Lanaken;NL;1942-06-03;Individueel;CC;true;j.pijls@pandora.be;;089/71.52.69;
+2453/1;Sjef;Hoefsmit;Wijnantslaan 5;3630;Maasmechelen;NL;1946-08-05;Koppel;CC;true;hoefsmit@skynet.be;0495-543125;089/77.31.25;
+2453/2;Yvonne;Hoefsmit-Van Hal;Wijnantslaan 5;3630;Maasmechelen;NL;1944-09-03;Koppel;CC;true;;;089/77.31.25;
+2470/1;Andre;Carmans;Hasseltsebaan 45;3940;Hechtel;BE;1948-11-21;Individueel;CC;true;carmans.ooms@telenet.be;0475-422220;011/73.17.34;014-318401
+2675/1;Herman;Cornelissen;Reinpadstraat 11 / 14;3600;Genk;BE;1964-09-21;Koppel;CC;true;info@drukkerijcornelissen.be;0475/777498;089/30.41.20;089/304120
+2906/1;Guy;Habraken;Kneipstraat 73;3600;Genk;BE;1955-01-12;Individueel;CC;true;guy_habraken@hotmail.com;0473-251250;089/36.40.83;089/35.22.91
+2917/3;Len;van Wijnsberge;Léon Hermanslaan 17 bus 1;3621;Rekem - Lanaken;NL;1987-05-10;;CC;true;pierre.van.wijnsberge@telenet.be;472439907;0472-439907;472439907
+2918/1;Robert;De Meuter;Bochtlaan 31 bus 11;3600;Genk;BE;1939-11-17;Koppel;CC;true;robertdemeuter@hotmail.com;0476-619741;0476/619741;
+1187/2;Bertje;Schreurs-Bronckaers;Herenstraat 232;3600;Genk;BE;1951-11-27;Koppel;CC;true;;;089/36.18.50;
+3051/1;Marc;Bouts;Donkweg 23;3520;Zonhoven;BE;1965-02-01;Koppel;CC;true;marc@bestdeal.be;0475-444110;011/81.91.05;
+3051/2;Ragy;Bouts - Jooken;Donkweg 23;3520;Zonhoven;BE;1959-12-17;Koppel;CC;true;ragy@bouts.be;0477/54.22.71;011/81.91.05;
+3051/3;Cédric;Bouts;Donkweg 23;3520;Zonhoven;BE;1990-11-14;;CC;true;cedric@bouts.be;0479-749080;011/81.91.05;
+3052/1;Olivier;Strauven;Stalenstraat 86;3600;Genk;BE;1976-08-02;Individueel;CC;true;olivier@wara.be;0486/151480;089/38.08.82;381866
+3055/1;Dirk;Bouts;Vier Wijersstraat 26;3520;Zonhoven;BE;1967-06-21;Koppel;CC;true;dirk.bouts@skynet.be;0477-822682;011/809305;011/809300
+3056/1;Greta;Bouts;Bochtlaan 27 bus 31;3600;Genk;BE;1963-03-21;Individueel;CC;true;gretabouts@pandora.be;0475 708260;089/36.20.60;089/36.20.60
+3061/1;Kris;Lenssen;Groenstraat 115;3630;Maasmechelen;BE;1980-02-02;Individueel;CC;true;kris_lenssen@hotmail.com;0478-220571;089/76.61.91;
+3064/1;Rene;Koolen;Weg naar Zwartberg 51 bus 5;3660;Oudsbergen;BE;1952-04-05;Koppel;CC;true;r.koolen@skynet.be;0475-273351;0475-273351;
+3064/2;Liliane;Koolen - Berger;Weg naar Zwartberg 51 bus 5;3660;Oudsbergen;BE;1953-12-12;Koppel;CC;true;;0477-234360;0477-234360;089/85.64.69
+3051/5;Michael;Bouts;Donkweg 23;3520;Zonhoven;BE;1992-09-11;;CC;true;michael@bouts.be;0479-748280;011/81.91.05;
+3088/1;Wim;De Meester;Stokkemerbaan 6;3650;Dilsen-Stokkem;BE;1950-10-18;Individueel;CC;true;wimdemeester@telenet.be;0495-511698;0495-511698;
+3246/1;Joris;Siemer;Paalsteenlaan 38;3620;Lanaken;NL;1970-04-08;Individueel;CC;true;;;089/84.29.82;31650666902
+3294/1;Harry;Verbeek;Lijsterstraat 7;3620;Lanaken;NL;1942-08-14;Individueel;CC;true;H.Verbeek@pandora.be;;089/71.12.65;
+3306/1;Peter;Heiligers;Grotestraat 87 bus 21;3600;Genk;NL;1944-12-16;Koppel;CC;true;pheiligers@telenet.be;0474-915803;089/30.58.73;
+3306/2;Roos;Heiligers - de Kok;Grotestraat 87 bus 21;3600;Genk;NL;1942-08-29;Koppel;CC;true;pheiligers@skynet.be;;089/30.58.73;089/30.62.90
+3309/1;Ronald;Goedmakers;André Dumontplaats 2;3620;Lanaken;NL;1962-04-14;Koppel;CC;true;goedmakersr@skynet.be;31-653204860;089-77.71.35;31/455628332
+3309/2;Sylvia;Goedmakers - Cerfonteyn;Andre Dumontplaats 2;3620;Lanaken;NL;1963-06-28;Koppel;CC;true;;31-623014959;089/77.71.35;
+3310/1;Ron;Habets;Herenlaakweg 17;3680;Maaseik;NL;1973-04-11;Koppel;CC;true;;31-654623444;089-56.79.79;
+3346/1;Greg;Smith;Calvariestraat 15;6211;NH Maastricht NL;;1952-01-14;Individueel;CC;true;gr.smith@planet.nl;31-651363794;31/433215298;
+3437/1;Pim;Engels;Geloeslaan 25;3630;Maasmechelen;NL;1947-04-22;Individueel;CC;true;;;089/77.72.55;
+3448/1;Huub;Van Es;Geloeslaan 23;3630;Maasmechelen;NL;1945-10-15;Koppel;CC;true;;;089/38.22.26;
+3448/2;Thea;Van Es - Jongen;Geloeslaan 23;3630;Maasmechelen;NL;1945-12-03;Koppel;CC;true;;;;
+3459/1;Dirk;Vanhooymissen;Korenstraat 17;3740;Bilzen;BE;1955-06-29;Koppel;CC;true;d.vanhooymissen@skynet.be;0472/959464;089/50.37.42;
+3569/1;Philip;De Vusser;Hoefstadstraat 93;3600;Genk;BE;1957-04-13;Koppel;CC;true;philip.devusser@pandora.be;;089/30.71.71;
+3569/2;Karien;De Vusser - De Waele;Hoefstadstraat 93;3600;Genk;BE;1960-04-06;Koppel;CC;true;karien.dewaele@gmail.com;0477-696680;089/30.71.71;
+3622/1;Roger;Kusters;Molenschansweg 1;3520;Zonhoven;BE;1948-07-25;Koppel;CC;true;roger.kusters@pandora.be;0473-285373;011/72.85.72;011-880986
+3619/2;Lilianne;Meylaerts - Steensels;Jan Habexlaan 9 bus 12;3600;Genk;BE;1944-11-26;Individueel;CC;true;;0498-239028;089/35.57.94;
+3681/1;Filip;Colson;Bruglaan 17;3960;Bree;BE;1974-03-14;Koppel;CC;true;filip.colson@guy-colson.be;0496-400219;089/47.37.45;
+3682/1;Hubert;Einmahl;;;;NL;1940-08-12;Individueel;CC;true;einmahl@gmail.Com;;;
+3817/1;Tom;Robyns;Kokerstraat 10;3600;Genk;BE;1975-04-16;Koppel;CC;true;tom.robyns@kingspan.be;;089/24.46.33;
+3622/2;Ann;Joosten;Molenschansweg 1;3520;Zonhoven;BE;1973-07-14;Koppel;CC;true;;0472-455935;011/72.85.72;011/88.09.00
+3864/1;Filip;Verhaeghe;Grotestraat 80;3630;Maasmechelen;BE;1957-03-25;Koppel;CC;true;fa82980@skynet.be;;089/76.58.11;
+3866/1;Eric;Groffils;Thomasbosstraat 100;3630;Maasmechelen;BE;1948-07-29;Koppel;CC;true;;;089/76.23.85;
+3886/1;Geert;Lauwers;Wilde Kastanjelaan 13;3600;Genk;BE;1962-03-18;Koppel;CC;true;geert_lauwers@skynet.be;;0476-961279;089/327053
+3886/2;Marie-Rose;Lauwers - Van Hoestenberge;Wilde Kastanjelaan 13;3600;Genk;BE;1962-07-30;Koppel;CC;true;;;089/32.20.61;089/325050
+3939/1;Benoît;Houbard;Steenweg 30;3665;As;BE;1958-02-15;Individueel;CC;true;;0475-567960;089/65.66.40;089/65.66.40
+3864/2;Christine;Verhaeghe - Delva;Grotestraat 80;3630;Maasmechelen;BE;1960-02-13;Koppel;CC;true;;;0479-627616;089-765811
+3866/2;Martine;Suys;Thomasbosstraat 100;3630;Maasmechelen;BE;1952-08-10;Koppel;CC;true;;0475-490530;089/76.23.85;
+3981/1;Paméla;Martens;Ladderstraat 10;3620;Neerharen;BE;1978-09-18;Individueel;CC;true;;;0495-40.19.28;
+3987/1;Peter;Deckers;Rijksweg 879;3650;Elen - Dilsen;BE;1959-10-06;Individueel;CC;true;;0495-389169;089/56.74.35;089/567521
+3817/4;Yasmine;Robyns - Fagard;Kokerstraat 10;3600;Genk;BE;1976-06-26;Koppel;CC;true;yasmine.fagard@tiscali.be;;089/24.46.33;089/358501
+1095/3;Margo;Roosen;Hoolstraat 14;6367;GC Voerendaal NL;NL;1950-03-31;Koppel;CC;true;;;31-455750332;49-241989000
+4016/1;Luc;Valvekens;Paardskuil 4B;3600;Genk;BE;1975-06-16;Individueel;CC;true;luc@valvekens.be;0477-326788;0477/326788;
+3055/2;Frederick;Bouts;Vier Wijersstraat 26;3520;Zonhoven;BE;1996-07-30;;CC;true;frederick@bouts.be;;011/809305;
+3055/3;Olivier;Bouts;Vier Wijersstraat 26;3520;Zonhoven;BE;1998-03-09;;CC;true;;;011/809305;
+4158/1;Ronny;Palmans;Oude Postbaan 58;3600;Genk;BE;1968-04-06;Koppel;CC;true;ronnypalmans@telenet.be;;0489-616246;
+4191/1;Hugo;Willems;Horkerstraat 1 a;3640;Kinrooi;BE;1961-05-02;Individueel;CC;true;hugo-willems@telenet.be;0497-161408;0497-161408;
+4193/1;Hubert;Bijnens;Hoogstraat 8;3690;Zutendaal;BE;1957-07-20;Koppel;CC;true;hubert@arogroup.be;0475-415177;089/62.35.02;089/623500
+4205/1;Andy;Maenen;Stegerweg 34;3660;Opglabbeek;BE;1972-05-19;Individueel;CC;true;;0478-299665;0478-299665;089/619870
+4210/1;Mimi;Vrambout;Paneelstraat 3;3600;Genk;BE;1940-10-25;Individueel;CC;true;vrambout.mimi@skynet.be;0475-272740;089/35.50.82;
+4213/1;Hans;Van Boven;Weg naar Opoeteren 15;3660;Opglabbeek;BE;1961-06-11;Individueel;CC;true;hvbjc@skynet.be;;089/85.33.05;089/32.45.41
+4541/1;Maarten;Bynens;Berenbroekstraat 49;3500;Hasselt;BE;1982-05-21;Individueel;CC;true;maarten_bynens@hotmail.com;;0477-816491;011/859866
+4566/1;Frank;Roets;Margarethalaan 76;3600;Genk;BE;1964-08-25;Individueel;CC;true;frank.roets.12763@axa-bank.be;0477-364546;089/30.32.00;089/350531
+1219/2;Marie-Charlotte;van Kerckhoven;Bochtlaan 27 bus 31;3600;Genk;BE;1998-05-25;;CC;true;marie-charlotte@pandora.be;;089/35.96.16;0479-437781
+2675/2;Linda;Van Werde;Reinpadstraat 11 / 14;3600;Genk;BE;1962-04-05;Koppel;CC;true;linda.vanwerde@telenet.be;;0476-47.66.68;089/304120
+3051/6;Christophe;Bouts;Donkweg 23;3520;Zonhoven;BE;1998-02-28;;CC;true;christophe@bouts.be;0489-375525;011/81.91.05;
+4591/1;Michael;Drieskens;Terboekt 99;3600;Genk;BE;1976-01-09;Individueel;CC;true;michael@drieskens.be;;0476-533639;
+4709/1;René;Martens;Staatsbaan 80;3620;Lanaken;BE;1954-09-08;Individueel;CC;true;;0475-323861;089/71.20.76;089/714479
+4754/1;Frits;Bots;Granneshof 24;6215;VG Maastricht NL;NL;1952-12-11;Koppel;CC;true;;31-653799309;31-653799309;
+4754/2;Evelyn;Bots - van den Akker;Granneshof 24;6215;VG Maastricht NL;NL;1955-04-09;Koppel;CC;true;evelyn.bots@home.nl;;31-615466887;31-433258474
+4889/1;Peter;Van Ommen;Epesiastraat 27;3620;Lanaken;NL;1945-05-27;Koppel;CC;true;peter.van.ommen@skynet.be;31-654622331;089-715715;089-731934
+4889/2;Charlotte;Van Ommen - Duchateau;Epesiastraat 27;3620;Lanaken;NL;1949-03-02;Koppel;CC;true;charlotte.duchateau@pandora.be;;089-71.57.15;089-731934
+5033/1;Michel;Lenaerts;Oude Postbaan 54;3600;Genk;BE;1966-02-20;Koppel;CC;true;michelenaerts@pandora.be;0475-853370;089/30.85.21;
+5033/2;Anne;Lenaerts - Dams;Oude Postbaan 54;3600;Genk;BE;1962-12-25;Koppel;CC;true;michelenaerts@pandora.be;0475-685158;089/30.85.21;089-326523
+5037/1;Boy;Pijls;Laatgoedstraat 1;3600;Genk;BE;1980-04-25;Individueel;CC;true;boypijls@skynet.be;;0495-046707;
+5492/1;Louis;De Schutter;Barrierstraat 49;3960;Bree;BE;1967-06-29;Individueel;CC;true;louis.de.schutter@belgacom.net;0497-422080;089/46.37.05;
+5504/1;Christopher;Thomson;Clos de Holemont 10;4607;Dalhem;UK;1973-03-06;Individueel;CC;true;christopher.thomson@skynet.be;0477/374137;043/79.43.62;
+5585/1;Walter;Vancampenhoudt;Hoogstraat 160 bus 3;3668;Niel-bij-As;BE;1948-03-20;Koppel;CC;true;walter@mvcconsult.com;;0475-240852;
+5585/2;Anita;Olaerts;Hoogstraat 160 bus 3;3668;Niel-bij-As;BE;1958-02-06;Koppel;CC;true;anita@mvcconsult.com;;0475-240852;
+5607/1;Paul;Godderie;Petuniastraat 16;3660;Opglabbeek;BE;1959-08-14;Koppel;CC;true;paulgodderie@gmail.com;0476-913085;0476-913085;
+5660/1;Tom;Brennan;Paul Nicoulaan 14;3630;Maasmechelen;;1964-11-20;Individueel;CC;true;tomb@dublin.com;;089/23.64.22;31-623327919
+5663/1;Geert;Janssen;Weg naar As 148;3680;Opoeteren;BE;1973-09-29;Koppel;CC;true;geert.janssen@jaraco.be;0494-336503;089/81.27.78;089/613617
+5935/1;Raymond;Ruelens;Bilzerweg 33 / 3;3665;As;BE;1967-06-22;Koppel;CC;true;raymond.ruelens@bouwbedrijfruelens.be;0475-833217;089/65.99.03;
+5935/2;Riet;Ruelens - Seurs;Bilzerweg 33 / 3;3665;As;BE;1965-04-10;Koppel;CC;true;raymond.ruelens@scarlet.be;0495/253678;089/65.99.03;
+5935/3;Cas;Ruelens;Bilzerweg 33 / 3;3665;As;BE;1997-07-30;;CC;true;;;0470-352387;
+5939/2;Siu Man;Tong;Hoogstraat 80 / 13;3600;Genk;BE;1963-12-24;Individueel;CC;true;;;0475-260841;
+5997/1;Math;Deuzings;Hans Memlingstraat 21/3;3680;Maaseik;NL;1946-07-31;Individueel;CC;true;math.deuzings@skynet.be;31-612181370;089-767949;
+5935/4;Stan;Ruelens;Bilzerweg 33 / 3;3665;As;BE;1993-12-13;;CC;true;raymond.ruelens@scarlet.be;;089/65.99.03;
+5999/1;luc;Neven;Smeetsstraat 92;3620;Lanaken;BE;1948-06-10;Koppel;CC;true;luc@neven.org;0486-461954;089/732244;089/715555
+5999/2;Helga;Neven - Vandemoortele;Smeetsstraat 92;3620;Lanaken;BE;1953-05-12;Koppel;CC;true;helganevvdm@gmail.com;;089/732244;089/715555
+6002/1;Aenny;Lenssen - Kierkels;Geloeslaan 31;3630;Maasmechelen;NL;1948-01-07;Individueel;CC;true;;;089-77.53.38;
+6008/1;Bart;Meekers;Molenstraat 70;3600;Genk;BE;1963-11-21;Koppel;CC;true;bart.meekers@pandora.be;0495-326967;089/352267;089/777294
+6012/1;Peter;Steegmans;Postweg 93;3620;Lanaken;BE;1975-05-23;Koppel;CC;true;p.steegmans@telenet.be;31-631766052;0499-075989;
+6022/1;Paul;Cornelissen;Berkenlaan 8a;3620;Lanaken;BE;1964-05-27;Individueel;CC;true;p.cornelissen@meulenberg.com;0495-290050;089/358666;089/300663
+6026/1;Fanny;Cuyvers;Dopheidestraat 22;3600;Genk;BE;1949-07-18;Individueel;CC;true;info@detective.cuyvers.be;;089-356462;0475-656262
+6033/1;Gunther;Hendriks;Lostraat 4;3665;As;BE;1966-03-02;Koppel;CC;true;gunther.hendriks@pandora.be;;089/24.58.36;089/207672
+6038/1;Louis;Hanot;Stationsstraat 22 / 31;3600;Genk;BE;1961-02-09;Individueel;CC;true;louis.hanot@skynet.be;;0476-330430;089/357967
+6042/1;Brigitte;Goyens - Jans;Diestersteenweg 230;3510;Kermt;BE;1958-08-25;Koppel;CC;true;brigitte.jans@gmail.com;0472-918770;0472-918770;011-250783
+6045/1;Martine;Remans - Arkens;Winterslagstraat 31;3600;Genk;BE;1954-08-11;Individueel;CC;true;martine.arkens@telenet.be;0498-758754;089/35.54.65;
+6051/1;Alfons;Geerts;Bocholterkiezel 82;3960;Bree;BE;1955-11-14;Koppel;CC;true;fons.geerts@wol.be;0477/545584;089/461967;
+6051/2;Lily;Geerts - Martens;Bocholterkiezel 82;3960;Bree;BE;1956-01-07;Koppel;CC;true;lily.martens@hotmail.com;0477/667468;089/461967;
+6061/1;Aldegonde;De Baets - Janssens;Wijnantslaan 14;3630;Maasmechelen;BE;1954-12-31;Individueel;CC;true;aldegondejanssens@hotmail.com;0477-708884;089/767470;089/731988
+6065/1;Geert;Joosten;Kasteellaan 22;3500;Hasselt;BE;1967-02-21;Individueel;CC;true;geertjoosten@telenet.be;;0496-539095;
+6074/1;Daniel;Hajek;Biegrachtstraat 29;3600;Genk;BE;1961-05-26;Individueel;CC;true;dannyhajek@outlook.com;;089/38.61.83;
+6076/1;Cindy;Tielens;Reggerstraat 43;3770;Riemst;BE;1976-06-20;Individueel;CC;true;cindy_tielens@hotmail.com;;0496-805367;
+6077/1;Eddy;Spytkowski;Wijerdriesstraat 26;3600;Genk;BE;1961-09-20;Koppel;CC;true;eddy.spytkowski@philips.com;31-620112034;0471-684317;089-352554
+6008/2;Myriam;Meekers - Vanbeuren;Molenstraat 70;3600;Genk;BE;1962-12-26;Koppel;CC;true;;;089/352267;089/777294
+6008/3;Ruben;Meekers;Molenstraat 70;3600;Genk;BE;1994-03-09;;CC;true;ruub_12@hotmail.com;;0495-375593;
+6008/4;Evelyne;Meekers;Molenstraat 70;3600;Genk;BE;1992-03-11;;CC;true;;;089/352267;089/777294
+6082/1;William;Exelmans;Kuilenstraat 35;3600;Genk;BE;1960-07-07;Individueel;CC;true;laminecolline@icloud.com;0495-441928;089/24.86.58;
+6083/1;Alexander;Mazurek;Jan Habexlaan 9 / 71;3600;Genk;BE;1975-01-12;Koppel;CC;true;alex_mazurek@yahoo.com;;0477-787325;
+6084/1;David;Custers;Bellikstraat 15;3650;Lanklaar;BE;2001-10-16;Individueel;CC;true;somadajari@telenet.be;0476-574755;089-209008;
+6088/1;Lilianne;Verheijen;Europalaan 18 bus 203;3650;Dilsen - Stokkem;BE;1953-11-02;Individueel;CC;true;l.verheijen@skynet.be;0475/866772;089/75.81.92;
+6099/1;Roberto;Lecis;St. Hubertusstraat 40;3690;Zutendaal;BE;1963-12-07;Koppel;CC;true;rob@robair.be;0475-665514;089-85.67.38;
+6099/2;Cécile;Lecis - Weyden;St. Hubertusstraat 40;3690;Zutendaal;BE;1971-03-18;Koppel;CC;true;cecile@robair.be;0475-500514;089-85.67.38;
+3622/3;Ana-Elena;Kusters;Molenschansweg 1;3520;Zonhoven;BE;2003-02-11;;CC;true;anaelena.kusters@gmail.com;;011/72.85.72;011-880986
+6125/1;Mariette;Vandenbroeck;Schietboomstraat 5 B 61;3600;Genk;BE;1935-10-25;Individueel;CC;true;;;089/30.37.64;
+6146/1;Maximo;Rivero;Oostlaan 43;3600;Genk;;1970-01-28;Individueel;CC;true;maximo.rivero@gmail.com;0496-398621;089/35.09.20;
+6154/1;Filip;Gielkens;Dopheidestraat 9;3600;Genk;BE;1969-12-23;Individueel;CC;true;filip.gielkens@telenet.be;;0472/991367;
+6158/1;Peter;Awouters;Weg naar Zwartberg 152;3660;Opglabbeek;BE;1973-12-18;Koppel;CC;true;tandarts.venken@telenet.be;;089/812081;
+6158/2;Ann;Awouters - Venken;Weg naar Zwartberg 152;3660;Opglabbeek;BE;1974-07-11;Koppel;CC;true;tandarts.venken@telenet.be;494673680;089/812081;
+6161/1;Andre;Martens;Oude Kerkstraat 39;3660;Opglabbeek;BE;1970-03-19;Individueel;CC;true;andre@avmedical.be;;0472/897077;
+6165/1;Ron;Vaessen;Winterslagstraat 89 bus 2.1;3600;Genk;BE;1980-03-01;Individueel;CC;true;vaessen_ron@yahoo.com;;0484-256482;0484-256482
+6170/1;Ludo;Christoffels;Visserstraat 14;3650;Dilsen;BE;1953-01-30;Individueel;CC;true;ludo@christoffels-law.be;;0495-165784;089/71.57.84
+2456/4;Raoul jr;Houben;Geloeslaan 27;3630;Maasmechelen;NL;2001-11-22;Individueel;CC;true;;;0471-226814;
+6182/1;Toon;Smeets;Boomkensstraat 104;3500;Hasselt;BE;1988-11-04;Individueel;CC;true;toon.spiegelven@gmail.com;;0498/790608;
+6183/1;Serge-Paul;Corver;Meesjesstraat 11;3620;Lanaken;NL;1967-10-16;Koppel;CC;true;sp@serpaco.com;49-172241610;089/71.23.85;
+6183/2;Finy;Corver - Boumans;Meesjesstraat 11;3620;Lanaken;NL;1965-08-31;Koppel;CC;true;fb@serpaco.com;;089/71.23.85;
+6199/1;Jos;Peters;Eikerweg 63;3740;Bilzen;NL;1961-08-19;Koppel;CC;true;jos.p@kpnmail.nl;0473-745660;0473-745660;
+6200/1;Michael;Janssens;Ter Boekt 119;3600;Genk;BE;1970-05-20;Koppel;CC;true;mj.vail@gmail.com;;089/77.44.36;
+6200/2;Tinne;Janssens - Mesens;Ter Boekt 119;3600;Genk;BE;1977-08-03;Koppel;CC;true;tinnemesens@hotmail.com;;089/77.44.36;
+6201/1;Alex;De Mari;Sint Martensberg 49;3600;Genk;BE;1951-05-28;Individueel;CC;true;demari.alex@gmail.com;0475-846736;089/35.78.80;
+6077/2;Marina;Spytkowski - Vanrusselt;Wijerdriesstraat 26;3600;Genk;BE;1960-04-01;Koppel;CC;true;eddy.spytkowski@philips.com;;31620112034;089-352554
+6205/1;Jo;Maleux;Oostervenne 4;3600;Genk;BE;1966-02-12;Koppel;CC;true;johan.maleux@skynet.be;0476-281279;089/85.56.73;
+6205/2;Ingrid;Maleux - Witters;Oostervenne 4;3600;Genk;BE;1966-07-29;Koppel;CC;true;ingrid.witters@skynet.be;;089/85.56.73;
+6208/1;Geert;Berghs;Reinpadstraat 59 B;3600;Genk;BE;1973-06-22;Individueel;CC;true;berghs.geert@telenet.be;;0474/63.03.62;
+6212/1;Peter;Beckers;Heeldstraat 53;3600;Genk;BE;1961-04-06;Koppel;CC;true;peter.beckers@beckers.net.bmw.be;0471-791777;089/36.47.21;089/322210
+6221/1;Rony;Schouterden;Hazelarenlaan 24 bus 5;3500;Hasselt;BE;1958-09-11;Individueel;CC;true;rony.schouterden@skynet.be;;0475/94.76.21;
+6224/1;Philippe;Becx;Opstraat 12;3960;Bree;BE;1971-10-15;Koppel;CC;true;philippebecx@gmail.com;;0475/90.71.82;
+6227/1;Nicolas;Magné;Kanaallaan 27;3960;Bree;BE;1997-11-23;Individueel;CC;true;hossa@telenet.be - legendillusion;;0498-163617;
+6224/2;Els;Herremans;Opstraat 12;3960;Bree;BE;1975-03-28;Koppel;CC;true;herremansels@gmail.com;;0472-375597;
+6231/1;Marc;Vuurstaek;Schepersweg 6;3600;Genk;BE;1965-10-06;Koppel;CC;true;;0477-886692;089/30.46.94;
+3622/4;Florian;Kusters;Molenschansweg 1;3520;Zonhoven;BE;2005-07-24;;CC;true;;;011/72.85.72;011-880986
+6235/1;Ivo;Nijs;Lindebosstraat 5;3600;Genk;BE;1956-03-28;Koppel;CC;true;ivo.nijs@skynet.be;0477/766078;089/770344;
+4158/2;Christophe;Palmans;Oude Postbaan 58;3600;Genk;BE;2004-08-30;;CC;true;;;0468-020046;
+4158/3;Louise;Palmans;Oude Postbaan 58;3600;Genk;BE;2006-01-23;;CC;true;;;0474-970077;
+6240/1;Marc;Maes;Boomweg 6;3600;Genk;BE;1965-01-29;Individueel;CC;true;marc.maes@punchmetals.com;0494-500423;089/65.02.55;
+6240/3;Delphine;Maes;Boomweg 6;3600;Genk;BE;2006-05-13;Individueel;CC;true;;;089/65.02.55;
+6249/1;Peter;Verbruggen;Hoefaartseweg 5;3690;Zutendaal;BE;1960-04-22;Koppel;CC;true;peter.verbruggen@continental-corporation.com;;31-630358598;
+6254/1;Corinne;Meeuwissen;Windmolenstraat 24/1/5;3690;Zutendaal;BE;1958-01-30;Individueel;CC;true;meeuwissencorinne@hotmail.com;;0476/393426;
+6256/1;Gertie;Pawlicz;Fabritiusstraat 5;6174;RG Sweikhuizen NL;NL;1947-12-20;Individueel;CC;true;pawlicz@ziggo.nl;;31-464432164;
+6212/2;Kristin;Beckers - Van Bogaert;Heeldstraat 53;3600;Genk;BE;1964-08-06;Koppel;CC;true;kristin.van.bogaert@telenet.be;;089/36.47.21;0475/754242
+4158/4;Kristien;Palmans - Reekmans;Oude Postbaan 58;3600;Genk;BE;1977-02-22;Koppel;CC;true;kristienreekmans@pandora.be;;0474-970077;
+6249/2;Els;Verbruggen - Bijnens;Hoefaartseweg 5;3690;Zutendaal;BE;1960-11-29;Koppel;CC;true;2.else@telenet.be;;0478-52.61.70;
+6258/1;Joris;Slegers;Hoogstraat 138;3600;Genk;BE;1962-10-13;Koppel;CC;true;joris.slegers@hotmail.com;0471-430905;089/306336;
+6258/2;Kathy;Slegers - De Witte;Hoogstraat 138;3600;Genk;BE;1964-07-20;Koppel;CC;true;kathydewitte@hotmail.com;0474/912756;089/306336;
+6259/1;Lydia;Vanaken;Kloosterstraat 8;3640;Kinrooi;BE;1968-07-04;Individueel;CC;true;lydia.vanaken@telenet.be;0476-443226;089/73.30.91;
+6266/1;Maxim;Custers;Bellikstraat 15;3650;Lanklaar;BE;2007-11-05;Individueel;CC;true;;;;
+6224/3;Niels;Becx;Opstraat 12;3960;Bree;BE;2003-01-15;Individueel;CC;true;;;0475/90.71.82;
+6270/1;Guy;Libaers;Grensstraat 12;3620;Lanaken;BE;1960-01-04;Koppel;CC;true;libaersguy@me.com;;089/20.89.46;
+6270/2;Hilde;Libaers - Vandevoort;Grensstraat 12;3620;Lanaken;BE;1965-10-07;Koppel;CC;true;ghilde@me.com;;089/20.89.46;
+6275/1;Steven Nian Chung;Tang;Luikersteenweg 86;3500;Hasselt;BE;1983-10-19;Individueel;CC;true;steventang83@msn.com;;0491/37.62.58;
+6278/1;Jeannine;Claes - Saenen;Bochtlaan 31 bus 11;3600;Genk;BE;1943-04-27;Individueel;CC;true;clasa@telenet.be;0479-239068;089/30.31.32;
+6280/1;Walter;Panis;Kiezelstraat 14;3600;Genk;BE;1958-02-09;Koppel;CC;true;walter.panis@ebema.be;;0478/610080;089/610080
+6281/1;Peter;Opdenacker;Jagerslaan 21;3630;Maasmechelen;BE;1976-06-20;Koppel;CC;true;opdenacker.peter@telenet.be;;0476/483133;
+6282/1;Rudolf;Opdenacker;Ringlaan 43;3630;Maasmechelen;BE;1947-01-21;Individueel;CC;true;hupoort@hotmail.com;;089/76.18.76;
+6285/1;Robby;Jaken;Nettersheimplein 1;3690;Zutendaal;BE;1984-06-17;Koppel;CC;true;;;0474-651445;
+6287/1;Corneel;Eerens;Hulstbesstraat 10;3600;Genk;BE;1999-01-26;Individueel;CC;true;;;0471-639699;
+6294/1;Ivo;Vrancken;Dopheidestraat 15;3600;Genk;BE;1957-02-15;Koppel;CC;true;ivo@notarisvrancken.be;0479/798535;089/51.83.51;
+6294/2;Patricia;Vrancken - Fagard;Dopheidestraat 15;3600;Genk;BE;1963-10-03;Koppel;CC;true;patricia.fagard@notarisvrancken.be;;0475-830995;
+6281/2;Inge;Opdenacker - Lemmens;Jagerslaan 21;3630;Maasmechelen;BE;1977-07-12;Koppel;CC;true;lemmens.inge@telenet.be;;0476/483133;
+4541/2;Ine;Bynens - Vanbuel;Berenbroekstraat 49;3500;Hasselt;BE;1983-01-01;Koppel;CC;true;;;0477-736080;011/859866
+5033/5;Olivier;Lenaerts;Oude Postbaan 54;3600;Genk;BE;1997-01-03;;CC;true;;;089/30.85.21;
+6231/2;Ann;Vuurstaek - Weijnjes;Schepersweg 6;3600;Genk;BE;1966-02-20;Koppel;CC;true;info@brenner-genk.be;;089/30.46.94;
+6300/1;Ronald;Dierckx;Schuttersgang 11 bus 7;3700;Tongeren;BE;1934-06-14;Individueel;CC;true;;;012/26.24.79;
+6305/1;Robert;Jans;Stoffelbergstraat 8;3600;Genk;BE;1949-02-18;Koppel;CC;true;;;0473/684099;
+6305/2;Berty;Jans - Engelen;Stoffelbergstraat 8;3600;Genk;BE;1949-01-22;Koppel;CC;true;;;0473-571059;
+6306/1;Kristof;Tielens;Nederstraat 10;3730;Hoeselt;BE;1979-06-01;Individueel;CC;true;kristof.tielens@scarlet.be;;0497-424544;
+6307/1;Marc;Gielen;Langerloweg 88;3600;Genk;BE;1968-07-17;Koppel;CC;true;marc.gielen@forbo.com;;0475-835128;
+6314/1;Farah;Caubergh;Eikerweg 63;3740;Bilzen;BE;1969-11-29;Individueel;CC;true;etalrent@pandora.be;;0477/308748;
+6315/1;Stiene;Celis;Evence Coppeelaan 5 / 35;3600;Genk;BE;1977-06-27;Individueel;CC;true;stienecelis@hotmail.com;;0476/682512;
+6318/1;Cecile;Hanot - Vanherle;Stationsstraat 22 bus 31;3600;Genk;BE;1965-04-04;Individueel;CC;true;info@dierenartsvanherle.be;;0478/543169;0475/969665
+6319/1;Jeroen;Vuerstaek;Schepersweg 25;3600;Genk;BE;1974-05-06;Koppel;CC;true;jeroen.vuerstaek@telenet.be;;089/721701;
+6319/2;Karen;Vuerstaek - Dedecker;Schepersweg 25;3600;Genk;BE;1977-01-07;Koppel;CC;true;;;0472/253909;
+6083/2;Inge;Vandebeek;Jan Habexlaan 9 bus 71;3600;Genk;BE;1985-06-10;Koppel;CC;true;;;0474-646520;
+6349/1;Erik;Corswarem;Brouwersstraat 7;3700;Tongeren;BE;1961-08-17;Koppel;CC;true;pelgrims2@telenet.be;;0468/206619;
+6351/1;Gunther;Leenders;Nijverheidsstraat 107;3665;As;BE;1972-09-10;Individueel;CC;true;lucky.town@telenet.be;;0477/530992;
+6351/2;Thibedaux;Leenders;Nijverheidsstraat 107;3665;As;BE;2003-07-22;Individueel;CC;true;lucky.town@telenet.be;;0477/530992;
+6352/1;Véronique;Louwagie;Klerebroek 37;3700;Tongeren;BE;1976-09-14;Individueel;CC;true;veronique.louwagie@gmail.com;;0474/530708;
+6353/1;Guy;De Raedt;Dr. Lenstralaan 8A;3650;Dilsen;BE;1947-01-17;Koppel;CC;true;g.deraedt@telenet.be;0475-773936;089/755815;
+6353/2;Annie;De Raedt - Beaubois;Dr. Lenstralaan 8A;3650;Dilsen;BE;1947-01-15;Koppel;CC;true;;;089/755815;
+3681/2;Elke;Colson - Geebelen;Bruglaan 17;3960;Bree;BE;1976-08-24;Koppel;CC;true;elkegeebelen@hotmail.com;0477/342183;089/73.33.63;
+5663/2;Wendy;Janssen - Gabriels;Weg naar As 148;3680;Opoeteren;BE;1976-11-23;Koppel;CC;true;wendy@jaraco.be;0494/336501;089/81.27.78;089/613617
+6280/2;Christine;Panis - Mikolajczak;Kiezelstraat 14;3600;Genk;BE;1960-02-09;Koppel;CC;true;;;0475/334044;089/610080
+6012/2;Birgit;Steegmans - Roosen;Postweg 93;3620;Lanaken;BE;1986-11-27;Koppel;CC;true;birgitroosen@scarlet.be;;0498/633852;
+6356/1;Marc;Digneffe;Kraailingenveld 11;3740;Beverst;BE;1963-07-26;Individueel;CC;true;marc.digneffe@telenet.be;0475/658464;089/417770;
+6357/1;Hubert;Hardy;Ons Verlangenstraat 17;3740;Bilzen;BE;1952-02-19;Individueel;CC;true;hubert.hardy@telenet.be;;0475/603015;
+6361/1;Patrick;Peters;Steeneikstraat 39;3600;Genk;BE;1967-05-22;Koppel;CC;true;patrick.peters@intervilla.lu;;089/24.48.30;3,52622E+11
+6362/1;Ronny;Schreurs;Weg naar Opoeteren 54;3660;Opglabbeek;BE;1963-07-16;Koppel;CC;true;;;089/85.70.25;
+6362/2;Martine;Van Hemelen;Weg naar Opoeteren 54;3660;Opglabbeek;BE;1963-05-16;Koppel;CC;true;;;089/85.70.25;
+6367/1;Jos;Haumont;Grotstraat 80;3665;As;BE;1962-02-19;Individueel;CC;true;haumont.jos@skynet.be;0475/470784;089/659321;
+6368/1;Vincent;Vanhooymissen;Schutterijstraat 14;3740;Bilzen;BE;1984-10-09;Individueel;CC;true;vincent_vanhooymissen@hotmail.com;;474513153;
+6373/1;Richard;Custers;Bellikstraat 15;3650;Dilsen-Stokkem;BE;1966-12-07;Koppel;CC;true;somadajari@telenet.be;31-653774311;089/209008;
+6373/2;Jacqueline;Custers - Timp;Bellikstraat 15;3650;Dilsen-Stokkem;BE;1969-05-14;Koppel;CC;true;;;089/209008;0479-658769
+6377/1;Dirk;Sneijkers;Elkenrade 25;6289;NB Elkenrade NL;BE;1964-08-23;Individueel;CC;true;dirk.sneijkers@inalfa-roofsystems.nl;;31-652751423;
+6378/1;Leon;Desiron;Haagsteeg 24;3600;Genk;BE;1956-04-14;Individueel;CC;true;leon.desiron@gmail.com;;0477/509134;
+6379/1;Pascal;Goyens;Weg naar As 150 A;3660;Opglabbeek;BE;1968-08-31;Koppel;CC;true;pascal.goyens@portima.be;;0475/500649;
+6382/1;Patrick;Orye;Hoogzij 12;3600;Genk;BE;1964-12-29;Koppel;CC;true;patrick.orye@ing.be;;0473/899605;
+6387/1;Jean-Pierre;Menghi;Bresserstraat 27 E 2.1;3520;Zonhoven;BE;1956-03-01;Individueel;CC;true;jean.pierre.menghi@proximus.be;0476/682193;011/816605;
+4205/2;Maxim;Maenen;Stegerweg 34;3660;Oudsbergen;BE;2006-04-06;;CC;true;;;0468-288453;089/619870
+6388/2;Christiane;Panis - Houben;Hoogstraat 35;3690;Zutendaal;BE;1953-08-22;Koppel;CC;true;christiane.houben@hotmail.com;0474/511306;089/611188;
+6382/2;Lieve;Claesen;Hoogzij 12;3600;Genk;BE;1964-03-30;Koppel;CC;true;lieveclaesen@gmail.com;;089/353658;
+6390/1;Roland;Bienkens;Laatgoedstraat 38;3600;Genk;BE;1950-01-11;Individueel;CC;true;roland.bienkens@skynet.be;;089/358179;0476-614880
+6393/1;Maurice;Schreurs;Grendelbaan 76;3590;Diepenbeek;BE;1957-11-30;Individueel;CC;true;schreurs.cleeren@skynet.be;0472/230424;011/351713;
+6396/1;Marc;Jehoul;Veeweidestraat 20;3960;Bree;BE;1962-01-14;Individueel;CC;true;marc.jehoul@gmail.com;;0475/438428;
+6397/1;Patrick;Jansen;Hoogstraat 24 B1;3670;Meeuwen;BE;1965-01-07;Individueel;CC;true;patrick.jansen@jansen-dhz.be;;011/792613;011/790321
+6373/3;Sophie;Custers;Bellikstraat 15;3650;Dilsen-Stokkem;BE;2009-08-20;;CC;true;;;089/209008;
+6402/1;Alf;Poell;Kleine Dijkje 3;6219;NK Maastricht NL;NL;1943-08-13;Koppel;CC;true;alf.poell@planet.nl;31-651961544;31-433260263;
+6402/2;Annette;Sassen;Kleine Dijkje 3;6219;NK Maastricht NL;NL;1955-07-08;Koppel;CC;true;annet.sassen@planet.nl;31-651684034;31-433260263;
+6404/1;Eli;Claes;Bolleberg 11;3700;Tongeren;BE;1953-08-01;Koppel;CC;true;eli.claes@gmail.com;;0499/987137;04/2207239
+6404/2;Christiane;Dedouaire;Bolleberg 11;3700;Tongeren;BE;1956-04-28;Koppel;CC;true;christianededouaire@hotmail.com;;0472-253313;04/2207239
+6410/1;Luc;Vanhees;Kromstraat 26;3740;Bilzen;BE;1951-04-04;Individueel;CC;true;luc.vanhees@faber.kuleuven.be;;0475-674698;
+6379/2;Claudia;Smets;Weg naar As 150 A;3660;Opglabbeek;BE;1969-10-22;Koppel;CC;true;claudia.smets@portima.be;;089/359151;
+6414/1;Sandra;Hermanns;Geloeslaan 27;3630;Maasmechelen;NL;1969-02-07;Individueel;CC;true;sandranu@live.be;;0498/569644;
+6307/2;Reinhilde;Gielen;Langerloweg 88;3600;Genk;BE;1967-01-02;Koppel;CC;true;reinhilde.gielen@skynet.be;;0475-835128;
+6433/1;Peter;Pecinovsky;Dopheidestraat 17;3600;Genk;BE;1962-09-24;Individueel;CC;true;peter.pecinovsky@vcst.be;;089/30.30.74;
+5492/2;Ines;Leuridan;Kapellensteenweg 522 / 3;2920;Kalmthout;BE;1968-11-15;Koppel;CC;true;i.leuridan@quooker.be;;0472/868638;
+6435/1;Peter;Bobbaers;Daalstraat 128;3690;Zutendaal;BE;1979-08-05;Individueel;CC;true;peterbobbaers@hotmail.com;;0476-407136;
+6436/1;Niels;Hoebers;Crisantenlaan 9;3530;Houthalen;BE;1988-12-12;Individueel;CC;true;niels@limec.be;;0471-480003;089/843316
+6437/1;Dino;Iezzi;Weg op Bree 51;3670;Oudsbergen;BE;1974-06-16;Individueel;CC;true;;;0474/048801;
+6438/1;Jan;Bobbaers;Molenbergstraat 3;3620;Lanaken;BE;1980-08-25;Individueel;CC;true;jan.bobbaers@hotmail.com;;0476/690009;
+6444/1;Bert;Van Aerschot;Hoogblookstraat 32;3590;Diepenbeek;BE;1982-07-21;Individueel;CC;true;bert_van_aerschot@hotmail.com;;0476/534460;
+6445/1;Tom;De Maeyer;Congostraat 16;3600;Genk;BE;1983-02-22;Individueel;CC;true;tdemaeyer@tom-media.be;;0477/800598;
+6448/1;Hendrik;Hoydonckx;Haneveldstraat 114;3600;Genk;BE;1988-03-17;Individueel;CC;true;hendrik@kantoorhoydoncks.be;;0496/918759;
+6452/1;André;Drijkoningen;Bilzerweg 12;3665;As;BE;1960-05-09;Individueel;CC;true;andre_drijkoningen@outlook.com;;089/659937;
+6455/1;Maarten;Hammendorp;Willibrordusweg 9;3680;Maaseik;NL;1973-08-15;Individueel;CC;true;hammendorp@gmail.com;;;
+6456/1;Stefan;Schildermans;Toekomststraat 62;3950;Bocholt;BE;1968-05-12;Individueel;CC;true;stefan@pludis.be;;0479/302201;
+6463/1;Maarten;Hellings;Oud Termienstraat 22;3600;Genk;BE;1997-09-08;Individueel;CC;true;;;0479-310555;
+6464/1;Alfons;Peeters;Romboutstraat 10 bus 31;3740;Bilzen;BE;1943-12-23;Koppel;CC;true;alfonspeeters@hotmail.com;;0476/060700;
+6464/2;Jeannine;Peeters - Wijnants;Romboutstraat 10 bus 31;3740;Bilzen;BE;1946-02-08;Koppel;CC;true;;;0475-981359;
+6465/1;Gerard;Ariaans;Korhoenstraat 29;3650;Dilsen - Stokkem;NL;1960-09-03;Individueel;CC;true;g.ariaans@telenet.be;0499/983148;089/350348;
+6470/1;Bert;Peeters;Kersendaelstraat 18;3724;Vliermaal;BE;1970-12-21;Koppel;CC;true;bert.peeters@icloud.com;;0479/991419;089/503240
+6470/2;Sandra;Stulens;Kersendaelstraat 18;3724;Vliermaal;BE;1971-04-02;Koppel;CC;true;sandra.stulens@icloud.com;;0479/928392;089/503240
+6349/3;Arlette;Fidler;Brouwersstraat 7;3700;Tongeren;BE;1965-05-19;Koppel;CC;true;;;0476-234574;
+6475/1;Jean;Jehoul;Bierkensweg 10;3950;Bocholt;BE;1964-12-14;Individueel;CC;true;jean.jehoul@telenet.be;;0477-695994;
+6477/1;Peter;Schreurs;Schepersweg 31;3600;Genk;BE;1967-03-11;Koppel;CC;true;;;0486/338734;
+6478/1;Lieven;Van Decraen;Hoeveweg 157;3650;Dilsen;BE;1968-06-25;Individueel;CC;true;lvdc01@hotmail.com;;0475-648248;
+4191/5;Hilde;Zanders;Horkerstraat 1 a;3640;Kinrooi;NL;1960-07-06;Koppel;CC;true;;;0496-533301;
+6479/1;Dirk;Stragier;Scheepvaartlaan 66 bus 4-01;3500;Hasselt;BE;1962-05-29;Koppel;CC;true;dirk.stragier@arcelormittal.com;;0476-988862;
+6483/1;Ghislaine;Craeghs;Hovestraat 5;3960;Bree;BE;1963-03-22;Individueel;CC;true;craeghsghislaine@gmail.com;;0485-332191;
+6484/1;Monica;Craeghs;Kanaallaan 27;3960;Bree;BE;1962-02-23;Individueel;CC;true;monica@hossa-promo.be;;0496/572090;
+6485/1;Janny;Kerkhofs;Centrumstraat 31 bus 2;3660;Oudsbergen;BE;1970-07-04;Individueel;CC;true;;;0475/787245;
+6486/1;Peter;Vanbuel;Wolfsstraat 33;3630;Opglabbeek;BE;1962-01-01;Individueel;CC;true;peter.vanbuel@gmail.com;;0475/731123;
+6200/3;Matteo;Janssens;Ter Boekt 119;3600;Genk;BE;2009-10-14;;CC;true;;;089/77.44.36;
+4541/3;Louis;Bynens;Berenbroekstraat 49;3500;Hasselt;BE;2008-11-18;;CC;true;;;0477-816491;011/859866
+6493/1;Maud;Pottier;Brugstraat 9;3500;Hasselt;BE;1962-11-13;Individueel;CC;true;maud.pottier@telenet.be;;011/728601;0479/414146
+6494/2;Chris;Gheysen - Tilleman;Kiezelstraat 22;3600;Genk;BE;1957-12-26;Koppel;CC;true;chris.tilleman@telenet.be;;089/305926;0478/268050
+6497/1;Danny;Neyens;Heidestraat 44;3660;Opglabbeek;BE;1961-05-15;Koppel;CC;true;info@dmr-stoffeerder.be;;0477/617565;
+6500/1;Stefan;Geelissen;Javanastraat 80;3680;Maaseik;BE;1965-10-27;Individueel;CC;true;stefan@margema.be;;0475/476719;
+6500/2;Bert;Geelissen;Javanastraat 80;3680;Maaseik;BE;2005-02-24;Individueel;CC;true;;;0475/476719;
+6502/1;Joris;Jacobs;Ophovenstraat 16;3670;Gruitrode;BE;1978-12-20;Koppel;CC;true;jorisjacobs78@gmail.com;0475-712512;089/812181;
+6508/1;Serge;Schepers;Henri Decleenestraat 29;3600;Genk;BE;1962-11-07;Individueel;CC;true;serge.h.w.schepers@skynet.be;;089/306900;
+6509/1;Erik;Jehoul;Veeweidestraat 56;3960;Bree;BE;1960-12-12;Individueel;CC;true;info@jehoul.be;;0475-765993;
+6510/1;Geert;Deferm;Schalbroekstraat 84;3560;Lummen;BE;1963-05-06;Koppel;CC;true;geert.deferm@telenet.be;;0476-511332;
+6510/2;Kristine;Beerten;Yskelder 50;3550;Zolder;BE;1969-03-02;Koppel;CC;true;kristine.beerten@telenet.be;;0476-511332;
+6510/4;Gilles;Grisar;Yskelder 50;3550;Zolder;BE;2001-05-07;;CC;true;grisar.911@icloud.com;;0495-281176;
+6511/1;Bernard;Bertrand;Riksingenstraat 78;3700;Tongeren;BE;1950-08-30;Koppel;CC;true;bertrand.b@skynet.be;;0475-763832;
+6511/2;Marie-Christine;Hansen;Riksingenstraat 78;3700;Tongeren;BE;1954-05-29;Koppel;CC;true;marie-christine.hansen@skynet.be;;0479-209545;
+3055/5;Marleen;Vossius;Vier Wijersstraat 26;3520;Zonhoven;BE;1966-07-14;Koppel;CC;true;dbmv@outlook.be;;011/809305;011/809300
+6514/1;Ingrid;Jacobs;Henegauwlaan 13;3500;Hasselt;BE;1962-07-03;Individueel;CC;true;;;0479/360448;
+6517/1;Arthur;Barzeele;Smeilstraat 63 b;3600;Genk;BE;1956-06-19;Individueel;CC;true;barzeele.arthur@gmail.com;;0496-619011;
+6523/1;Wim;'t Kindt;Onze-Lieve-Vrouwstraat 2 bus 2;3500;Hasselt;BE;1987-06-14;Individueel;CC;true;tkindtwim@gmail.com;0472/445542;089/411438;
+6524/1;Herman;Perdu;Maaike Kerreboeck 9 / 401;8310;Assebroek;BE;1953-07-12;Koppel;CC;true;;;0477/385914;
+6524/2;Angele;Steensels;Winterslagstraat 172 / 22;3600;Genk;BE;1963-01-27;Koppel;CC;true;;;0478/314550;
+6525/1;Anice;Zenasni;Tennislaan 1 A;3600;Genk;BE;1973-05-13;Koppel;CC;true;anice.zenasni@telenet.be;;0476/693330;
+6525/3;Xander;Zenasni;Tennislaan 1 A;3600;Genk;BE;2003-01-23;;CC;true;;;0476/693330;
+6526/1;Ludo;Geurden;Hulstbesstraat 8;3600;Genk;BE;1959-05-14;Koppel;CC;true;ludo@geurden.be;0478/489948;089/656265;
+6526/2;Christine;Vandeput;Hulstbesstraat 8;3600;Genk;BE;1958-10-12;Koppel;CC;true;christinevdp@live.be;;0475/425471;
+6529/1;Jackie;Beuten;Struipstraat 28;3650;Dilsen-Stokkem;BE;1956-11-13;Individueel;CC;true;jackie.beuten@telenet.be;0495-545591;0495-545591;
+6531/1;Luc;Verresen;Armand Maclotlaan 22;3600;Genk;BE;1957-12-30;Individueel;CC;true;luc.verresen@gmail.com;0474/463400;089/308922;
+6534/1;Frank;Op 't Eijnde;Heilderveld 40;3650;Dilsen;BE;1975-04-29;Individueel;CC;true;frank.opteijnde@icloud.com;;0498/571382;
+6535/1;Erik;Ramaekers;Engelenweg 48;3660;Opglabbeek;BE;1968-02-20;Individueel;CC;true;erik_ramaekers@telenet.be;0474-646343;089/811323;
+6547/1;Geert;Soors;Boshoekstraat 28;3665;As;BE;1975-05-01;Individueel;CC;true;geert@omnisafe.be;;0497-597200;
+6553/1;Adel;Schraepen;Hasseltweg 56;3600;Genk;BE;1961-05-21;Individueel;CC;true;adelbertschraepen@scarlet.be;0475-695052;089/354929;
+6555/1;Koen;Vandersmissen;Klaverveld 12;3530;Houthalen;BE;1977-10-17;Individueel;CC;true;koen@vandersmissen.eu;;0496-580955;
+6556/1;Bart;Vandersmissen;Elzenstraat 33;3740;Bilzen;BE;1966-01-26;Individueel;CC;true;bart@vandersmissen.eu;;0475-440852;
+6235/3;Liliane;Lemmens;Lindebosstraat 5;3600;Genk;BE;1956-02-15;Koppel;CC;true;liliane.lemmens@lindebos.com;0475/777297;089/770344;
+6560/1;Rudi;Wiame;Bresserstraat 31 / 12;3600;Genk;BE;1960-07-06;Koppel;CC;true;;0476/437998;0476-437998;
+6560/2;Sara;Hogan;Bresserstraat 31 / 12;3600;Genk;BE;1962-02-25;Koppel;CC;true;sara.hogan@telenet.be;0476-319236;011/536750;
+6561/1;Valere;Lemmens;Schuttenbergstraat 6 B;3665;As;BE;1953-10-23;Koppel;CC;true;valere.lemmens@hotmail.com;0473-457332;0473-457332;
+6042/2;Luc;Goyens;Diestersteenweg 230;3510;Kermt;BE;1957-12-29;Koppel;CC;true;;;0497-471580;011-250783
+6562/1;Elmar;Van den Bogert;Erfstraat 14;3600;Genk;BE;1956-11-27;Individueel;CC;true;elmar8@me.com;;0456-795611;
+6563/1;Astrid;Peumans;Kersendaelstraat 69;3724;Vliermaal;BE;2010-11-08;Individueel;CC;true;;;;
+6564/1;Ellen;Huijgen;Grendelbaan 46;3590;Diepenbeek;BE;1997-05-07;Individueel;CC;true;ellen.huijgen@hotmail.com;;0476-025350;
+6565/1;Ghislain;Van Damme;Henri Decleenestraat 25;3600;Genk;BE;1949-03-21;Koppel;CC;true;ghislain.van.damme@telenet.be;;0497/062873;
+6565/2;Marie-José;Geebelen;Henri Decleenestraat 25;3600;Genk;BE;1948-03-15;Koppel;CC;true;josee.geebelen@hotmail.com;;0497/062873;
+6566/1;Ruben;Peumans;Kersendaelstraat 69;3724;Vliermaal;BE;1980-07-12;Koppel;CC;true;ruben.peumans@gmail.com;;0472-537849;
+6567/1;Wim;Sleurs;Opitterkiezel 191;3960;Bree;BE;1964-10-05;Individueel;CC;true;info@steben.be;;0475-686895;
+6569/1;Guy;Daniels;Bocholterstraat 56;3960;Bree;BE;1974-08-21;Individueel;CC;true;guy@danielskachels.be;;0478-391438;
+6571/1;Koenraad;Vanbrabant;Visserijstraat 11;3590;Diepenbeek;BE;1963-11-15;Koppel;CC;true;koen.vanbrabant@dilegno.be;;0477-374803;
+6571/2;Kristien;Paulussen;Visserijstraat 11;3590;Diepenbeek;BE;1966-07-03;Koppel;CC;true;kristien.paulussen@skynet.be;;0479-946204;
+6576/1;Frank;Ruiters;Kielenweg 1;3700;Tongeren;BE;1965-10-18;Individueel;CC;true;frank.ruiters@telenet.be;;0475-650043;
+6580/1;Kurt;Gérimont;Herestraat 62;3721;Kortessem;BE;1971-08-03;Koppel;CC;true;info@gerimont-dakwerken.be;;0477-300657;
+6580/2;Mona;De Lepeleire;Herestraat 62;3721;Kortessem;BE;1976-06-28;Koppel;CC;true;;;0477-698778;
+6581/1;Gert;Claesen;Hoogstraat 34;3730;Hoeselt;BE;1975-09-29;Koppel;CC;true;claesen.bollen@skynet.be;;0473-735789;
+6581/2;An;Bollen;Hoogstraat 34;3730;Hoeselt;BE;1978-01-04;Koppel;CC;true;;;0475-874440;
+6582/1;Marc;Plucieniczak;Olympialaan 15;3630;Maasmechelen;BE;1962-04-20;Koppel;CC;true;info@plumac.be;;0479-666978;
+6584/1;Maarten;Kuijpers;Trappenstraat 36;3630;Maasmechelen;NL;1968-01-04;Individueel;CC;true;maarten.kuijpers@telenet.be;0476-654358;089-777150;
+6584/3;Ferro;Kuijpers;Trappenstraat 36;3630;Maasmechelen;NL;2009-04-09;;CC;true;;;089-777150;
+6585/1;Joseph;Palmen;Terboekt 23;3600;Genk;BE;1956-01-18;Koppel;CC;true;;;0478-370500;
+6586/1;Francis;Dupont;Steenweg 63 / 3;3665;As;BE;1952-10-12;Individueel;CC;true;francis.dupont1@skynet.be;;0475-268979;
+6045/2;André;Remans;Winterslagstraat 31;3600;Genk;BE;1950-09-20;Koppel;CC;true;andre.remans@telenet.be;;089/35.54.65;
+6587/1;Luc;Peumans;Houtblookstraat 22;3600;Genk;BE;1968-03-27;Koppel;CC;true;luc@paintingwithlight.be;;0475-838574;
+6587/2;Nicole;Peumans - Engelen;Houtblookstraat 22;3600;Genk;BE;1971-11-27;Koppel;CC;true;nicole@paintingwithlight.be;;0475-838574;
+6587/3;Sam;Peumans;Houtblookstraat 22;3600;Genk;BE;2007-05-22;;CC;true;;;0475-838574;
+6587/4;Bo;Peumans;Houtblookstraat 22;3600;Genk;BE;2009-06-22;;CC;true;;;0475-838574;
+6589/1;Thomas;Von Stritzky;Lostraat 4;3665;As;BE;1998-06-10;Individueel;CC;true;;;0493-707454;
+6597/1;Karen;Niesten;L. Hermanslaan 17 bus 1;3621;Rekem;BE;1988-04-12;Individueel;CC;true;;;0474-885033;
+6598/1;Hans;Schreurs;Groenstraat 76;3660;Opglabbeek;BE;1963-05-08;Koppel;CC;true;hans.schreurs@veldeman.com;;0477-475542;
+6600/1;Tom;Gaens;Kerselaarstraat 35;3510;Kermt;BE;1982-06-11;Koppel;CC;true;tom@itefficiency.be;;0478-666670;
+6600/2;Suzy;Casto;Kerselaarstraat 35;3510;Kermt;BE;1977-01-18;Koppel;CC;true;suzycasto@telenet.be;;0496-471375;
+6555/2;Sylke;Vandersmissen;Klaverveld 12;3530;Houthalen;BE;2011-02-01;;CC;true;;;0496-580955;
+6604/1;Bert;Kok;Asserweg 130;3690;Zutendaal;NL;1960-06-20;Koppel;CC;true;lwkok@kpnmail.nl;;31-653187445;
+6604/2;Annemiek;Kok - Pronk;Asserweg 130;3690;Zutendaal;NL;1966-03-28;Koppel;CC;true;kok-pronk@hotmail.com;;31-653187445;
+6479/2;Ann;Cox;Scheepvaartlaan 66 bus 4-01;3500;Hasselt;BE;1967-05-15;Koppel;CC;true;;;0473-239970;
+6606/1;Isabelle;Boelens;Grotestraat 140;3631;Boorsem;BE;1973-11-14;Individueel;CC;true;isabelleboelens@me.com;;0496-175070;
+6608/1;Roel;Vandebeek;Langstraat 78;3630;Maasmechelen;BE;1970-04-28;Individueel;CC;true;;;0496-609654;
+6609/1;Peter;Cornoedus;Heiderbosstraat 47;3660;Oudsbergen;BE;1961-05-12;Individueel;CC;true;peter@pcp-architects.be;0477-505313;089-811370;089-700400
+6611/1;Geert;Broekx;Dingenenstraat 1 b;3960;Bree;BE;1974-03-25;Individueel;CC;true;geert@broekxbvba.be;;0476-502056;
+6616/1;Marc;Jacobs;Hasseltse Beverzakstraat 236;3500;Hasselt;BE;1967-10-08;Individueel;CC;true;mjacobs4@telenet.be;;0470-923684;
+6617/1;Pascal;Mannens;Witte Barrier 21;3550;Heusden - Zolder;BE;1970-02-04;Individueel;CC;true;pascal.mannens@willemen.be;;0496-590061;
+6620/1;Frank;Jaspers;Langstraat 149;3630;Maasmechelen;BE;1968-02-10;Koppel;CC;true;frank.jaspers@jafraco.be;;0496-525585;
+6620/2;Leen;Coenegrachts;Langstraat 149;3630;Maasmechelen;BE;1967-10-26;Koppel;CC;true;;;0496-525585;
+6623/1;Inge;Heylen;Weg naar As 155;3600;Genk;BE;1991-02-15;Individueel;CC;true;inge.ep.heylen@gmail.com;;0485-763051;
+6625/1;Jean-Pierre;Swennen;Bretheistraat 115 bus 21;3600;Genk;BE;1950-04-20;Individueel;CC;true;veerlegielen@hotmail.com;;0475-632963;
+6626/1;Jan;Kriekemans;Reinpadstraat 225;3600;Genk;BE;1997-02-06;Individueel;CC;true;jankriekemans@outlook.com;;0470-770145;
+6628/1;Sigmar;Fries;Oude Baan 748;3630;Maasmechelen;BE;1953-05-05;Individueel;CC;true;sigmar.fries@gmail.com;;0474-987100;
+6630/1;Karen;Wiemeersch;Breestraat 17 B0.0.1;3500;Hasselt;BE;1964-01-28;Individueel;CC;true;karin.wiemeersch@gmail.com;;0474-895232;011-601616
+6632/1;Pierre;Houben;Past. J. Hendrikxstraat 29 A;3650;Dilsen-Stokkem;BE;1956-03-18;Koppel;CC;true;pierre.houben@vlaamsparlement.be;;0494-324885;
+6632/2;Els;Craeghs;Past. J. Hendrikxstraat 29 A;3650;Dilsen-Stokkem;BE;1954-06-26;Koppel;CC;true;elscraeghs01@gmail.com;;0476-639050;
+6638/1;Luc;Didden;Lostraat 1;3665;As;BE;1964-10-06;Individueel;CC;true;info@diddennv.be;;0475-905804;
+6639/1;Luc;Box;Peerdsdiefweier 11;3600;Genk;BE;1961-11-26;Koppel;CC;true;luc.box@osudio.be;;0475-544678;
+6639/2;Catherine;Vryens;Peerdsdiefweier 11;3600;Genk;BE;1966-11-25;;CC;true;catherine.vryens@skynet.be;;0475-712029;
+6555/3;Loreline;Pira;Klaverveld 12;3530;Houthalen;BE;1980-02-12;Koppel;CC;true;loreline@telenet.be;;0497-442212;
+6448/2;Evelien;Hendrikx;Wiemesmeerstraat 56;3600;Genk;BE;1993-11-12;Koppel;CC;true;evelien@kantoorhoydonckx.be;;0498-294011;
+6606/2;Olivia;Maris;Grotestraat 140;3631;Boorsem;BE;2007-09-18;Individueel;CC;true;;;0468-547483;
+6648/1;Justus;Roex;Herebosstraat 12;3460;Bekkevoort;BE;2004-12-09;Individueel;CC;true;roex.justus@gmail.com;;0472-940647;
+6650/1;Leon;Cloetens;Poelgoedstraat 29;3570;Alken;BE;1961-12-22;Koppel;CC;true;ann-verduyn@telenet.be;;0486-707832;
+6650/2;Ann;Verduyn;Poelgoedstraat 29;3570;Alken;BE;1961-07-01;Koppel;CC;true;ann-verduyn@telenet.be;;0486-707832;
+6654/1;Herlinde;Wilmots;Herkkantstraat 100;3510;Spalbeek;BE;1965-10-01;Individueel;CC;true;herlinde.wilmots@telenet.be;;0486-844581;
+6655/1;Jan;Meermans;Weg op Bree 89;3670;Meeuwen;BE;1983-09-12;Individueel;CC;true;janmeermans@hotmail.com;;0494-141028;
+6598/2;Heidi;Machiels;Groenstraat 76;3660;Opglabbeek;BE;1969-10-05;Koppel;CC;true;heidimachiels@telenet.be;;0473-993006;
+6658/1;Miriam;Maes;Stationsstraat 28 bus 2;3680;Maaseik;BE;1959-07-16;Individueel;CC;true;miriam.maes1@telenet.be;;0474-262 303;
+6659/1;Lieve;Stams;Hulstbesstraat 10;3600;Genk;BE;1964-12-30;Individueel;CC;true;lieve.stams@gmail.com;;0472-689030;
+6660/1;Hans;Gruizinga;15 Augustusstraat 62 bus 1.2;3690;Zutendaal;NL;1947-03-27;Koppel;CC;true;hansgruizinga@gmail.com;31-653458741;089-245118;
+6660/2;Marjo;Gruizinga;15 Augustusstraat 62 bus 1.2;3690;Zutendaal;NL;1949-08-11;Koppel;CC;true;;31-628467339;089-245118;
+6662/1;Leon;Verheyen;Broekstraat 43;3660;Oudsbergen;BE;1949-09-02;Individueel;CC;true;leon.verheyen1@telenet.be;;089-811285;
+6033/2;Christine;Billen;Lostraat 4;3665;As;BE;1967-05-05;Koppel;CC;true;christine.billen@telenet.be;0496-612783;089/24.58.36;089/207672
+6666/1;Yves;Daenen;Krekeldries 3;3600;Genk;BE;1962-06-30;Individueel;CC;true;yves.daenen@adlex.be;;0479-409408;
+6667/1;Karel;Zimmermann;Schaapsdries 27;3600;Genk;BE;1963-05-18;Individueel;CC;true;zimmermannkarel1@gmail.com;;31683267455;
+6414/3;Hans;Hugenholtz;Geloeslaan 27;3630;Maasmechelen;NL;1950-06-10;Koppel;CC;true;;;31-653154613;
+6045/3;Elise;Gonnissen;Winterslagstraat 31;3600;Genk;BE;2011-10-03;;CC;true;;;089/35.54.65;
+6566/2;William;Peumans;Kersendaelstraat 69;3724;Vliermaal;BE;2014-07-06;;CC;true;;;0472-537849;
+6200/4;Jasper;Janssens;Ter Boekt 119;3600;Genk;BE;2012-06-18;Individueel;CC;true;;;089/77.44.36;
+6456/3;Marina;Schildermans - Smeets;Toekomststraat 62;3950;Bocholt;BE;1975-05-28;Koppel;CC;true;;;0479/302201;
+6675/1;Huub;Boutsen;Pannenhuisstraat 9;3650;Dilsen-Stokkem;BE;1953-05-27;Individueel;CC;true;huub.boutsen1@gmail.com;;0475-690170;
+6679/1;Philip;Schreurs;Coghenstraat 9 bus 23;3600;Genk;BE;1956-04-29;Koppel;CC;true;ph_schreurs@telenet.be;;089/658373;0473-424664
+6680/1;Michael;Deuzings;Kannegatstraat 50;3631;Boorsem;NL;1971-04-09;Koppel;CC;true;michael@deuzings.be;;089/775453;31-633982062
+6680/2;Monique;Wientjes;Kannegatstraat 50;3631;Boorsem;NL;1972-12-11;Koppel;CC;true;monique@deuzings.be;;089/775453;31-633982062
+6683/1;Bruno;Medaerts;Tongersesteenweg 13;3770;Riemst;BE;1960-04-07;Individueel;CC;true;bruno.medaerts@hotmail.com;;0475-931756;
+6497/2;Brigitte;Heylen;Heidestraat 44;3660;Opglabbeek;BE;1961-01-20;Koppel;CC;true;brigitteheylen@telenet.be;;0477/617565;
+6684/1;Bart;Siodlak;Weg naar As 269 / 11;3600;Genk;BE;1986-04-17;Individueel;CC;true;bart@johangeurts.be;;0484-253728;
+6685/1;Davy;Kerkhofs;Leliestraat 11;3670;Oudsbergen;BE;1983-09-19;Individueel;CC;true;davy.kerkhofs@gmail.com;;0476-977228;
+6686/1;Rik;Bamps;Zevenhuizenstraat 34;3665;As;BE;1983-07-02;Individueel;CC;true;rikbamps@hotmail.com;;0471-677726;
+6606/3;Amélie;Maris;Grotestraat 140;3631;Boorsem;BE;2003-10-20;Individueel;CC;true;;;0496-175070;
+6687/1;Maud;Van Zon;Heidestraat 36;3660;Oudsbergen;BE;1969-07-16;Koppel;CC;true;maud@shunshine.net;;0496-286476;
+6688/1;Rita;Gerets;Coghenstraat 9 bus 12;3600;Genk;BE;1960-05-22;Individueel;CC;true;rita.gerets@skynet.be;;0476-207122;
+6689/1;Hilde;Olaerts;Molenstraat 60 B bus 22;3600;Genk;BE;1956-12-27;Individueel;CC;true;hilde.olaerts@telenet.be;;0473-524208;
+6695/1;Robert;Peeten;Prins Laurentlaan 15;3630;Maasmechelen;BE;1947-02-03;Individueel;CC;true;peetenrobert@hotmail.com;;0488-561536;
+6705/1;Kay;Tomlow;Kesseltweg 37;3620;Lanaken;NL;1986-01-11;Individueel;CC;true;tomlow@me.com;;-652420566;
+6708/1;Jean Christophe;Schobbens;Berkenlaan 24;3500;Hasselt;BE;1969-11-25;Koppel;CC;true;jc.schobbens@zol.be;;0479-294855;
+6708/2;Heidi;Reynders;Berkenlaan 24;3500;Hasselt;BE;1969-11-11;Koppel;CC;true;heidi.reynders@hotmail.com;;0475-833512;
+6709/1;Erik;de Jonge;Hengelhoefstraat 73;3600;Genk;BE;1958-08-30;Koppel;CC;true;dr.e.de.jonge@pandora.be;;0497-435860;
+6709/2;Ann;Bremans;Hengelhoefstraat 73;3600;Genk;BE;1960-09-04;Koppel;CC;true;annbremans@hotmail.com;;0476-278016;
+6710/1;Christophe;Thijs;Schepersweg 98;3600;Genk;BE;1969-08-21;Koppel;CC;true;christophe.thijs@icloud.com;;0495-589176;
+6710/2;Daphne;Hermans;Schepersweg 98;3600;Genk;BE;1971-02-24;Koppel;CC;true;daphnehermans@icloud.com;;0497-500992;
+6710/3;Mats;Thijs;Schepersweg 98;3600;Genk;BE;2004-01-14;;CC;true;;;0470-641085;
+6200/5;Tobias;Janssens;Ter Boekt 119;3600;Genk;BE;2014-06-23;;CC;true;;;089/77.44.36;
+6712/1;Rudi;Teppers;Oude Molenweg 6;3665;As;BE;1964-03-01;Individueel;CC;true;teppers.nv@telenet.be;;0495-522328;089-794672
+6713/1;Emile;Lauwen;Meeuwerstraat 4;3600;Genk;BE;1954-05-28;Individueel;CC;true;mile3@live.be;;0495-181537;
+6714/1;Mieke;Henckens;Nederlandlaan 18;2440;Geel;BE;1962-09-22;Individueel;CC;true;miekehenckens@telenet.be;;0495-107078;
+6717/1;Eddy;Huybrechts;Merelstraat 21;3520;Zonhoven;BE;1955-09-21;Koppel;CC;true;vivideckers@gmail.com;;0475-942262;
+6717/2;Vivianne;Deckers;Merelstraat 21;3520;Zonhoven;BE;1958-02-09;Koppel;CC;true;vivideckers@gmail.com;;0475-942262;
+6718/1;Alexandra;Janssens;Dorpstraat 77;3200;Gelrode;BE;1998-07-03;Individueel;CC;true;alexjej77@gmail.com;;0417-731998;
+6719/1;Ivan;Geubbelmans;Markt 33 bus 1;3740;Bilzen;BE;1973-09-12;Individueel;CC;true;ivan.geubbelmans@gmail.com;;0472-020173;
+6722/1;Erik;Deswert;Veldstraat 37;3550;Heusden-Zolder;BE;1966-02-02;Individueel;CC;true;erik.deswert@hvakoeling.be;;0492-272732;
+6723/1;Elwin;Dittmar;Heirstraat 111;3630;Maasmechelen;NL;1976-08-17;Koppel;CC;true;;;089-467912;
+6723/2;Brigitte;Dittmar - Hoefsmit;Heirstraat 111;3630;Maasmechelen;NL;1971-05-13;Koppel;CC;true;;;089-467912;
+6724/1;Bert;Sampermans;Borreshoefstraat 93 B;3650;Dilsen - Stokkem;BE;1989-08-30;Individueel;CC;true;bert@dohm.be;;0477-603943;
+6728/1;Luc;Segers;Langstraat 67;3650;Elen;BE;1963-10-09;Individueel;CC;true;megakop@yahoo.com;;0494-696317;
+6729/1;Robert;Simons;Berkenlaan 18;3620;Gellik;NL;1968-05-16;Individueel;CC;true;simons99999@icloud.com;;31-634940373;
+6731/1;Marc;Dezwart;Dorperberg 12;3680;Maaseik;BE;1958-05-19;Koppel;CC;true;marcdezwart@hotmail.com;;0495-599485;
+6734/1;Anita;Geerts;Bonderstraat 55;3600;Genk;BE;1961-07-22;Individueel;CC;true;anita.geerts@hotmail.be;;0476-436104;089-357953
+6735/1;Rob;Van Broekhoven;Weg naar Zwartberg 163;3660;Oudsbergen;BE;1969-09-14;Individueel;CC;true;rvb@pubro.be;;0495-502029;014-555629
+6679/2;Anita;Boyen;Coghenstraat 9 bus 23;3600;Genk;BE;1957-03-14;Koppel;CC;true;;;0478-278987;0473-424664
+6477/2;Chantal;Philippaerts;Schepersweg 31;3600;Genk;BE;1967-09-12;Koppel;CC;true;chantal.philippaerts@skynet.be;;0485-495398;
+6741/1;Sander;Vliegen;Drijtap 9 bus 2;3600;Genk;BE;1992-04-24;Koppel;CC;true;sandervliegen@gmail.com;;0498-392557;
+6743/1;Ronny;Vliegen;Stegerweg 56;3660;Oudsbergen;BE;1965-05-15;Individueel;CC;true;ronny.vliegen@telenet.be;;0475-955151;
+6746/1;Stef;Rogiers;Sint-Martensbergstraat 59;3600;Genk;BE;1997-10-30;Individueel;CC;true;stefrogiers@hotmail.com;;0470-509168;
+6747/1;Bernard;Busselen;Schildershof 2;3600;Genk;BE;1958-11-05;Individueel;CC;true;bernard.busselen@skynet.be;;0474-863471;089-357840
+6748/1;Hubert;Schreurs;Koppelstraat 61;3650;Dilsen-Stokkem;BE;1952-07-09;Individueel;CC;true;schreurshuub@gmail.com;;0477-286549;
+6751/1;Dennis;De Maeyer;Reinpadstraat 231;3600;Genk;BE;1987-05-02;Individueel;CC;true;dennis.demaeyer@treatex.be;;0475-281996;
+6754/1;Jos;Vanroy;Centrumlaan 8 bus 32;3600;Genk;BE;1959-03-27;Individueel;CC;true;jos.vanroy@proximus.be;;0499-361945;
+6759/1;Johannes;Bouhuys;Paul Lambertlaan 96;3630;Maasmechelen;NL;1958-10-22;Koppel;CC;true;johanbouhuys@hotmail.com;;-623259308;
+6759/2;Rita;Breemans;Populierenstraat 2 2/3;3560;Lummen;BE;1958-07-23;Koppel;CC;true;rita.breemans@outlook.be;;0479-504932;
+6761/1;Han;Joosen;Kapelstraat 9;3740;Bilzen;NL;1959-03-17;Koppel;CC;true;hjoosen@exaedes.nl;;-621552132;
+6761/2;Alexandra;Shaw;Kapelstraat 9;3740;Bilzen;BE;1964-11-16;Koppel;CC;true;alexandra.shaw@outlook.be;;0492-724534;
+6763/1;Margot;Vander Laenen;Strooiselstraat 18;3600;Genk;BE;1968-10-02;Individueel;CC;true;;;0475-270008;
+6768/1;Emma;De Jonge;Hoogstraat 24 bus 2.1;3690;Zutendaal;BE;2011-08-31;Individueel;CC;true;;;0487-615755;
+6770/1;Jo;Van Oostayen;Delstraat 4;3690;Zutendaal;BE;1960-06-03;Individueel;CC;true;johan.vanoostayen@scarlet.be;;0475-410178;
+6771/1;Marcel;Engelen;Reinpadstraat 45;3600;Genk;BE;1957-04-12;Individueel;CC;true;marcel.engelen@me.com;;0475-661428;
+6729/2;Anja;Meertens;Berkenlaan 18;3620;Gellik;BE;1970-01-07;Koppel;CC;true;anjameertens@icloud.com;;0499-415459;
+6687/2;Karel;Nouwen;Heidestraat 36;3660;Oudsbergen;BE;1969-07-05;Koppel;CC;true;k.nouwen@gmail.com;;0477-870120;
+6775/1;Francis;Gielen;Molenstraat 96;3600;Genk;BE;1971-12-26;Koppel;CC;true;f.gielen@hospidex.eu;;0495-163163;
+6775/2;Nathalie;Bogaerts;Molenstraat 96;3600;Genk;BE;1972-03-05;Koppel;CC;true;;;0476-678413;
+6775/3;Felix;Gielen;Molenstraat 96;3600;Genk;BE;2010-02-11;;CC;true;;;089-358535;
+6775/4;Maximiliaan;Gielen;Molenstraat 96;3600;Genk;BE;2011-02-22;;CC;true;;;089-358535;
+6777/1;Juan;Garcia - Vilar;Onder de Bergen 21;3650;Dilsen - Stokkem;BE;1981-05-01;Individueel;CC;true;j.garcia-vilar@ic-verzekeringen.be;;0493-943996;
+6778/1;Matisse;Didden;Lostraat 1;3668;Niel-bij-As;BE;2001-10-08;Individueel;CC;true;matisse.d22@gmail.com;;0478-641354;
+6779/1;Tom;Hermans;Bresserstaat 14;3600;Genk;BE;2000-11-10;Individueel;CC;true;tomhermans1011@outlook.com;;0476-507500;
+6782/1;Eric;Lenaerts;Pater Beckersstraat 28 / 1;3550;Heusden-Zolder;BE;1960-10-07;Koppel;CC;true;eric@lenzo.be;;0495-579540;
+6783/1;JoAnn;Cunneen;Driehuizen 42;2490;Balen;;1954-11-11;Individueel;CC;true;joanncunneen@gmail.com;;0478-552685;
+6784/1;An;Gijbels - Van Dael;Nieuwe Kuilenweg 9 bus 31;3600;Genk;BE;1944-08-19;Individueel;CC;true;;;0495-595232;
+6791/1;Rudi;Ghijsens;Blaarstraat 124;3700;Tongeren;BE;1963-06-11;Koppel;CC;true;rudi.ghijsens@telenet.be;;0468-112509;
+6792/1;Hans;Eersels;Molenstraat 102;3600;Genk;BE;1971-02-14;Individueel;CC;true;hans.eersels@gmail.com;;0495-369030;
+6794/1;Gianni;Carlucci;Middenkruis 13;3600;Genk;BE;1967-05-08;Individueel;CC;true;carlucci@proximus.be;;089-303771;
+6782/2;Els;Steenberghs;Pater Beckersstraat 28 / 1;3550;Heusden-Zolder;BE;1962-09-19;Koppel;CC;true;els@lenzo.be;;0477-850238;
+5660/5;Aïdan;Brennan;Paul Nicoulaan 14;3630;Maasmechelen;;2006-09-02;Individueel;CC;true;;;089/23.64.22;31-623327919
+6502/4;Veerle;Bosmans;Ophovenstraat 16;3670;Gruitrode;BE;1989-12-08;Koppel;CC;true;veerlebosmans@hotmail.com;;0499-466986;
+6797/1;Luc;Jordens;Hoogveldstraat 47;3600;Genk;BE;1959-09-16;Individueel;CC;true;luk@jorfla.be;;0472-554245;
+6731/2;Monique;Voets;Dorperberg 12;3680;Maaseik;BE;1960-09-04;Koppel;CC;true;;;0496-631941;
+6799/1;Anja;Wevers;Academiestraat 3;3600;Genk;BE;1971-11-04;Individueel;CC;true;weve1@live.be;;0472-757675;
+6801/1;Hans;Vanderzijl;Fazantenstraat 34;3665;As;BE;1968-03-14;Koppel;CC;true;hans@vanderzijl.be;;0486-604572;
+6802/1;Peter;Festjens;Academiestraat 10;3600;Genk;BE;1964-08-28;Individueel;CC;true;peter.festjens@telenet.be;;0484-931585;
+6803/1;Filippo;Cacciatore;Onafhankelijkheidslaan 15 B1;3600;Genk;BE;1960-04-26;Individueel;CC;true;filip.cacciatore@gmail.com;;0474-338538;
+6805/1;Gabriele;Cacciatore;Jan Habexlaan 17 B 6;3600;Genk;BE;1963-09-14;Individueel;CC;true;gabriele.cacciatore@hotmail.com;;0496-590054;
+6806/1;Rob;Martens;Hasseltweg 403 A;3600;Genk;BE;1954-03-20;Individueel;CC;true;;;0476-236002;
+6809/1;Geert;Hendrikx;Hoogstraat 118 B;3690;Zutendaal;BE;1965-05-22;Individueel;CC;true;ghhg835@yahoo.com;;0476-928903;
+6811/1;Leo;Panis;Hoogstraat 35;3690;Zutendaal;BE;1952-08-14;;CC;true;;;0475-461188;
+6812/1;Tom;Fret;Bonderstraat 57;3600;Genk;BE;1975-01-06;Koppel;CC;true;info@dokterfret.be;;0495-251496;
+6812/2;Lise;Famaey;Bonderstraat 57;3600;Genk;BE;1976-03-14;;CC;true;;;0495-911486;
+6680/3;Marijn;Deuzings;Kannegatstraat 50;3631;Boorsem;NL;2001-11-13;Individueel;CC;true;;;0485-706505;
+6680/4;Charlotte;Deuzings;Kannegatstraat 50;3631;Boorsem;NL;2003-12-02;Individueel;CC;true;;;0499-707834;
+6814/1;Niels;Hermans;Hoefstadstraat 77;3600;Genk;BE;1985-05-23;Individueel;CC;true;niels@mpln.be;;0497-565749;
+6815/1;Lennert;Hermans;Maarschalk Joffrelaan 66 / 1;1190;Vorst;BE;1989-03-02;Individueel;CC;true;lennert@studio-ensemble.be;;0494-680975;
+6816/1;Marc;Ceyssens;Burg. Gerard Bijnenslaan 28 / 41;3600;Genk;BE;1965-07-14;Koppel;CC;true;marc.ceyssens@honorem-hm.be;;0495-598154;
+6816/2;Els;Blazejczak;Burg. Gerard Bijnenslaan 28 / 41;3600;Genk;BE;1970-08-26;Koppel;CC;true;els_blazejczak@hotmail.com;;0474-554224;
+6819/1;Michel;Benats;Sint-Martinusstraat 47;3870;Vechmaal Heers;BE;1953-09-24;Koppel;CC;true;5micben3@gmail.com;;0475-769820;012-457703
+6812/3;Raphael;Fret;Bonderstraat 57;3600;Genk;BE;2008-08-21;;CC;true;;;;
+6812/4;Alix;Fret;Bonderstraat 57;3600;Genk;BE;2011-07-22;;CC;true;;;;
+6823/1;Arcolino;Cacciatore;Stalenstraat 18;3600;Genk;BE;1962-06-18;Individueel;CC;true;arcolino@hotmail.com;;0497-319716;
+6824/1;Michel;Gelders;Dell 2B;3740;Bilzen;BE;1969-03-31;Individueel;CC;true;michel.gelders@telenet.be;;0476-478293;
+6819/2;Gabrielle;Lenaerts;Sint-Martinusstraat 47;3870;Vechmaal Heers;BE;1951-12-03;Koppel;CC;true;;;0475-769820;012-457703
+6826/1;Lieve;Brockmans;Toekomststraat 50;3500;Hasselt;BE;1951-09-18;Individueel;CC;true;lieve.brockmans@proximus.be;;0486-376243;
+6582/2;Constance;Wyers;Opdekampstraat 45;3631;Boorsem;BE;1965-09-21;Koppel;CC;true;constance.wijers@hotmail.com;;0468-540413;
+6828/1;Martin;Flynn;Fluwijnpad 22;3620;Neerharen;;1966-03-09;Koppel;CC;true;martin.flynn@telenet.be;;0494-493438;
+6829/1;Stijn;Willems;Weg naar Meeuwen 66;3660;Oudsbergen;BE;1996-02-01;Individueel;CC;true;sws@outlook.be;;0488-387573;
+6830/1;Frank;Scheepers;Eisdenweg 70 A;3630;Maasmechelen;BE;1972-04-26;Koppel;CC;true;frank.scheepers2@gmail.com;;0475-922255;
+6832/1;Jan;Bongaerts;Klotsenhoutstraat 19;3600;Genk;BE;1953-04-14;Individueel;CC;true;jan.bongaerts@telenet.be;;0468-186486;
+6722/2;Chantale;Moons;Veldstraat 37;3550;Heusden-Zolder;BE;1969-02-15;Koppel;CC;true;chantale.moons@gmail.com;;0478-254912;
+6455/5;Mattias;Hammendorp;Willibrordusweg 9;3680;Maaseik;BE;2004-04-03;Individueel;CC;true;mattiham44@gmail.com;;0468-357005;
+6833/1;Nicolas;Marx;Bevrijdingslaan 15;3530;Houthalen;BE;1983-04-28;Individueel;CC;true;nicomarx59@yahoo.fr;;0473-360195;
+6830/2;Sabine;Savelkoul;Eisdenweg 70 A;3630;Maasmechelen;BE;1971-12-06;Koppel;CC;true;;;0475-444037;
+6566/3;An;Vandepitte;Kersendaelstraat 69;3724;Vliermaal;BE;1980-05-19;Koppel;CC;true;vandepittean@gmail.com;;0496-865545;
+6834/1;Davide;Lucchesi;Componistenhof 1;3600;Genk;BE;1996-06-03;Individueel;CC;true;davide_lucchesi@hotmail.com;;0484-077498;
+6835/1;Jan;Carpentier;Parklaan 24;3590;Diepenbeek;BE;1961-07-12;Koppel;CC;true;jjhccarpentier@gmail.com;;0477-409328;
+6836/1;Christine;Geurden;Windmolenstraat 23;3690;Zutendaal;BE;1957-12-17;Individueel;CC;true;christinegeurden@hotmail.com;;0477-827802;
+6837/1;Vincent;Peters;Steeneikstraat 39;3600;Genk;BE;1999-06-12;Individueel;CC;true;peters-vincent@outlook.com;;0483-683637;
+6838/1;Julian;Didden;Nieuwstraat 1 bus 5;3650;Dilsen-Stokkem;BE;2000-06-16;Individueel;CC;true;juliandidden@hotmail.com;;0473-573285;
+6839/1;Jos;Craeghs;Aniciuspark 11 / 42;3700;Tongeren;BE;1948-02-02;Individueel;CC;true;craeghs.joseph@telenet.be;;0477-477914;
+6840/1;Siemen;Beurskens;Heneberg 12;3770;Riemst;BE;1999-11-19;Individueel;CC;true;sbrs.elektrotechnieken@gmail.com;;;
+6841/1;Leon;Klapwijk;Elzenlaan 20;3590;Diepenbeek;NL;1965-03-09;Individueel;CC;true;lk986@outlook.com;;0469-115420;
+6729/3;Sjef;Simons;Berkenlaan 18;3620;Gellik;BE;2006-03-27;Individueel;CC;true;sjefsimons2149@outlook.com;;31-612265535;
+6846/1;Maks;Klecha;Hamontweg 90;3680;Maaseik;BE;2009-05-09;Individueel;CC;true;maks.klecha.2000@gmail.com;;0479-351938;
+6791/2;Carine;Wynants;Rue Waasertrap 85;4408;Belvaux Luxemburg;BE;1962-03-07;Koppel;CC;true;carine.wijnants@telenet.be;;0468-182210;
+6847/1;Toon;Raemaekers;Winterslagstraat 174 B, bus 41;3600;Genk;BE;1961-06-24;Individueel;CC;true;toonraemaekers@outlook.com;;0475-966142;
+4193/4;Detje;Bijnens - Nelis;Hoogstraat 8;3690;Zutendaal;BE;1961-06-18;Koppel;CC;true;detje@arogroup.be;;;
+6848/1;Peter;Boonen;Pater Coninxlaan 27;3960;Bree;NL;1961-06-07;Individueel;CC;true;p.boonen@telenet.be;;0479-434207;
+6849/1;Anthony;Campana;Hoefstadstraat 105;3600;Genk;;1970-06-29;Koppel;CC;true;;;0488-652078;
+6850/1;Nele;Oelbrandt;Heide 40 A;3800;St-Truiden;BE;1965-12-19;Koppel;CC;true;nele.oelbrandt@telenet.be;;;
+6849/2;Sandrine;Drapant;Hoefstadstraat 105;3600;Genk;FR;1973-08-24;Koppel;CC;true;;;0485-170249;
+6851/1;Jurgen;Bleus;Molenstraat 42;3620;Lanaken;BE;1983-04-29;Koppel;CC;true;bleusjurgen@gmail.com;;0494-129953;
+6852/1;Koen;Maesen;Pauwbroekstraat 28;3945;Ham;BE;1969-05-09;Koppel;CC;true;koen@hekoma.be;;0477-345356;
+6852/2;Heidi;Convens;Pauwbroekstraat 28;3945;Ham;BE;1970-04-13;Koppel;CC;true;;;0495-916646;
+6852/3;Quinten;Maesen;Pauwbroekstraat 28;3945;Ham;BE;2002-04-13;;CC;true;;;0495-885671;
+6853/1;Ronny;Vrolix;Hulststraat 3;3630;Maasmechelen;BE;1967-10-19;Individueel;CC;true;ronnyvrolix@hotmail.com;;0477-634638;
+6082/4;Gretel;Cludts;Kuilenstraat 35;3600;Genk;BE;1961-01-21;Koppel;CC;true;laminecolline@icloud.com;;0478-642663;
+6854/1;Jos;Vlasselaer;Steeneikstraat 27;3600;Genk;BE;1958-01-01;Individueel;CC;true;jos.vlasselaer@telenet.be;;0475-696694;
+6855/1;Johan;Mullens;Mons. Kerkhofstraat 46 bus 2;3500;Hasselt;;1958-01-01;Individueel;CC;true;johan.mullens@gmail.com;;0488-377227;
+6856/1;Danny;Millen;Oudasserstraat 108;3600;Genk;BE;1961-02-10;Koppel;CC;true;danny.millen@telenet.be;;0479-603138;
+6857/1;Anne;Struelens;Sepulkrijnenlaan 54;3500;Hasselt;BE;1965-09-18;Individueel;CC;true;anne.struelens@sfz.be;;0477-612495;
+6858/1;Frank;Breemans;De Drij Dreven 235;3520;Zonhoven;BE;1967-11-30;Koppel;CC;true;frank.breemans@gmail.com;;0475-774433;
+6858/2;Diane;Vanoppen;De Drij Dreven 235;3520;Zonhoven;BE;1965-10-23;Koppel;CC;true;diane.vanoppen@gmail.comp;;0474-334577;
+6154/3;Alexander;Gielkens;Dopheidestraat 9;3600;Genk;;2014-06-21;Individueel;CC;true;;;0472/991367;
+6861/1;Philippe;Damen;Schabartstraat 58;3600;Genk;BE;1983-08-29;Individueel;CC;true;;;;
+6525/4;Sandy;Verdeyen;Tennislaan 1 A;3600;Genk;BE;1975-05-03;Koppel;CC;true;sandy.verdeyen@gmail.com;;0479-607181;
+6864/1;Daan;Vanreusel;Hoogblookstraat 33;3590;Diepenbeek;BE;2010-04-11;Individueel;CC;true;roel.vanreusel@telenet.be;;0476-454163;
+6865/1;Charlotte;Giltay;Rode Kruislaan 142 E;3740;Bilzen;BE;2006-12-27;Individueel;CC;true;;;0468-468140;
+6866/1;Arthur;Breemans;De Drij Dreven 235;3520;Zonhoven;BE;2003-02-24;Individueel;CC;true;breemans.arthur@gmail.com;;0468-225163;
+6867/1;Thibeau;Berthels;Appeystraat 62a;3830;Wellen;BE;2010-02-11;Individueel;CC;true;annemie.schoels@gmail.com;;0498-484224;
+6835/2;Greet;Neesen;Parklaan 24;3590;Diepenbeek;BE;1961-07-12;Koppel;CC;true;;;0477-409328;
+6868/1;Sebastien;Sternotte;Vossenbergstraat 45;3500;Hasselt;BE;2002-01-13;Individueel;CC;true;sebastien.sternotte@outlook.com;;0495-778508;
+6869/1;Louis;Fryns;Heiderbossstraat 1 bus 1 B;3660;Oudsbergen;BE;1994-04-23;Individueel;CC;true;louis_fryns@hotmail.com;;0479-713750;
+6870/1;Brent;Baeten;Schoolstraat 8;3665;As;BE;1994-05-21;Individueel;CC;true;;;0471-098715;
+6871/1;Sean;Dexters;Wielerlaan 78;3665;As;BE;1986-06-28;Individueel;CC;true;dexters_sean@hotmail.com;;0474-396804;
+6872/1;Miguel-Angel;Casado;Steenweg 60;3665;As;BE;1991-01-14;Individueel;CC;true;migiu.c@carios.be;;0472-890258;
+6873/1;Luc;Van Hove;De Merodelaan 78;3620;Lanaken;BE;1961-03-14;Koppel;CC;true;b.winand@icloud.com;;0497-023492;
+6873/2;Angie;Winand;De Merodelaan 78;3620;Lanaken;BE;1961-06-30;Koppel;CC;true;;;0478-744849;
+6874/1;Sonja;Roex;Fletersdel 52;3600;Genk;BE;1966-09-29;Individueel;CC;true;roexsonja@gmail.com;;0475-844224;
+6875/1;Katrien;Gorissen;Dorpsstraat 34;3590;Diepenbeek;BE;1977-06-15;Individueel;CC;true;katrien@palmers.be;;0476-595298;
+6876/1;Jolien;Coninx;Minderbroederstraat 19 b 3;3600;Genk;BE;1998-06-20;Individueel;CC;true;coninxjolien@hotmail.com;;0470-643788;
+6877/1;Elsy;Neirinckx;Noordlaan 6;3600;Genk;BE;1956-11-05;Individueel;CC;true;elsyneirinckx@gmail.com;;0474-880393;
+6878/1;Thomas;Dejan;Grensstraat 16;3740;Beverst;BE;1983-11-24;Individueel;CC;true;thomasdejan@telenet.be;;0497-619180;
+6879/1;Elsky;Claessens;Opitterkiezel 219;3960;Bree - Opitter;BE;1957-11-03;Individueel;CC;true;elsky@clijstersverz.be;;0494-712544;
+6880/1;Diane;Bongaerts;Soetebeek 68;3670;Oudsbergen;BE;1968-11-30;Individueel;CC;true;diane@beaubad.be;;0497-653963;
+6881/1;Gijs;Bergmans;Europaplein 13 bus 6;3620;Lanaken;BE;1992-07-20;Individueel;CC;true;bergmans.gijs@gmail.com;;0495-184794;
+6735/3;Kirsten;Jansen;Weg naar Zwartberg 163;3660;Oudsbergen;BE;1974-05-03;Koppel;CC;true;kirsten.jansen@telenet.be;;0479-609791;014-555629
+6882/1;Levi;Nelis;Elzenstraat 19;3670;Oudsbergen;BE;1983-07-02;Individueel;CC;true;levi.nelis@gmail.com;;0478-177160;
+6883/1;Ken;Marchal;Sprinkelstraat 3 bus 3D;3690;Zutendaal;BE;1995-08-06;Individueel;CC;true;kenmarchal7@gmail.com;;0487-188836;
+6884/1;Illya;Buttgereit;Bevrijdingslaan 157 bus 2;3665;As;BE;1995-02-15;Individueel;CC;true;illyabuttgereit@gmail.com;;0471-092043;
+6885/1;Jeroen;Salimans;Heideveldstraat 40;3670;Oudsbergen;BE;1983-08-18;Individueel;CC;true;jesalimans@hotmail.com;;0497-809560;
+6886/1;Jeffrey;Callebaut;Hoogstraat 118 B;3690;Zutendaal;BE;2012-06-25;Individueel;CC;true;fonnyjeffrey@gmail.com;;0476-666122;
+6887/1;Jurgen;Verboven;Kleine Herenweide 92;3590;Diepenbeek;BE;1978-12-12;Individueel;CC;true;jurgenverb@hotmail.com;;0499-756284;
+6856/2;Liliane;Gora;Oudasserstraat 108;3600;Genk;BE;1962-01-30;Koppel;CC;true;lily.gora@gmail.com;;0479-603138;
+6889/1;Ruben;Wolfs;Bergstraat 26;3770;Val-Meer;BE;1999-11-30;Individueel;CC;true;wolfsrbn@gmail.com;;0479-276882;
+6890/1;Michiel;Vanhoutte;Burg. Bijnenslaan 26 bus 31;3600;Genk;BE;1987-10-02;;CC;true;;;0485-191744;
+6891/1;Matisse;Hermans;Schuttenbergstraat 9;3665;As;BE;1999-10-12;Individueel;CC;true;info@hermansinterieur.be;;0479-953534;
+6892/1;Guillaume;Vanderlinden;Strooiselstraat 16;3600;Genk;BE;2010-07-05;Individueel;CC;true;info@sonjakeulen.be;;0495-303735;
+6893/1;Elias;Ramaekers;Maria-Theresiastraat 100;3000;Leuven;BE;1999-02-24;Individueel;CC;true;elias.ramaekers@hotmail.com;;0470-561303;
+6894/1;Oscar;Block;Paesteblookstraat 26;3600;Genk;BE;2009-01-13;Individueel;CC;true;evelyne.vhb@gmail.com;;0474-927926;
+6895/1;Sergio;Canini;Molenstraat 82;3600;Genk;BE;1954-09-05;Individueel;CC;true;sergio@telluria.be;;0475-569174;
+6708/3;Emile;Schobbens;Berkenlaan 24;3500;Hasselt;BE;2005-07-26;Individueel;CC;true;emile.schobbens@hotmail.com;;0475-641499;
+6708/4;Arthur;Schobbens;Berkenlaan 24;3500;Hasselt;BE;2002-09-26;Individueel;CC;true;arthur.schobbens@hotmail.com;;0472/484646;
+6896/1;Claudia;La Rosa;Slaghoutstraat 19 A;3600;Genk;BE;2001-08-13;Individueel;CC;true;larosa.claudia@icloud.com;;0497-552711;
+6898/1;Anneleen;Bongaerts;Steenbakkerijstraat 9 bus 1;3600;Genk;BE;1954-03-23;Individueel;CC;true;bongaerts.anneleen@gmail.com;;0472-738674;
+6828/2;Ann;Kennelly;Fluwijnpad 22;3620;Neerharen;;1965-12-19;Koppel;CC;true;ann.kennelly@telenet.be;;0496-475881;
+6899/1;Karen;Pareyn;Tismansweg 31;3680;Neeroeteren;BE;1984-08-25;Individueel;CC;true;pareynkaren@hotmail.com;;0496-397371;
+6900/1;Geert;Callebaut;Zonnebloemlaan 7;3990;Peer;BE;1968-10-18;Individueel;CC;true;calle.1810@hotmail.com;;0477-674238;
+6901/1;Harrald;Peerebooms;Vredestraat 2;3680;Maaseik;BE;1965-04-22;Individueel;CC;true;;;0497-973417;
+6902/1;Frank;Knoors;Sterrenlaan 16;3621;Lanaken;NL;1967-04-09;Koppel;CC;true;f.knoors@sequoyah.be;;0475-722056;
+6902/2;Bas;Knoors;Sterrenlaan 16;3621;Lanaken;NL;2003-04-14;;CC;true;;;0493-189036;
+6903/1;Pieter;Janssen;Terboekt 79;3600;Genk;BE;2010-02-12;Individueel;CC;true;pieterjanssengolf@gmail.com;;0485-234787;
+6904/1;Lowie;Leliaert;Stationsstraat 50;3920;Lommel;BE;2010-02-10;Individueel;CC;true;;;0468-119403;
+6478/4;Alexander;Housen;Hoeveweg 157 D;3650;Dilsen;BE;2002-01-06;Individueel;CC;true;;;;
+6611/2;Fran;Dreesen;Dingenenstraat 1 b;3960;Bree;BE;1977-09-09;Koppel;CC;true;fran@met.care;;0478-360464;
+6611/3;Gies;Broekx;Dingenenstraat 1 b;3960;Bree;BE;2006-03-11;Individueel;CC;true;giesbroekx@gmail.com;;;
+6905/1;Elke;Van Hoyweghen;Winterslagstraat 169;3600;Genk;BE;1974-04-04;Individueel;CC;true;elkevanhoywegen@yahoo.com;;0496-862358;
+6319/4;Tim;Vuerstaek;Schepersweg 25;3600;Genk;BE;2008-01-08;;CC;true;;;;
+6182/2;Beau;Smeets;Boomkensstraat 104;3500;Hasselt;BE;2013-07-15;Individueel;CC;true;;;0468-250204;
+6906/1;Stijn;Huybrechts;Langwei 19;3724;Vliermaal;BE;1976-07-23;Individueel;CC;true;stijn.huybrechts@gmail.com;;0475-805401;
+6907/1;Seb;Van Poucke;Laarstraat 5;3740;Bilzen;;2010-10-08;Individueel;CC;true;;;;
+6908/1;Yvonne;Soons;Tombestraat 42;3740;Heers;NL;1946-09-21;Individueel;CC;true;yvonne.soons@gmail.com;;0496-268181;
+6909/1;Dries;Verstraeten;Opoetersesteenweg 60 a;3680;Neeroeteren;BE;;Individueel;CC;true;dries.verstraeten@total-interiors.be;;0491-610233;
+6910/1;Patrick;Block;Paesteblookstraat 26;3600;Genk;BE;1975-08-25;Individueel;CC;true;patrick.block@gmail.com;;0477-382605;
+6910/2;Arthur;Block;Paesteblookstraat 26;3600;Genk;BE;2007-08-16;Individueel;CC;true;;;0477-382605;
+6561/2;Heidi;Claes;Schuttenbergstraat 6 B;3665;As;BE;1965-12-16;Koppel;CC;true;heidi.ann.claes@hotmail.com;;0478-312516;
+6911/1;Dirk;Torfs;Baggenstraat 30;2140;Antwerpen;BE;1968-12-02;Individueel;CC;true;dirk-torfs@skynet.be;;0485-767431;
+6912/1;Herbert;Vanhove;Berenbroekstraat 31;3600;Genk;BE;1969-02-02;Individueel;CC;true;herbertvanhove@gmail.com;;0499-673431;
+6913/1;Willy;Bamps;Klokkuil 1;3600;Genk;BE;1951-11-30;Individueel;CC;true;willy.bamps1@gmail.com;;0475-495838;
+6414/4;Suzanne;Houben;Geloeslaan 27;3630;Maasmechelen;BE;2003-05-27;Individueel;CC;true;suzannehouben@gmail.com;;0471-227277;
+6914/1;Oskar;Giltay;Rode Kruislaan 142 E;3740;Bilzen;BE;2006-12-27;Individueel;CC;true;;;;
+6915/1;;;;;;;;;CC;true;;;;
+6611/4;Maaike;Broekx;Dingenenstraat 1 b;3960;Bree;BE;;Individueel;CC;true;broekxmaaike@gmail.com;;0460-969238;
+6916/1;Silvia;Liskova;Hulsthoeveweg 6;3630;Maasmechelen;BE;1972-05-16;Individueel;CC;true;;;4,21905E+11;
+6917/1;Serge;Peeters;Steenweg 207 / 10;3621;Rekem;BE;1972-04-25;Individueel;CC;true;serge_peeters@icloud.com;;0473-739337;
+6918/1;Eveline;Van Gruisen;Oudsbergerweg 21 002;3670;Oudsbergen;BE;1993-11-12;Individueel;CC;true;evangruisen@gmail.com;;0485-447962;
+6919/1;Nathalie;De Martin;Soetebeek 64;3670;Oudsbergen;BE;1991-06-06;Individueel;CC;true;nathaliedemartin@hotmail.com;;0471-041584;
+6920/1;Inge;Valkeners;Kempische Steenweg 218 / 001;3500;Hasselt;BE;1975-09-29;Individueel;CC;true;inge-valkeners@hotmail.com;;0486-995684;
+6921/1;Stefan;Detremmerie;Weiland 1;3740;Bilzen-Hoeselt;BE;1972-06-29;Koppel;CC;true;;;0476-716881;
+6921/2;Annik;Peeters;Weiland 1;3740;Bilzen-Hoeselt;BE;1973-06-01;Koppel;CC;true;annikpeeters@hotmail.com;;0470-560124;
+6922/1;Mark;Detrez;Erkebosstraat 2;3600;Genk;BE;1976-06-25;Koppel;CC;true;mark@detrez.be;;0471-050814;
+6922/2;Kirsten;Lenssen;Erkebosstraat 2;3600;Genk;BE;1988-01-22;Koppel;CC;true;kirsten1008@hotmail.com;;0472-453947;
+6923/1;Robin;Roussard;Willekensmolenstraat 70 / 4;3500;Hasselt;BE;2000-01-19;Individueel;CC;true;roussardrobin@gmail.com;;0496-884199;
+6924/1;Frederik;Leijssen;Zevenhuizenstraat 15;3665;As;BE;1982-03-07;Individueel;CC;true;frederik.leijssen@gmail.com;;0474-462161;
+6925/1;Mathijs;Reynaers;Hoogveldstraat 56;3600;Genk;BE;2008-08-13;Individueel;CC;true;mathijsreynaers@gmail.com;;0470-199001;
+6926/1;Kevin;Bokken;Leutsestraat 24;3690;Zutendaal;BE;1996-03-16;Individueel;CC;true;kevin.bokken@gmail.com;;0494-941305;
+6927/1;Dimitri;Dylst;Kromme Heiweg 24;3690;Zutendaal;BE;1977-08-06;Koppel;CC;true;dylstdimitri@gmail.com;;0478-254979;
+6927/2;Massimo;Falciglia;Winterslagstraat 174 / 22;3600;Genk;BE;1979-02-13;Koppel;CC;true;maxfalciglia@gmail.com;;0485-335750;
+6851/2;Eef;Brône;Molenstraat 42;3620;Lanaken;BE;1981-12-08;Koppel;CC;true;eagle_eef@hotmail.com;;0497-452187;
+6684/2;Sarah;Libbrecht;Weg naar As 269 / 11;3600;Genk;BE;1989-02-02;Koppel;CC;true;saar.libbreccht@gmail.com;;0472-451241;
+6928/1;Guy;Molenaers;Sint Maartenstraat 53;3770;Genoelselderen;BE;1957-04-14;Koppel;CC;true;gmpjes@skynet.be;;0477-302000;
+6928/2;Phyllis;Jessen;Sint Maartenstraat 53;3770;Genoelselderen;BE;1956-10-05;Koppel;CC;true;gmpjes@skynet.be;;0477-302000;
+6929/1;Edouard;Decock;Karbeelstraat 10;8510;Marke;BE;2011-12-06;Individueel;CC;true;amelie_decock@hotmail.com;;0469-158379;
+6930/1;Philip;Van Hover;Molenblookstraat 8;3600;Genk;BE;1967-05-31;Koppel;CC;true;philip.van.hover@telenet.be;;0475-680559;
+6930/2;Bie;Velghe;Molenblookstraat 8;3600;Genk;BE;1971-10-31;Koppel;CC;true;bievelghe@hotmail.com;;0473-525688;
+6931/1;Kristof;von Stritzky;Lostraat 4;3665;As;BE;2001-12-27;Individueel;CC;true;kristof.vonstritzky@hotmail.com;;0468-119291;
+6932/1;Pascal;Pisano;Rapenveldstraat 12;3600;Genk;BE;1990-07-29;Individueel;CC;true;pascal.pisano@hotmail.com;;0479-360430;
+6933/1;Koen;Venken;Bresserstraat 21;3600;Genk;BE;1993-03-16;Individueel;CC;true;venken.k@gmail.com;;0456-709559;
+6934/1;Louis;Beckers;Onder de Bergen 21;3650;Dilsen-Stokkem;BE;2010-11-04;Individueel;CC;true;;;0468-171005;
+6935/1;Filip;Gheysen;Kiezelstraat 22;3600;Genk;BE;1955-04-18;Individueel;CC;true;filip.gheysen@telenet.be;;0468-297772;
+6936/1;Yves;Somers;Heihoevestraat 43;3630;Maasmechelen;BE;2000-11-23;Individueel;CC;true;yves.somers@outlook.com;;0495-375748;

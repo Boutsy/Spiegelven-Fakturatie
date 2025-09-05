@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>Ledenvoorzieningen – print</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --fg:#111; --muted:#666; --line:#ddd; }
+    *{ box-sizing: border-box; }
+    body{ font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif; color:var(--fg); margin:0; padding:24px; }
+    h1{ font-size:22px; margin:0 0 8px; }
+    .meta{ color:var(--muted); margin-bottom:18px; }
+    .controls{ display:flex; gap:8px; align-items:center; margin:12px 0 18px; }
+    .controls button{ padding:8px 12px; border:1px solid var(--line); background:#fff; cursor:pointer; border-radius:8px; }
+    .group{ margin:24px 0; }
+    .group h2{ font-size:18px; margin:0 0 8px; }
+    table{ border-collapse: collapse; width:100%; }
+    th,td{ border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; }
+    th{ user-select:none; cursor:pointer; position:sticky; top:0; background:#fafafa; }
+    th .caret{ opacity:.4; margin-left:6px; }
+    .muted{ color:var(--muted); }
+    .pagebreak{ page-break-before: always; }
+    @media print{ .controls{ display:none !important; } body{ padding:0; } th{ background:#fff; } a{ text-decoration:none; color:inherit; } }
+  </style>
+</head>
+<body>
+  <h1>Overzicht ledenvoorzieningen (print)</h1>
+  <div class="meta">Totaal: {{ total }} voorzieningen uit de huidige selectie/filter. <span class="muted">Klik op een kolomtitel om te sorteren.</span></div>
+  <div class="controls">
+    <button onclick="window.print()">🖨️ Print</button>
+    <button onclick="history.back()">← Terug naar admin</button>
+  </div>
+
+  {% for g in groups %}
+  <div class="group{% if not forloop.first %} pagebreak{% endif %}">
+    <h2>{{ g.title }} <span class="muted">({{ g.count }})</span></h2>
+    <table data-sortable>
+      <thead><tr>
+        <th data-type="string">Nummer <span class="caret">↕</span></th>
+        <th data-type="string">Lid <span class="caret">↕</span></th>
+        <th data-type="string">E-mail <span class="caret">↕</span></th>
+        <th data-type="string">Actief <span class="caret">↕</span></th>
+        <th data-type="number" class="muted">ID <span class="caret">↕</span></th>
+      </tr></thead>
+      <tbody>
+        {% for a in g.items %}
+        <tr>
+          <td>{{ a.identifier }}</td>
+          <td>{% if a.member %}{{ a.member.first_name }} {{ a.member.last_name }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="muted">{% if a.member and a.member.email %}{{ a.member.email }}{% endif %}</td>
+          <td>{% if a.active %}Ja{% else %}Nee{% endif %}</td>
+          <td class="muted">{{ a.id }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+
+<script>
+(function(){
+  function cmp(a,b,type,dir){
+    let va=a.textContent.trim(), vb=b.textContent.trim();
+    if(type==='number'){ va=parseFloat(va.replace(',','.'))||0; vb=parseFloat(vb.replace(',','.'))||0; }
+    else { va=va.toLowerCase(); vb=vb.toLowerCase(); }
+    if(va<vb) return dir==='asc'?-1:1;
+    if(va>vb) return dir==='asc'? 1:-1;
+    return 0;
+  }
+  document.querySelectorAll('table[data-sortable]').forEach(function(tbl){
+    tbl.querySelectorAll('th').forEach(function(th,idx){
+      th.addEventListener('click', function(){
+        const type=th.getAttribute('data-type')||'string';
+        const rows=Array.from(tbl.tBodies[0].rows);
+        const dir = th.dataset.dir==='asc' ? 'desc' : 'asc';
+        th.dataset.dir = dir;
+        rows.sort((r1,r2)=>cmp(r1.cells[idx], r2.cells[idx], type, dir));
+        rows.forEach(r=>tbl.tBodies[0].appendChild(r));
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

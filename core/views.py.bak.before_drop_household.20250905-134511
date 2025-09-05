@@ -13,8 +13,9 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
 from .models import (
-    Member, MemberAsset, YearPlan, YearPlanItem,
-    Invoice, InvoiceLine, InvoiceAccount)
+    Household, Member, MemberAsset, YearPlan, YearPlanItem,
+    Invoice, InvoiceLine, InvoiceAccount,
+)
 
 # ---------------------------
 # Helpers
