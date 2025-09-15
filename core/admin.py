@@ -1,311 +1,532 @@
 from django.contrib import admin
-
-ASSET_LABELS = {
-    "VST_KAST": "Kast",
-    "KAR_KLN":  "Kar-kast",
-    "KAR_ELEC": "E-kar-kast",
-}
-
-class AssetTypeFilter(admin.SimpleListFilter):
-    title = "Type"
-    parameter_name = "asset_type"
-
-    def lookups(self, request, model_admin):
-        return [(k, v) for k, v in ASSET_LABELS.items()]
-
-    def queryset(self, request, queryset):
-        val = self.value()
-        return queryset.filter(asset_type=val) if val else queryset
-
-from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+from django.apps import apps
+from decimal import Decimal, ROUND_HALF_UP
+from django import forms
 
 from .models import (
-    Member, MemberAsset,
-    YearPricing, YearRule, YearSequence, YearInvestScale)
+    Member,
+    MemberAsset,
+    Product,
+    Invoice,
+    InvoiceLine,
+    InvoiceAccount,
+    YearPlan,
+    YearPlanItem,
+    YearSequence,
+    PricingRule,
+    ImportMapping,
+    OrganizationProfile,
+)
 
-# Acties staan in aparte module (enkel hier importeren -> geen dubbelingen)
-from .admin_actions import export_assets_csv, print_assets_html
+# --- Factuurlijnen inline ---
+class InvoiceLineInline(admin.TabularInline):
+    model = InvoiceLine
+    extra = 1
+
+    # toon schrijfbare modelvelden
+    fields = (
+        "description",
+        "quantity",
+        "unit_price_excl",
+        "vat_rate",
+        # berekende, alleen-lezen kolommen:
+        "line_excl_calc",
+        "vat_amount_calc",
+        "line_incl_calc",
+    )
+
+    # markeer de berekende kolommen als readonly (ze zijn methods hieronder)
+    readonly_fields = ("line_excl_calc", "vat_amount_calc", "line_incl_calc")
+
+    class Media:
+        js = ("admin/invoice_line.js",)
+
+    # ------ berekende weergaves (alleen-lezen) ------
+    @admin.display(description="Excl.")
+    def line_excl_calc(self, obj):
+        q = Decimal(getattr(obj, "quantity", 0) or 0)
+        p = Decimal(getattr(obj, "unit_price_excl", 0) or 0)
+        return f"€ {(q*p).quantize(Decimal('0.01')):.2f}"
+
+    @admin.display(description="BTW-bedrag")
+    def vat_amount_calc(self, obj):
+        q = Decimal(getattr(obj, "quantity", 0) or 0)
+        p = Decimal(getattr(obj, "unit_price_excl", 0) or 0)
+        r = Decimal(getattr(obj, "vat_rate", 0) or 0)
+        excl = q * p
+        vat  = (excl * r) / Decimal("100")
+        return f"€ {vat.quantize(Decimal('0.01')):.2f}"
+
+    @admin.display(description="Incl.")
+    def line_incl_calc(self, obj):
+        q = Decimal(getattr(obj, "quantity", 0) or 0)
+        p = Decimal(getattr(obj, "unit_price_excl", 0) or 0)
+        r = Decimal(getattr(obj, "vat_rate", 0) or 0)
+        excl = q * p
+        vat  = (excl * r) / Decimal("100")
+        incl = excl + vat
+        return f"€ {incl.quantize(Decimal('0.01')):.2f}"
+    
+# ---------- Helpers ----------
+
+def _money(v):
+    try:
+        if v is None:
+            return ""
+        return f"€ {v:.2f}"
+    except Exception:
+        return str(v) if v is not None else ""
+
+def _has_field(model, name: str) -> bool:
+    try:
+        return any(getattr(f, "name", None) == name for f in model._meta.get_fields())
+    except Exception:
+        return False
+
+HAS_HH = _has_field(Member, "household_head")
+HAS_BILLING = _has_field(Member, "billing_account")
+HAS_MEMBERSHIP_MODE = _has_field(Member, "membership_mode")
+HAS_ROLE = _has_field(Member, "household_role")
+HAS_FED_VIA_CLUB = _has_field(Member, "federation_via_club")
+HAS_MEMBER_ACTIVE = _has_field(Member, "is_active")
+
+# ---------- Inlines ----------
+
+if HAS_HH:
+    class FamilyMemberInline(admin.TabularInline):
+        # NL titels → voorkomt “Members”/“Leden” dubbelzinnigheid
+        verbose_name = "Gezinslid"
+        verbose_name_plural = "Gezinsleden"
+
+        model = Member
+        fk_name = "household_head"
+        extra = 0
+
+        _fields = ["first_name", "last_name", "email"]
+        if _has_field(Member, "date_of_birth"):
+            _fields.append("date_of_birth")
+        if HAS_MEMBERSHIP_MODE:
+            _fields.append("membership_mode")
+        if HAS_FED_VIA_CLUB:
+            _fields.append("federation_via_club")
+        if HAS_ROLE:
+            _fields.append("household_role")
+        if HAS_MEMBER_ACTIVE:
+            _fields.append("is_active")
+        fields = tuple(_fields)
+
+        if HAS_BILLING:
+            autocomplete_fields = ("billing_account",)
+        else:
+            autocomplete_fields = ()
+
+        show_change_link = True
+else:
+    FamilyMemberInline = None
 
 
 class MemberAssetInline(admin.TabularInline):
+    # NL titels → voorkomt dat deze inline “Leden” lijkt te heten
+    verbose_name = "Ledenvoorziening"
+    verbose_name_plural = "Ledenvoorzieningen"
+
     model = MemberAsset
     extra = 0
-    fields = ('asset_type','identifier','active','released_on')
-    show_change_link = True
+    fields = ("asset_type", "identifier", "active", "price_excl", "vat_rate")
+    autocomplete_fields = ()
 
+# --- Admin form: hernoem lege keuze naar 'Individueel' en verberg 'Overig'
+class MemberAdminForm(forms.ModelForm):
+    class Meta:
+        model = Member
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fld = self.fields.get("household_role")
+        if not fld:
+            return
+
+        # 1) 'Overig' uit de lijst filteren (op label)
+        cleaned = []
+        for value, label in list(fld.choices):
+            if (label or "").strip().casefold() == "overig":
+                continue
+            cleaned.append((value, label))
+
+        # 2) lege keuze (value == '' of None) tonen als 'Individueel'
+        new_choices = []
+        for value, label in cleaned:
+            if value in ("", None):
+                new_choices.append(("", "Individueel"))
+            else:
+                new_choices.append((value, label))
+
+        fld.choices = new_choices
+
+# ---------- Member ----------
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
+    ordering = ("last_name", "first_name")
+    form = MemberAdminForm
 
-    def get_fieldsets(self, request, obj=None):
-        M = self.model
+    # Gebruik NL methoden i.p.v. veldnamen om NL-kolomtitels te tonen
+    _cols = ["achternaam", "voornaam", "e_mail", "is_household_head_display"]
+    if HAS_HH:
+        _cols.append("household_head")  # label blijft model-gedreven
+    if HAS_BILLING:
+        _cols.append("billing_account")
+    if HAS_MEMBER_ACTIVE:
+        _cols.append("is_active")
+    list_display = tuple(_cols)
 
-        def have(*cands):
-            # geef de eerste bestaande veldnaam terug
-            from django.core.exceptions import FieldDoesNotExist
-            for n in cands:
-                try:
-                    M._meta.get_field(n)
-                    return n
-                except FieldDoesNotExist:
-                    continue
-            return None
+    # filters
+    _filters = []
+    if HAS_MEMBER_ACTIVE:
+        _filters.append("is_active")
+    if HAS_MEMBERSHIP_MODE:
+        _filters.append("membership_mode")
+    if HAS_ROLE:
+        _filters.append("household_role")
+    if HAS_FED_VIA_CLUB:
+        _filters.append("federation_via_club")
+    list_filter = tuple(_filters)
 
-        def pick(names):
-            out = []
-            for item in names:
-                if isinstance(item, (tuple, list)):
-                    cand = have(*item)
-                else:
-                    cand = have(item)
-                if cand:
-                    out.append(cand)
-            return out
+    # zoeken
+    search_fields = ("first_name", "last_name", "email")
 
-        # ---- Gewenste volgorde/groepen ----
-        # 1) Naam, Voornaam, Straat, Postcode, Gemeente, Land
-        groep_algemeen = []
-        groep_algemeen += pick(["last_name"])
-        groep_algemeen += pick(["first_name"])
-        groep_algemeen += pick([("street","address","address_line1")])
-        groep_algemeen += pick([("postal_code","postcode","zip_code")])
-        groep_algemeen += pick([("city","municipality","town")])
-        groep_algemeen += pick(["country"])
+    # autocompletes
+    _ac = []
+    if HAS_HH:
+        _ac.append("household_head")
+    if HAS_BILLING:
+        _ac.append("billing_account")
+    autocomplete_fields = tuple(_ac)
 
-        # 2) email, GSM, Tel. Privé, Tel. Werk (samen op één rij)
-        email = pick(["email"])
-        phones = pick(["phone_mobile","phone_private","phone_work"])
-        contact_rows = []
-        row = tuple(email + phones)
-        if row:
-            contact_rows.append(row)
+    # fieldsets
+    _general = ["first_name", "last_name", "email"]
+    if _has_field(Member, "date_of_birth"):
+        _general.append("date_of_birth")
+    if HAS_MEMBER_ACTIVE:
+        _general.append("is_active")
 
-        # 3) Geboortedatum, Household, household role
-        groep_inschrijving = []
-        groep_inschrijving += pick([("birth_date","date_of_birth","dob")])
-        groep_inschrijving += pick(["household"])
-        groep_inschrijving += pick(["household_role"])
+    fieldsets = []
+    fieldsets.append((None, {"fields": tuple(_general)}))
 
-        # 4) Federation via club
-        groep_federation = pick([("federation_via_club","federation_through_club")])
+    gezin_fields = []
+    if HAS_HH:
+        gezin_fields.append("household_head")
+    if HAS_ROLE:
+        gezin_fields.append("household_role")
+    if HAS_FED_VIA_CLUB:
+        gezin_fields.append("federation_via_club")
+    if gezin_fields:
+        fieldsets.append((_("Gezin"), {"fields": tuple(gezin_fields)}))
 
-        # 5) Course, Billing account, Household head, Membership mode,
-        #    Invest flex start year, Invest flex locked amount
-        groep_admin = []
-        groep_admin += pick(["course"])
-        groep_admin += pick([("billing_account","invoice_account")])
-        groep_admin += pick([("household_head","head_of_household")])
-        groep_admin += pick(["membership_mode"])
-        groep_admin += pick([("invest_flex_start_year","investment_flex_start_year")])
-        groep_admin += pick([("invest_flex_locked_amount","investment_flex_locked_amount")])
+    lid_fields = []
+    if HAS_MEMBERSHIP_MODE:
+        lid_fields.append("membership_mode")
+    if HAS_BILLING:
+        lid_fields.append("billing_account")
+    if lid_fields:
+        fieldsets.append((_("Lidmaatschap & facturatie"), {"fields": tuple(lid_fields)}))
 
-        # 6) Active
-        groep_status = pick(["active","is_active"])
+    # inlines → precies één gezinsleden-inline + ledenvoorzieningen
+    inlines = [MemberAssetInline] if FamilyMemberInline is None else [FamilyMemberInline, MemberAssetInline]
 
-        # Verzamel geselecteerde velden, en bereken overige editables
-        chosen = set(groep_algemeen + list(row if row else []) + groep_inschrijving + groep_federation + groep_admin + groep_status)
+    # acties
+    actions = ["make_invoice_account"]
 
-        from django.db.models import ForeignObjectRel
-        editables = []
-        for f in M._meta.get_fields():
-            if getattr(f, "editable", False) and not isinstance(f, ForeignObjectRel) and not getattr(f, "auto_created", False):
-                if f.name not in chosen:
-                    editables.append(f.name)
+    # NL kolomtitels
+    @admin.display(description="Achternaam", ordering="last_name")
+    def achternaam(self, obj):
+        return obj.last_name
 
-        fieldsets = []
+    @admin.display(description="Voornaam", ordering="first_name")
+    def voornaam(self, obj):
+        return obj.first_name
 
-        if groep_algemeen:
-            fieldsets.append(("Algemeen", {"fields": tuple(groep_algemeen)}))
+    @admin.display(description="E-mail", ordering="email")
+    def e_mail(self, obj):
+        return obj.email
 
-        if row:
-            fieldsets.append(("Contact", {"fields": tuple(contact_rows), "classes": ("wide")}))
+    @admin.display(boolean=True, description=_("Gezinshoofd?"))
+    def is_household_head_display(self, obj):
+        return obj.household_head_id is None if HAS_HH else True
 
-        if groep_inschrijving:
-            fieldsets.append(("Inschrijving", {"fields": tuple(groep_inschrijving)}))
+    @admin.action(description=_("Maak factuuraccount van geselecteerde leden"))
+    def make_invoice_account(self, request, queryset):
+        made = 0
+        reused = 0
+        for m in queryset:
+            first = (getattr(m, "first_name", "") or "").strip()
+            last = (getattr(m, "last_name", "") or "").strip()
+            name = (first + " " + last).strip() or str(m)
+            email = (getattr(m, "email", "") or "").strip()
+            if email:
+                acc, created = InvoiceAccount.objects.get_or_create(
+                    email=email, defaults={"name": name, "email": email}
+                )
+            else:
+                acc, created = InvoiceAccount.objects.get_or_create(
+                    name=name, defaults={"name": name}
+                )
+            if created:
+                made += 1
+            else:
+                reused += 1
+        self.message_user(request, f"Factuuraccount(s): nieuw={made}, hergebruikt={reused}")
 
-        if groep_federation:
-            fieldsets.append(("Federation", {"fields": tuple(groep_federation)}))
-
-        if groep_admin:
-            fieldsets.append(("Administratie", {"fields": tuple(groep_admin)}))
-
-        if groep_status:
-            fieldsets.append(("Status", {"fields": tuple(groep_status)}))
-
-        if editables:
-            fieldsets.append(("Overige", {"fields": tuple(editables)}))
-
-        return tuple(fieldsets)
-
-
+# ---------- MemberAsset ----------
 
 @admin.register(MemberAsset)
-
-
-
 class MemberAssetAdmin(admin.ModelAdmin):
-    list_display = ('member', 'asset_type_label', 'identifier', 'active')
-    list_filter  = (AssetTypeFilter, 'active')
-    search_fields = ('member__last_name', 'member__first_name', 'identifier')
+    list_display = ("member", "asset_type", "identifier", "active", "price_excl_display", "vat_rate")
+    list_filter = ("asset_type", "active")
+    search_fields = ("member__first_name", "member__last_name", "identifier")
+    autocomplete_fields = ("member",)
 
-    def asset_type_label(self, obj):
-        return ASSET_LABELS.get(obj.asset_type, obj.asset_type)
-    asset_type_label.short_description = 'Type'
+    @admin.display(description=_("Prijs (excl.)"))
+    def price_excl_display(self, obj):
+        v = getattr(obj, "price_excl", None)
+        return _money(v)
 
-class MemberAdmin(admin.ModelAdmin):
-    # UX
-    save_on_top = True
-    ordering = ("last_name","first_name")
-    list_per_page = 50
-    empty_value_display = "—"
+# ---------- Product ----------
 
-    # Kolommen in de lijst
-    list_display = (
-        "external_id",
-        "last_name","first_name",
-        "email","phones",
-        "city","postal_code",
-        "course","membership_mode",
-        "active","age",
-    )
-    list_display_links = ("last_name","first_name")
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    _cols = []
+    if _has_field(Product, "code"):
+        _cols.append("code")
+    if _has_field(Product, "name"):
+        _cols.append("name")
+    _cols += ["price_display", "vat_display"]
+    list_display = tuple(_cols)
 
-    # Zoeken (toont zoekveld bovenaan in de admin)
-    search_fields = (
-        "external_id",
-        "last_name","first_name",
-        "email",
-        "street","postal_code","city",
-        "phone_mobile","phone_private","phone_work",
-    )
-    search_help_text = "Zoek op extern nummer, naam, e-mail, adres of telefoon."
+    _search = []
+    if _has_field(Product, "code"):
+        _search.append("code")
+    if _has_field(Product, "name"):
+        _search.append("name")
+    search_fields = tuple(_search) if _search else ()
 
-    # Filters rechts
-    list_filter = ("active","course","membership_mode","city")
+    @admin.display(description=_("Prijs (excl.)"))
+    def price_display(self, obj):
+        for attr in ("unit_price_excl", "price_excl", "unit_price", "price"):
+            if hasattr(obj, attr):
+                return _money(getattr(obj, attr))
+        return ""
 
-    # Foreign keys sneller laden in list view
-    list_select_related = ("household_head",)
+    @admin.display(description=_("BTW"))
+    def vat_display(self, obj):
+        for attr in ("vat_rate", "vat", "vat_percent"):
+            if hasattr(obj, attr):
+                return getattr(obj, attr)
+        return ""
 
-    @admin.display(description="Telefoon")
-    def phones(self, obj):
-        return " / ".join([p for p in [obj.phone_mobile, obj.phone_private, obj.phone_work] if p])
+# ---------- Invoice ----------
 
-    @admin.display(description="Leeftijd", ordering="date_of_birth")
-    def age(self, obj):
-        from datetime import date
-        dob = getattr(obj, "date_of_birth", None) or getattr(obj, "birth_date", None)
-        if not dob:
-            return ""
-        today = date.today()
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    date_hierarchy = "issue_date"
+    list_display = ("number", "issue_date", "doc_type", "status", "account", "total_excl_display", "total_vat_display", "total_incl_display")
+    list_filter = ("status", "doc_type")
+    search_fields = ("number", "account__name", "account__email")
+    autocomplete_fields = ("account",)
 
+    inlines = [InvoiceLineInline]
 
+    @admin.display(description=_("Totaal excl."))
+    def total_excl_display(self, obj):
+        return _money(getattr(obj, "total_excl", None))
+    
+    @admin.display(description=_("BTW"))
+    def total_vat_display(self, obj):
+        return _money(getattr(obj, "total_vat", None))
 
-# === Member list UI v2 (smalle lijst + zoeken op naam/leeftijd/course) ===
-from django.contrib import admin
-from django.db.models import Q
-from datetime import date, timedelta
-from .models import Member
+    @admin.display(description=_("Totaal incl."))
+    def total_incl_display(self, obj):
+        return _money(getattr(obj, "total_incl", None))
+
+# ---------- InvoiceLine ----------
+
+@admin.register(InvoiceLine)
+class InvoiceLineAdmin(admin.ModelAdmin):
+    _cols = ["invoice", "description", "quantity", "unit_price_display", "vat_rate_display"]
+    if _has_field(InvoiceLine, "product"):
+        _cols.append("product")
+    list_display = tuple(_cols)
+
+    _ac = ["invoice"]
+    if _has_field(InvoiceLine, "product"):
+        _ac.append("product")
+    autocomplete_fields = tuple(_ac)
+
+    search_fields = ("description", "invoice__number", "invoice__account__name")
+
+    @admin.display(description=_("Prijs/eenheid (excl.)"))
+    def unit_price_display(self, obj):
+        for attr in ("unit_price_excl", "price_excl", "unit_price", "price"):
+            if hasattr(obj, attr):
+                return _money(getattr(obj, attr))
+        return ""
+
+    @admin.display(description=_("BTW"))
+    def vat_rate_display(self, obj):
+        for attr in ("vat_rate", "vat", "vat_percent"):
+            if hasattr(obj, attr):
+                return getattr(obj, attr)
+        return ""
+
+# ---------- InvoiceAccount ----------
+
+@admin.register(InvoiceAccount)
+class InvoiceAccountAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "vat_number", "street", "postal_code", "city")
+    search_fields = ("name", "email", "vat_number", "street", "postal_code", "city")
+
+# ---------- YearPlan ----------
+
+#@admin.register(YearPlan)
+#class YearPlanAdmin(admin.ModelAdmin):
+#    _yd = []
+#    for f in ("year", "name", "membership_vat", "federation_vat"):
+#        if _has_field(YearPlan, f):
+#            _yd.append(f)
+#    list_display = tuple(_yd) if _yd else ("id",)
+#    search_fields = tuple([f for f in ("year", "name") if _has_field(YearPlan, f)])
+#    _lf = [f for f in ("year",) if _has_field(YearPlan, f)]
+#    list_filter = tuple(_lf)
+
+# ---------- YearPlanItem ----------
+
+#@admin.register(YearPlanItem)
+#class YearPlanItemAdmin(admin.ModelAdmin):
+#    _cols = []
+#    for f in ("yearplan", "code", "description"):
+#        if _has_field(YearPlanItem, f):
+#            _cols.append(f)
+#    _cols.append("price_excl_display")
+#    if _has_field(YearPlanItem, "vat_rate"):
+#        _cols.append("vat_rate")
+#    if _has_field(YearPlanItem, "product"):
+#        _cols.append("product")
+#    list_display = tuple(_cols)
+#
+#    _lf = []
+#    for f in ("yearplan", "code"):
+#        if _has_field(YearPlanItem, f):
+#            _lf.append(f)
+#    if _has_field(YearPlanItem, "product"):
+#        _lf.append("product")
+#    list_filter = tuple(_lf)
+#
+#    search_fields = tuple([f for f in ("code", "description") if _has_field(YearPlanItem, f)])
+#
+#    _ac = []
+#    if _has_field(YearPlanItem, "yearplan"):
+#        _ac.append("yearplan")
+#    if _has_field(YearPlanItem, "product"):
+#        _ac.append("product")
+#    autocomplete_fields = tuple(_ac)
+#
+#    @admin.display(description=_("Prijs (excl.)"))
+#    def price_excl_display(self, obj):
+#        for attr in ("price_excl", "unit_price_excl", "unit_price", "price"):
+#            if hasattr(obj, attr):
+#                return _money(getattr(obj, attr))
+#        return ""
+
+# ---------- YearSequence ----------
+
+@admin.register(YearSequence)
+# 0
+    _cols = []
+    if _has_field(YearSequence, "year"):
+        _cols.append("year")
+    if _has_field(YearSequence, "next_invoice_number"):
+        _cols.append("next_invoice_number")
+    else:
+        _cols.append("next_display")
+    list_display = tuple(_cols)
+
+    _lf = tuple([f for f in ("year",) if _has_field(YearSequence, f)])
+    list_filter = _lf
+    search_fields = _lf
+
+    @admin.display(description=_("Volgend nummer"))
+    def next_display(self, obj):
+        for attr in ("next_invoice_number", "next_number", "seed", "current"):
+            if hasattr(obj, attr):
+                return getattr(obj, attr)
+        return ""
+
+# ---------- PricingRule ----------
+
+@admin.register(PricingRule)
+class PricingRuleAdmin(admin.ModelAdmin):
+    _cols = ["name"]
+    if _has_field(PricingRule, "active"):
+        _cols.append("active")
+    list_display = tuple(_cols)
+    list_filter = tuple([f for f in ("active",) if _has_field(PricingRule, f)])
+    search_fields = ("name",)
+
+# ---------- ImportMapping ----------
+
+@admin.register(ImportMapping)
+class ImportMappingAdmin(admin.ModelAdmin):
+    _cols = []
+    for f in ("name", "created_at"):
+        if _has_field(ImportMapping, f):
+            _cols.append(f)
+    list_display = tuple(_cols) if _cols else ("id",)
+    search_fields = tuple([f for f in ("name",) if _has_field(ImportMapping, f)])
+
+# ---------- OrganizationProfile ----------
+
+@admin.register(OrganizationProfile)
+class OrganizationProfileAdmin(admin.ModelAdmin):
+    _cols = []
+    for f in ("name", "vat_number"):
+        if _has_field(OrganizationProfile, f):
+            _cols.append(f)
+    list_display = tuple(_cols) if _cols else ("id",)
+    search_fields = tuple([f for f in ("name", "vat_number") if _has_field(OrganizationProfile, f)])
+
+# ---------- Admin branding ----------
+
+admin.site.site_header = "Spiegelven Facturatie"
+admin.site.site_title = "Spiegelven Facturatie"
+admin.site.index_title = "Beheer"
+
+# ---------- Verberg 'Gezinnen' uit admin ----------
 
 try:
-    admin.site.unregister(Member)
+    Household = apps.get_model("core", "Household")
 except Exception:
-    pass
+    Household = None
 
-@admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
-    save_on_top = True
-    ordering = ("last_name","first_name")
-    list_per_page = 50
-    empty_value_display = "—"
+if Household is not None:
+    from django.contrib.admin.sites import NotRegistered
+    try:
+        admin.site.unregister(Household)
+    except NotRegistered:
+        pass# --- Hide YearPlan-related models behind feature flag ---
+from django.conf import settings as _settings
+from django.contrib import admin as _admin
+from django.apps import apps as _apps
 
-    # Alleen gevraagde kolommen en volgorde
-    list_display = (
-        "last_name",           # Last Name
-        "first_name",          # First Name
-        "gsm_number",          # GSM nummer
-        "age",                 # Leeftijd
-        "course_short",        # Course (CC / P3)
-        "active",              # Active (vinkje)
-        "email",               # Email
-    )
-    list_display_links = ("last_name","first_name")
-
-    # Zoek enkel op Last Name, First Name, Course (+ custom leeftijd)
-    search_fields = ("last_name","first_name","course")
-
-    @admin.display(description="GSM nummer")
-    def gsm_number(self, obj):
-        return getattr(obj, "phone_mobile", "") or ""
-
-    @admin.display(description="Leeftijd", ordering="date_of_birth")
-    def age(self, obj):
-        dob = getattr(obj, "date_of_birth", None) or getattr(obj, "birth_date", None)
-        if not dob:
-            return ""
-        t = date.today()
-        return t.year - dob.year - ((t.month, t.day) < (dob.month, dob.day))
-
-    @admin.display(description="Course")
-    def course_short(self, obj):
-        val = (getattr(obj, "course", "") or "").strip().upper()
-        if val in {"CHAMPIONSHIP COURSE","CHAMPIONSHIP","COURSE_CC"}:
-            return "CC"
-        if val in {"PAR-3","PAR3","PAR_3","COURSE_P3"}:
-            return "P3"
-        return val  # verwacht al "CC" of "P3"
-
-    def get_search_results(self, request, queryset, search_term):
-        # Start met standaard zoeken op last/first/course
-        qs, use_distinct = super().get_search_results(request, queryset, search_term)
-        term = (search_term or "").strip()
-
-        # Extra: numerieke leeftijd
-        if term.isdigit():
-            age = int(term)
-            today = date.today()
-            upper = date(today.year - age, today.month, today.day)
-            lower = date(today.year - age - 1, today.month, today.day) + timedelta(days=1)
-            dob_filter = Q()
-            # Ondersteun beide veldnamen
-            if any(f.name == "date_of_birth" for f in Member._meta.get_fields()):
-                dob_filter |= Q(date_of_birth__gte=lower, date_of_birth__lte=upper)
-            if any(f.name == "birth_date" for f in Member._meta.get_fields()):
-                dob_filter |= Q(birth_date__gte=lower, birth_date__lte=upper)
-            qs = qs.filter(dob_filter)
-
-        # Extra: course-synoniemen
-        c = term.lower()
-        if c in {"championship","championship course","cc"}:
-            qs = qs.filter(course__iexact="CC")
-        elif c in {"par-3","par3","p3"}:
-            qs = qs.filter(course__iexact="P3")
-
-        return qs, use_distinct
-
-
-# --- BEGIN: MemberAsset admin patch (type met NL-label) ---
-from django.contrib import admin
-from .models import MemberAsset
-
-_ASSET_LABELS_NL = {
-    'VST_KAST': 'Kast',
-    'KAR_KLN': 'Kar-kast',
-    'KAR_ELEC': 'E-kar-kast',
-}
-
-def asset_type_nl(obj):
-    return _ASSET_LABELS_NL.get(getattr(obj, 'asset_type', None), getattr(obj, 'asset_type', ''))
-asset_type_nl.short_description = 'Type'
-asset_type_nl.admin_order_field = 'asset_type'
-
-
-
-class MemberAssetAdmin(admin.ModelAdmin):
-    list_display = ('member', 'asset_type_label', 'identifier', 'active')
-    list_filter  = (AssetTypeFilter, 'active')
-    search_fields = ('member__last_name', 'member__first_name', 'identifier')
-
-    def asset_type_label(self, obj):
-        return ASSET_LABELS.get(obj.asset_type, obj.asset_type)
-    asset_type_label.short_description = 'Type'
+if not getattr(_settings, "ENABLE_YEAR_PLANS", False):
+    for _name in ("YearPlan", "YearPlanPart", "PricingRule"):
+        try:
+            _model = _apps.get_model("core", _name)
+            try:
+                _admin.site.unregister(_model)
+            except _admin.sites.NotRegistered:
+                pass
+        except LookupError:
+            # model bestaat niet in deze codebase; stilletjes overslaan
+            pass
