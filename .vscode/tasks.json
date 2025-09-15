@@ -2,11 +2,20 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Git Snapshot",
+      "label": "Git Snapshot (to main)",
       "type": "shell",
-      "command": "git add -A && git commit -m \"snapshot $(date '+%F %T')\" || echo 'geen wijzigingen' && git push",
+      "command": "git fetch origin main && git switch main && git pull --ff-only && git add -A && git commit -m \"snapshot $(date '+%F %T')\" || echo 'geen wijzigingen' ; git push",
       "options": { "cwd": "${workspaceFolder}" },
-      "problemMatcher": []
+      "problemMatcher": [],
+      "presentation": { "reveal": "never", "panel": "dedicated" }
+    },
+    {
+      "label": "Cleanup README",
+      "type": "shell",
+      "command": "cp README.md README.md.bak && awk '/^# Spiegelven-Fakturatie/{count++} count<2' README.md > README.tmp && mv README.tmp README.md && git add README.md && git commit -m \"docs: cleanup duplicate README section\" && git push",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
     }
   ]
 }
