@@ -1,5 +1,6 @@
 # Spiegelven-Fakturatie
 
+![Debug](https://img.shields.io/badge/ChatGPT%20debug-on%20main-blue?style=for-the-badge)
 ![Workflow](https://img.shields.io/badge/workflow-snapshot%20to%20main-brightgreen?style=for-the-badge)
 
 ![Workflow](https://img.shields.io/badge/workflow-snapshot%20to%20main-brightgreen?style=for-the-badge)
