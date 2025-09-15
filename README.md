@@ -1,5 +1,7 @@
 # Spiegelven-Fakturatie
 
+![Workflow](https://img.shields.io/badge/workflow-snapshot%20to%20main-brightgreen?style=for-the-badge)
+
 ## 🔑 Workflow checklist
 
 1. **Code aanpassen** in VS Code (branch = `main`).  
