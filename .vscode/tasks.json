@@ -1,21 +1,57 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Git Snapshot (to main)",
-      "type": "shell",
-      "command": "git fetch origin main && git switch main && git pull --ff-only && git add -A && git commit -m \"snapshot $(date '+%F %T')\" || echo 'geen wijzigingen' ; git push",
-      "options": { "cwd": "${workspaceFolder}" },
-      "problemMatcher": [],
-      "presentation": { "reveal": "never", "panel": "dedicated" }
-    },
-    {
-      "label": "Cleanup README",
-      "type": "shell",
-      "command": "cp README.md README.md.bak && awk '/^# Spiegelven-Fakturatie/{count++} count<2' README.md > README.tmp && mv README.tmp README.md && git add README.md && git commit -m \"docs: cleanup duplicate README section\" && git push",
-      "options": { "cwd": "${workspaceFolder}" },
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "dedicated" }
-    }
-  ]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Git Snapshot (commit+push)",
+            "type": "shell",
+            "command": "git add -A && git commit -m \"snapshot: auto-commit\" && git push",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            }
+        },
+        {
+            "label": "Docker: Restart web",
+            "type": "shell",
+            "command": "docker compose restart web",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            }
+        },
+        {
+            "label": "Cleanup README",
+            "type": "shell",
+            "command": "cp README.md README.md.bak && npx prettier --write README.md",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            }
+        },
+        {
+            "label": "Git Verify (local == remote?)",
+            "type": "shell",
+            "command": "git fetch origin && echo \"Local : $(git rev-parse --short HEAD)\" && echo \"Remote: $(git rev-parse --short origin/main)\" && git log -1 --oneline && git log -1 --oneline origin/main",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "clear": true
+            }
+        }
+    ]
 }
