@@ -14,3 +14,9 @@
 ---
 
 
+
+## ℹ️ Debug & controle
+
+ChatGPT kijkt **altijd rechtstreeks in de laatste versie van de `main` branch** op GitHub.  
+➡️ Zorg dat je na wijzigingen in VS Code **Cmd+Option+S** gebruikt, zodat alles meteen up-to-date staat.  
+➡️ Geen zipjes of losse uploads meer nodig.
