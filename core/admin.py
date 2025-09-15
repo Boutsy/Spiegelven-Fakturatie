@@ -1,18 +1,19 @@
 from django.contrib import admin
 from django.apps import apps
-from django.db.models import Count, Q, F, Value, IntegerField
+from django.db.models import Count, Q, F, Value, IntegerField, Case, When
 from django.db.models.functions import Coalesce
-from django.db.models import Case, When
 from django.utils.translation import gettext_lazy as _
 from datetime import date
 
 Member = apps.get_model("core", "Member")
 
+# Kandidaten voor externe ID (we testen dynamisch welke bestaan)
 EXTERNAL_ID_CANDIDATES = [
     "external_id", "externalid", "external_member_id", "legacy_id",
     "old_id", "external", "ext_id", "member_external_id",
 ]
 
+# ---- helpers ----
 def _age_on(born, ref_year=None):
     if not born:
         return None
@@ -22,17 +23,13 @@ def _age_on(born, ref_year=None):
         today = date(ref_year, 7, 1)
     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
-def _first_existing_member_fields(model, candidates):
-    existing = []
-    field_names = {f.name for f in model._meta.get_fields() if getattr(f, "concrete", False)}
-    for c in candidates:
-        if c in field_names:
-            existing.append(c)
-    return existing
+def _existing_fields(model, names):
+    concrete = {f.name for f in model._meta.get_fields() if getattr(f, "concrete", False)}
+    return tuple(n for n in names if n in concrete)
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    # LIST
+    # ===== LIST =====
     list_display = (
         "last_name",
         "first_name",
@@ -45,69 +42,84 @@ class MemberAdmin(admin.ModelAdmin):
     ordering = ("last_name", "first_name")
     list_per_page = 50
     search_fields = ()  # we doen flexibel zoeken in get_search_results
-    _ext_fields = None  # cache
 
-    # FORM — toon intern nummer (DB id) als readonly bovenaan
-    readonly_fields = ("id",)  # dit is het interne nummer
-    fieldsets = (
-        (_("Interne info"), {
-            "fields": ("id",),
-            "description": _("Dit is het interne database-ID (alleen-lezen)."),
-        }),
-        (_("Identiteit"), {
-            "fields": tuple(f for f in ("last_name","first_name","birth_date","gender") if hasattr(Member, f) or True),
-        }),
-        (_("Contact"), {
-            "fields": tuple(f for f in ("email","mobile","phone","address","postal_code","city") if hasattr(Member, f) or True),
-        }),
-        (_("Huishouden / Facturatie"), {
-            "fields": tuple(f for f in ("billing_account","household_head","is_household_head","course","active") if hasattr(Member, f) or True),
-        }),
-        (_("Investering / Flex"), {
-            "fields": tuple(f for f in ("investment_years_total","investment_years_remaining","flex_years_total","flex_years_remaining","invest_flex_locked_amount","invest_flex_start_year") if hasattr(Member, f) or True),
-        }),
-        (_("Overig"), {
-            "fields": tuple(f for f in ("notes",) if hasattr(Member, f) or True),
-        }),
-    )
+    # ===== FORM =====
+    readonly_fields = ("id",)  # intern DB-id tonen (alleen-lezen)
+
+    def get_fieldsets(self, request, obj=None):
+        """
+        Stel fieldsets samen enkel met velden die écht bestaan op Member.
+        Zo vermijden we FieldError op onbekende (optionele) velden.
+        """
+        sections = []
+
+        # Interne info
+        sections.append( (_("Interne info"), {"fields": ("id",), "description": _("Intern database-ID (alleen-lezen).")}) )
+
+        # Identiteit
+        ident = _existing_fields(Member, ("last_name","first_name","birth_date","gender"))
+        if ident:
+            sections.append( (_("Identiteit"), {"fields": ident}) )
+
+        # Contact
+        contact = _existing_fields(Member, ("email","mobile","phone","address","postal_code","city"))
+        if contact:
+            sections.append( (_("Contact"), {"fields": contact}) )
+
+        # Huishouden / Facturatie
+        huish = _existing_fields(Member, ("billing_account","household_head","is_household_head","course","active"))
+        if huish:
+            sections.append( (_("Huishouden / Facturatie"), {"fields": huish}) )
+
+        # Investering / Flex
+        invest = _existing_fields(Member, ("investment_years_total","investment_years_remaining",
+                                           "flex_years_total","flex_years_remaining",
+                                           "invest_flex_locked_amount","invest_flex_start_year"))
+        if invest:
+            sections.append( (_("Investering / Flex"), {"fields": invest}) )
+
+        # Overig
+        overig = _existing_fields(Member, ("notes",))
+        if overig:
+            sections.append( (_("Overig"), {"fields": overig}) )
+
+        return tuple(sections)
+
+    # ===== QS annotaties voor list sortering/kolommen =====
+    _ext_fields = None  # cache
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        # hh_size
+
+        # Aantal leden per billing_account (hh_size)
         try:
             qs = qs.annotate(hh_size=Count("billing_account__member", distinct=True))
         except Exception:
             qs = qs.annotate(hh_size=Count("id"))
-        # external id annotatie
+
+        # External ID annotatie om te tonen/sorteren
         if self._ext_fields is None:
-            self._ext_fields = _first_existing_member_fields(Member, EXTERNAL_ID_CANDIDATES)
+            concrete = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
+            self._ext_fields = [n for n in EXTERNAL_ID_CANDIDATES if n in concrete]
         try:
             if self._ext_fields:
-                coalesce_args = [F(self._ext_fields[0])]
-                for fn in self._ext_fields[1:]:
-                    coalesce_args.append(F(fn))
-                coalesce_args.append(Value(""))
-                qs = qs.annotate(ext_id_any=Coalesce(*coalesce_args))
+                args = [F(self._ext_fields[0]), *[F(fn) for fn in self._ext_fields[1:]], Value("")]
+                qs = qs.annotate(ext_id_any=Coalesce(*args))
         except Exception:
             pass
-        # household role ranking
+
+        # Household role rank: 0 = Individueel, 2 = Gezinshoofd, 1 = Gezinslid
         role_whens = [When(billing_account__isnull=True, then=Value(0))]
-        try:
-            Member._meta.get_field("is_household_head")
+        concrete = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
+        if "is_household_head" in concrete:
             role_whens.append(When(is_household_head=True, then=Value(2)))
-        except Exception:
-            pass
-        try:
-            Member._meta.get_field("household_head")
+        if "household_head" in concrete:
             role_whens.append(When(household_head_id=F("id"), then=Value(2)))
-        except Exception:
-            pass
-        qs = qs.annotate(
-            role_rank=Case(*role_whens, default=Value(1), output_field=IntegerField())
-        )
+
+        qs = qs.annotate(role_rank=Case(*role_whens, default=Value(1), output_field=IntegerField()))
         return qs
 
-    # Kolommen
+    # ===== list kolommen =====
     @admin.display(description=_("External ID"), ordering="ext_id_any")
     def external_id_display(self, obj):
         val = getattr(obj, "ext_id_any", None)
@@ -154,24 +166,31 @@ class MemberAdmin(admin.ModelAdmin):
             pass
         return "Hoofd: onbekend"
 
-    # Zoeken
+    # ===== zoeken =====
     def get_search_results(self, request, queryset, search_term):
         if not search_term:
             return super().get_search_results(request, queryset, search_term)
+
         q = Q(last_name__icontains=search_term) | Q(first_name__icontains=search_term)
+
+        # gemeente/plaats als field bestaat
         for field in ["city", "gemeente", "municipality", "town", "plaats"]:
             try:
                 queryset.model._meta.get_field(field)
                 q |= Q(**{f"{field}__icontains": search_term})
             except Exception:
                 continue
+
+        # external id velden
         if self._ext_fields is None:
-            self._ext_fields = _first_existing_member_fields(Member, EXTERNAL_ID_CANDIDATES)
+            concrete = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
+            self._ext_fields = [n for n in EXTERNAL_ID_CANDIDATES if n in concrete]
         for fn in self._ext_fields:
             q |= Q(**{f"{fn}__icontains": search_term})
+
         return queryset.filter(q), False
 
-# Overige core-modellen: automatisch registreren
+# Overige core-modellen automatisch registreren (default admin)
 _core_app = apps.get_app_config("core")
 for _model in _core_app.get_models():
     if _model is Member:
