@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Git Snapshot",
+      "type": "shell",
+      "command": "git add -A && git commit -m \"snapshot $(date '+%F %T')\" || echo 'geen wijzigingen' && git push",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ]
+}
