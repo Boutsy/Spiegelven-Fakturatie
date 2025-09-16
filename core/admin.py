@@ -232,3 +232,30 @@ for _model in _core_app.get_models():
         admin.site.register(_model)
     except admin.sites.AlreadyRegistered:
         pass
+# --- SAFE SEARCH PATCH (append) ---
+try:
+    from django.contrib import admin as _admin_mod
+    from core.models import Member as _MemberModel
+    # Neem de bestaande MemberAdmin-klasse over als die al gedefinieerd is
+    MemberAdmin  # noqa: F401  # type: ignore[name-defined]
+except NameError:
+    MemberAdmin = None  # fallback
+
+if MemberAdmin:
+    def _safe_get_search_results(self, request, queryset, search_term):
+        # Gebruik de standaard Django-zoeklogica op basis van search_fields
+        return super(MemberAdmin, self).get_search_results(request, queryset, search_term)
+
+    # Beperk naar velden die zeker bestaan op Member:
+    _safe_fields = (
+        "last_name", "first_name", "city",
+        "external_id", "email",
+        "phone_private", "phone_mobile",
+    )
+
+    try:
+        MemberAdmin.get_search_results = _safe_get_search_results
+        MemberAdmin.search_fields = _safe_fields
+    except Exception:
+        pass
+# --- END SAFE SEARCH PATCH ---
