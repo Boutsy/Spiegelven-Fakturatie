@@ -4,16 +4,15 @@ from django.db.models import Q, F, Value, IntegerField, Case, When
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from datetime import date
+from django.db import models
 
 Member = apps.get_model("core", "Member")
 
-# Kandidaten voor externe ID
 EXTERNAL_ID_CANDIDATES = [
     "external_id", "externalid", "external_member_id", "legacy_id",
     "old_id", "external", "ext_id", "member_external_id",
 ]
 
-# ---- helpers ----
 def _age_on(born, ref_year=None):
     if not born:
         return None
@@ -38,14 +37,14 @@ class MemberAdmin(admin.ModelAdmin):
     ordering = ("last_name", "first_name")
     list_per_page = 50
 
-    # Laat het zoekvak zien en geef basisvelden op; we breiden in get_search_results uit
+    # toon zoekvak
     search_fields = ("last_name", "first_name")
     search_help_text = _(
-        "Zoekt in: achternaam, voornaam, e-mail, gsm, postcode, gemeente/plaats, external ID en facturatieprofiel."
+        "Zoekt in: achternaam, voornaam, e-mail, gsm, postcode, gemeente/plaats, external ID en (indien aanwezig) naam/label van facturatieprofiel."
     )
 
     # ===== FORM =====
-    readonly_fields = ("id",)  # intern DB-id (alleen-lezen)
+    readonly_fields = ("id",)
 
     def get_fieldsets(self, request, obj=None):
         sections = []
@@ -76,7 +75,7 @@ class MemberAdmin(admin.ModelAdmin):
         except Exception:
             pass
 
-        # Heeft een billing account? (kan later gebruikt worden voor sorteren/filteren)
+        # Heeft een billing account? (voor eventuele sort/filters in toekomst)
         concrete = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
         if "billing_account" in concrete:
             qs = qs.annotate(has_billing=Case(
@@ -143,19 +142,24 @@ class MemberAdmin(admin.ModelAdmin):
         for fn in self._ext_fields:
             q |= Q(**{f"{fn}__icontains": search_term})
 
-        # Facturatieprofiel-naam (indien relationeel veld bestaat)
-        if any(f.name == "billing_account" for f in Member._meta.get_fields()):
-            for path in [
-                "billing_account__name__icontains",
-                "billing_account__company__icontains",
-                "billing_account__company_name__icontains",
-                "billing_account__label__icontains",
-                "billing_account__title__icontains",
-            ]:
-                try:
-                    q |= Q(**{path: search_term})
-                except Exception:
-                    continue
+        # Veilig zoeken op billing_account subvelden:
+        # - Check of 'billing_account' een ForeignKey is
+        try:
+            bf = Member._meta.get_field("billing_account")
+            rel_model = getattr(bf.remote_field, "model", None)
+        except Exception:
+            rel_model = None
+
+        if rel_model is not None:
+            # kandidaat tekstvelden waarop we *mogen* zoeken
+            candidate_rel_fields = ["name", "label", "title", "company_name"]
+            rel_concrete = {f.name: f for f in rel_model._meta.get_fields() if getattr(f, "concrete", False)}
+
+            for rf_name in candidate_rel_fields:
+                f = rel_concrete.get(rf_name)
+                if isinstance(f, (models.CharField, models.TextField)):
+                    q |= Q(**{f"billing_account__{rf_name}__icontains": search_term})
+                # anders: niet toevoegen (voorkomt FieldError)
 
         return queryset.filter(q).distinct(), False
 
