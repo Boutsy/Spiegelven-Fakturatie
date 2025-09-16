@@ -265,3 +265,13 @@ try:
     _ap.apply_assets_inline()
 except Exception:
     pass
+
+# FACTURATIE_PATCH_HOOK
+try:
+    from core import _facturatie_patch as _fp
+    _fp.apply_facturatie()
+except Exception:
+    pass
+
+# forceer facturatie fieldset
+from core import _facturatie_admin_override  # noqa
