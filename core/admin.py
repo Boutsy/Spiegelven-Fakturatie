@@ -275,3 +275,13 @@ except Exception:
 
 # forceer facturatie fieldset
 from core import _facturatie_admin_override  # noqa
+
+# forceer toevoegen van household_role_display in Facturatie
+from core import _facturatie_force_insert  # noqa
+
+# -- facturatie fieldsets hotfix --
+try:
+    from core import admin_facturatie_fix as _af
+    _af.apply()
+except Exception:
+    pass
