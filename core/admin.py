@@ -259,3 +259,9 @@ if MemberAdmin:
     except Exception:
         pass
 # --- END SAFE SEARCH PATCH ---
+
+try:
+    from core import admin_assets_patch as _ap
+    _ap.apply_assets_inline()
+except Exception:
+    pass
