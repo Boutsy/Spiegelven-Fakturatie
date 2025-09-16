@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.apps import apps
-from django.db.models import Q, F, Value, IntegerField, Case, When, Count
+from django.db.models import Q, F, Value, IntegerField, Case, When
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from datetime import date
@@ -37,7 +37,12 @@ class MemberAdmin(admin.ModelAdmin):
     list_display_links = ("last_name", "first_name")
     ordering = ("last_name", "first_name")
     list_per_page = 50
-    search_fields = ()  # flexibel in get_search_results
+
+    # Laat het zoekvak zien en geef basisvelden op; we breiden in get_search_results uit
+    search_fields = ("last_name", "first_name")
+    search_help_text = _(
+        "Zoekt in: achternaam, voornaam, e-mail, gsm, postcode, gemeente/plaats, external ID en facturatieprofiel."
+    )
 
     # ===== FORM =====
     readonly_fields = ("id",)  # intern DB-id (alleen-lezen)
@@ -49,7 +54,6 @@ class MemberAdmin(admin.ModelAdmin):
         if ident: sections.append( (_("Identiteit"), {"fields": ident}) )
         contact = _existing_fields(Member, ("email","mobile","phone","address","postal_code","city"))
         if contact: sections.append( (_("Contact"), {"fields": contact}) )
-        # Facturatie: enkel het veld 'billing_account' indien aanwezig
         fact = _existing_fields(Member, ("billing_account","course","active"))
         if fact: sections.append( (_("Facturatie"), {"fields": fact, "description": _("Indien ingevuld, wordt dit facturatieprofiel gebruikt i.p.v. het standaard adres van het lid.")}) )
         overig = _existing_fields(Member, ("notes",))
@@ -72,7 +76,7 @@ class MemberAdmin(admin.ModelAdmin):
         except Exception:
             pass
 
-        # Annotatie of er een billing account is (voor nette display/sort-optie indien gewenst)
+        # Heeft een billing account? (kan later gebruikt worden voor sorteren/filteren)
         concrete = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
         if "billing_account" in concrete:
             qs = qs.annotate(has_billing=Case(
@@ -97,7 +101,6 @@ class MemberAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Facturatie via"))
     def billing_account_display(self, obj):
-        # Toon 'Persoonlijk' of string van billing account als die bestaat
         if hasattr(obj, "billing_account") and getattr(obj, "billing_account", None):
             try:
                 return str(obj.billing_account)
@@ -115,27 +118,32 @@ class MemberAdmin(admin.ModelAdmin):
         if not search_term:
             return super().get_search_results(request, queryset, search_term)
 
-        result = queryset.filter(
-            Q(last_name__icontains=search_term) |
-            Q(first_name__icontains=search_term)
-        )
+        q = Q(last_name__icontains=search_term) | Q(first_name__icontains=search_term)
 
-        # gemeente/plaats indien beschikbaar
-        for field in ["city", "gemeente", "municipality", "town", "plaats"]:
+        # Extra: e-mail, gsm/mobiel, postcode
+        for field in ["email", "mobile", "phone", "postal_code"]:
             try:
                 queryset.model._meta.get_field(field)
-                result = result | queryset.filter(**{f"{field}__icontains": search_term})
+                q |= Q(**{f"{field}__icontains": search_term})
             except Exception:
                 continue
 
-        # external id velden
+        # Gemeente/plaats
+        for field in ["city", "gemeente", "municipality", "town", "plaats"]:
+            try:
+                queryset.model._meta.get_field(field)
+                q |= Q(**{f"{field}__icontains": search_term})
+            except Exception:
+                continue
+
+        # External ID velden
         if self._ext_fields is None:
             concrete = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
             self._ext_fields = [n for n in EXTERNAL_ID_CANDIDATES if n in concrete]
         for fn in self._ext_fields:
-            result = result | queryset.filter(**{f"{fn}__icontains": search_term})
+            q |= Q(**{f"{fn}__icontains": search_term})
 
-        # proberen op billing account te zoeken (indien relationele velden bestaan)
+        # Facturatieprofiel-naam (indien relationeel veld bestaat)
         if any(f.name == "billing_account" for f in Member._meta.get_fields()):
             for path in [
                 "billing_account__name__icontains",
@@ -143,14 +151,13 @@ class MemberAdmin(admin.ModelAdmin):
                 "billing_account__company_name__icontains",
                 "billing_account__label__icontains",
                 "billing_account__title__icontains",
-            *()  # extensie mogelijk
             ]:
                 try:
-                    result = result | queryset.filter(**{path: search_term})
+                    q |= Q(**{path: search_term})
                 except Exception:
                     continue
 
-        return result.distinct(), False
+        return queryset.filter(q).distinct(), False
 
 # Overige core-modellen automatisch registreren (zodat je alles ziet)
 _core_app = apps.get_app_config("core")
