@@ -28,13 +28,13 @@ def _existing(model, names):
     return tuple(n for n in names if n in cf)
 
 def _first_existing(model, names):
+    cf = _concrete_fields(model)
     for n in names:
-        if n in _concrete_fields(model):
+        if n in cf:
             return n
     return None
 
 def _birthdate_field(model):
-    # neem expliciet bekende namen, anders het eerste DateField
     candidates = ("birth_date","date_of_birth","dob","geboortedatum","birthdate")
     name = _first_existing(model, candidates)
     if name:
@@ -44,16 +44,49 @@ def _birthdate_field(model):
             return n
     return None
 
-def _address_fields(model):
-    # alles wat nuttig kan zijn voor adres; we filteren op wat echt bestaat
-    candidates = (
-        "address","address1","address2","street","street1","street2","street_number","house_number",
-        "postal_code","postcode","zip","zip_code",
-        "city","gemeente","municipality","town","plaats",
-        "country","country_code","country_name",
-        "email","mobile","phone",
-    )
-    return _existing(model, candidates)
+def _contact_fields(model):
+    """
+    Bouw de Contact-sectie in vaste, logische volgorde.
+    We kiezen per groep het eerste bestaande veld uit bekende aliassen.
+    Daarna voegen we eventuele extra relevante velden toe (address1/2, street2, …).
+    """
+    order = []
+
+    # Straat + nummer
+    street = _first_existing(model, ("street","address","address1","street1"))
+    if street: order.append(street)
+    street_no = _first_existing(model, ("street_number","house_number","nr","number"))
+    if street_no: order.append(street_no)
+
+    # Postcode + gemeente
+    postal = _first_existing(model, ("postal_code","postcode","zip","zip_code"))
+    if postal: order.append(postal)
+    city = _first_existing(model, ("city","gemeente","municipality","town","plaats"))
+    if city: order.append(city)
+
+    # Land
+    country = _first_existing(model, ("country","country_name","country_code"))
+    if country: order.append(country)
+
+    # Email
+    email = _first_existing(model, ("email","e_mail"))
+    if email: order.append(email)
+
+    # Vast telefoonnummer (phone)
+    phone = _first_existing(model, ("phone","telephone","tel","phone_number","landline"))
+    if phone: order.append(phone)
+
+    # Mobiel (mobile)
+    mobile = _first_existing(model, ("mobile","gsm","cellphone","mobile_phone","mobile_number"))
+    if mobile: order.append(mobile)
+
+    # Extra nuttige velden die we nog niet toegevoegd hebben
+    extras = []
+    for cand in ("address2","street2","state","region","province"):
+        if cand in _concrete_fields(model) and cand not in order:
+            extras.append(cand)
+
+    return tuple(order + extras)
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
@@ -72,7 +105,7 @@ class MemberAdmin(admin.ModelAdmin):
     # zoekvak tonen
     search_fields = ("last_name", "first_name")
     search_help_text = _(
-        "Zoekt in: achternaam, voornaam, e-mail, gsm, postcode, gemeente/plaats, external ID en (indien aanwezig) naam/label van facturatieprofiel."
+        "Zoekt in: achternaam, voornaam, e-mail, gsm/mobiel, telefoon, postcode, gemeente/plaats, external ID en (indien aanwezig) naam/label van facturatieprofiel."
     )
 
     # ===== FORM =====
@@ -87,9 +120,8 @@ class MemberAdmin(admin.ModelAdmin):
             "description": _("Intern database-ID (alleen-lezen)."),
         }))
 
-        # Identiteit: last/first + dynamische geboortedatum + optioneel gender
-        ident = ["last_name","first_name"]
-        ident = [f for f in ident if f in _concrete_fields(Member)]
+        # Identiteit
+        ident = [f for f in ("last_name","first_name") if f in _concrete_fields(Member)]
         bd = _birthdate_field(Member)
         if bd:
             ident.append(bd)
@@ -98,12 +130,12 @@ class MemberAdmin(admin.ModelAdmin):
         if ident:
             sections.append((_('Identiteit'), {"fields": tuple(ident)}))
 
-        # Contact: dynamische adresvelden (straat, nr, land, …) + email/telefoon
-        contact = _address_fields(Member)
+        # Contact (met phone + mobile + aliassen)
+        contact = _contact_fields(Member)
         if contact:
             sections.append((_('Contact'), {"fields": contact}))
 
-        # Facturatie: alternatief profiel + evt. course/active
+        # Facturatie
         fact = _existing(Member, ("billing_account","course","active"))
         if fact:
             sections.append((_('Facturatie'), {
@@ -134,7 +166,7 @@ class MemberAdmin(admin.ModelAdmin):
         except Exception:
             pass
 
-        # Annotatie voor has_billing (optioneel nuttig later)
+        # Annotatie voor has_billing (optioneel)
         if "billing_account" in _concrete_fields(Member):
             qs = qs.annotate(has_billing=Case(
                 When(billing_account__isnull=False, then=Value(1)),
@@ -179,20 +211,25 @@ class MemberAdmin(admin.ModelAdmin):
 
         q = Q(last_name__icontains=search_term) | Q(first_name__icontains=search_term)
 
-        for field in ["email", "mobile", "phone", "postal_code", "postcode", "zip", "zip_code"]:
+        # Email, telefoon (incl. aliassen), postcode
+        for field in ("email","postal_code","postcode","zip","zip_code",
+                      "phone","telephone","tel","phone_number","landline",
+                      "mobile","gsm","cellphone","mobile_phone","mobile_number"):
             if field in _concrete_fields(Member):
                 q |= Q(**{f"{field}__icontains": search_term})
 
-        for field in ["city", "gemeente", "municipality", "town", "plaats"]:
+        # Gemeente/plaats
+        for field in ("city","gemeente","municipality","town","plaats"):
             if field in _concrete_fields(Member):
                 q |= Q(**{f"{field}__icontains": search_term})
 
+        # External IDs
         if self._ext_fields is None:
             self._ext_fields = [n for n in EXTERNAL_ID_CANDIDATES if n in _concrete_fields(Member)]
         for fn in self._ext_fields:
             q |= Q(**{f"{fn}__icontains": search_term})
 
-        # Veilig zoeken op billing_account subvelden (alleen tekstvelden die bestaan)
+        # billing_account subvelden (tekstvelden algemeen: name/label/title/company_name)
         try:
             bf = Member._meta.get_field("billing_account")
             rel_model = getattr(bf.remote_field, "model", None)
@@ -206,7 +243,7 @@ class MemberAdmin(admin.ModelAdmin):
 
         return queryset.filter(q).distinct(), False
 
-# Overige core-modellen automatisch registreren (zodat je alles ziet)
+# Overige core-modellen automatisch registreren
 _core_app = apps.get_app_config("core")
 for _model in _core_app.get_models():
     if _model is Member:
