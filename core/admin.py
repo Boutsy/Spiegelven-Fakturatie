@@ -315,3 +315,11 @@ try:
     _hr.apply()
 except Exception:
     pass
+
+
+# hook: gezinsleden-rubriek in MemberAdmin
+try:
+    from core import admin_gezinsleden as _gz
+    _gz.apply()
+except Exception:
+    pass
