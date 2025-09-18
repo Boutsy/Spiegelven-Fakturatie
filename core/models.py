@@ -66,6 +66,11 @@ class Member(models.Model):
     ]
     course = models.CharField(max_length=3, choices=COURSE_CHOICES, blank=True, null=True, db_index=True)
     billing_account = models.ForeignKey('InvoiceAccount', null=True, blank=True, on_delete=models.SET_NULL, related_name='members_billed')
+    federale_bijdrage_via_spiegelven = models.BooleanField(
+        _('Federale bijdrage via Spiegelven'),
+        default=True,
+        help_text=_('Vink uit als dit lid de federale bijdrage via een andere club betaalt.'),
+    )
     household_head = models.ForeignKey(
         "self",
         null=True,
@@ -111,6 +116,12 @@ class Member(models.Model):
         null=True,
         blank=True,
         on_delete=models.PROTECT,
+    )
+
+    federale_bijdrage_via_spiegelven = models.BooleanField(
+        _('Federale bijdrage via Spiegelven'),
+        default=True,
+        help_text=_('Vink uit als dit lid de federale bijdrage via een andere club betaalt.'),
     )
 
 class ImportMapping(models.Model):
