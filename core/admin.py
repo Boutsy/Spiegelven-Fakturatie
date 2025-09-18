@@ -293,3 +293,11 @@ try:
     _ltp.apply_member_id_and_facturatie()
 except Exception:
     pass
+
+
+# --- hook: filter/sort voor veld "Factureren via" ---
+try:
+    from core import admin_factureren_via_filter as _fv
+    _fv.apply()
+except Exception:
+    pass
