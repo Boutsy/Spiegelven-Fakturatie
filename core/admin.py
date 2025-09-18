@@ -285,3 +285,11 @@ try:
     _af.apply()
 except Exception:
     pass
+
+
+# --- layout patch: Facturatie met ID + Interne info weg + gefactureerd-via ---
+try:
+    from core import admin_id_title_patch as _ltp
+    _ltp.apply_member_id_and_facturatie()
+except Exception:
+    pass
