@@ -1,75 +1,78 @@
+
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.apps import apps
 
+def _detect_factureervia_field(Member):
+    """
+    Zoek een ForeignKey van Member -> Member die waarschijnlijk 'gefactureerd via' betekent.
+    Heuristiek:
+      1) naam in een bekende lijst
+      2) verbose_name bevat 'factur' of 'gefacture' of 'invoice' of 'bill'
+    """
+    preferred = {
+        "gefactureerd_via", "factureren_via", "factureervia",
+        "billed_via", "invoiced_via", "billed_via_member", "invoiced_via_member"
+    }
+    # 1) directe naam-match
+    for f in Member._meta.get_fields():
+        if getattr(f, "name", None) in preferred:
+            return f.name
+    # 2) heuristisch op basis van verbose_name + type
+    for f in Member._meta.get_fields():
+        if getattr(f, "is_relation", False) and getattr(f, "many_to_one", False):
+            rel = getattr(f, "remote_field", None)
+            if rel and getattr(rel, "model", None) is Member:
+                vn = (getattr(f, "verbose_name", "") or "").lower()
+                if any(k in vn for k in ("factur", "gefacture", "invoice", "bill")):
+                    return f.name
+    return None
+
 def apply_member_id_and_facturatie():
-    """
-    - Verwijdert de rubriek "Interne info"
-    - Haalt het veld "id" uit de veldenlijst
-    - Toont het ID rechts in de titelbalk van "Facturatie"
-    - Zorgt dat "Gefactureerd via" (FK naar Member) in Facturatie staat als het veld bestaat
-    """
-    Member = apps.get_model("core", "Member")
-    ma = admin.site._registry.get(Member)
+    M = apps.get_model("core","Member")
+    ma = admin.site._registry.get(M)
     if not ma:
         return
-    C = ma.__class__
 
-    # Zoek hoe het FK-veld naar "gefactureerd via" heet (robust: controleer meerdere kandidaten)
-    model_field_names = {f.name for f in Member._meta.get_fields() if getattr(f, "concrete", False)}
-    billed_fk_candidates = ["billed_via", "invoice_via", "invoiced_via", "billed_through", "factureren_via"]
-    billed_fk = next((n for n in billed_fk_candidates if n in model_field_names), None)
+    factureervia = _detect_factureervia_field(M)
 
-    def new_get_fieldsets(self, request, obj=None):
-        original = admin.ModelAdmin.get_fieldsets(self, request, obj)
-        fs_out = []
+    get_fieldsets_orig = ma.__class__.get_fieldsets
 
-        def norm(s): 
-            return (str(s) if s is not None else "").strip().lower()
+    def new_get_fieldsets(self, request, obj=None, *args, **kwargs):
+        fs = list(get_fieldsets_orig(self, request, obj))
+        out = []
 
-        for title, cfg in (original or ()):
-            t = norm(title)
+        for title, cfg in fs:
+            t = str(title or "").strip()
+            tl = t.lower()
+
+            # id-veld niet apart tonen in een fieldset
             fields = list(cfg.get("fields", ()))
-
-            # veld "id" nooit als formulier-veld tonen
-            if "id" in fields:
-                fields = [f for f in fields if f != "id"]
-
-            # volledige rubriek "Interne info" verbergen
-            if t in {"interne info", "interne-info", "internal", "internal info"}:
-                continue
-
-            # Facturatie-rubriek: titel verrijken met ID en "gefactureerd via" toevoegen
-            if t in {"facturatie", "billing", "invoice"}:
-                # Titel: rechts ID tonen wanneer obj bestaat
-                title = _("Facturatie") if obj is None else f"{_('Facturatie')} — ID {obj.pk}"
-                # Plaats vooraan "gefactureerd via" als dat veld bestaat en nog niet staat
-                if billed_fk and billed_fk not in fields:
-                    # Zet het direct na "billing_account" als die bestaat, anders vooraan
-                    if "billing_account" in fields:
-                        idx = fields.index("billing_account") + 1
-                        fields.insert(idx, billed_fk)
-                    else:
-                        fields.insert(0, billed_fk)
-
+            fields = [f for f in fields if f != "id"]
             cfg = dict(cfg)
             cfg["fields"] = tuple(fields)
-            fs_out.append((title, cfg))
 
-        # Als er helemaal geen Facturatie-rubriek bestond, maak er één met ID in titel.
-        if not any(norm(t) in {"facturatie", "billing", "invoice"} for t, _ in fs_out):
-            new_fields = []
-            if billed_fk:
-                new_fields.append(billed_fk)
-            if "billing_account" in model_field_names:
-                new_fields.append("billing_account")
-            if "course" in model_field_names:
-                new_fields.append("course")
-            if "active" in model_field_names:
-                new_fields.append("active")
-            title = _("Facturatie") if obj is None else f"{_('Facturatie')} — ID {obj.pk}"
-            fs_out.append((title, {"fields": tuple(new_fields)}))
+            # "Interne info" wég
+            if tl in {"interne info", "interne-info", "internal", "internal info"}:
+                continue
 
-        return tuple(fs_out)
+            # Titelbalk: toon ID bij "Facturatie"
+            if tl in {"facturatie", "facturering", "billing"}:
+                # Voeg factureervia-veld toe indien gevonden en nog niet aanwezig
+                if factureervia and factureervia not in fields:
+                    try:
+                        idx = fields.index("billing_account") + 1
+                    except ValueError:
+                        idx = len(fields)
+                    fields.insert(idx, factureervia)
+                    cfg["fields"] = tuple(fields)
 
-    setattr(C, "get_fieldsets", new_get_fieldsets)
+                title = _("Facturatie") if obj is None else f"{_('Facturatie')} — ID {obj.pk}"
+            else:
+                title = _("Identiteit") if (tl in {"identiteit","identity"}) else t
+
+            out.append((title, cfg))
+
+        return tuple(out)
+
+    setattr(ma.__class__, "get_fieldsets", new_get_fieldsets)
