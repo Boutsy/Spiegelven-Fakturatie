@@ -308,3 +308,10 @@ try:
     _hfi.apply()
 except Exception:
     pass
+
+
+try:
+    from core import admin_household_role_choices as _hr
+    _hr.apply()
+except Exception:
+    pass
