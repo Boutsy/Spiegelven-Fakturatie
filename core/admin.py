@@ -323,3 +323,11 @@ try:
     _gz.apply()
 except Exception:
     pass
+
+
+# hook: gezinsleden-tabel
+try:
+    from core import admin_gezinsleden_patch as _g
+    _g.apply()
+except Exception:
+    pass
