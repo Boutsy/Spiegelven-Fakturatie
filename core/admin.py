@@ -301,3 +301,10 @@ try:
     _fv.apply()
 except Exception:
     pass
+
+
+try:
+    from core import admin_hide_factureren_icons as _hfi
+    _hfi.apply()
+except Exception:
+    pass
