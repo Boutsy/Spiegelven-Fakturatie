@@ -103,6 +103,15 @@ class Member(models.Model):
     @property
     def is_household_head(self):
         return self.household_head_id is None
+    
+    factureren_via = models.ForeignKey(
+        'self',
+        verbose_name=_('Factureren via'),
+        related_name='gefactureerden',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
 
 class ImportMapping(models.Model):
     name = models.CharField(max_length=200, unique=True)
