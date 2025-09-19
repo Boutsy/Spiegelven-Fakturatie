@@ -1,143 +1,168 @@
+from django.utils.html import format_html, format_html_join
 from django.contrib import admin
 from django.apps import apps
-from django.utils.html import format_html, format_html_join
 from datetime import date
 import re
 
-P_VEST = re.compile(r'^VST[_-]?KAST\s*(.+)$', re.I)
-P_KARK = re.compile(r'^KAR[_-]?KLN\s*(.+)$', re.I)
-P_ELEC = re.compile(r'^KAR[_-]?ELEC\s*(.+)$', re.I)
-IDENT_CANDIDATES = ("identifier", "ident", "code", "label", "name")
-
 def _order_fields(M):
-    names = {f.name for f in M._meta.get_fields() if hasattr(f, "attname")}
-    if {"last_name","first_name"}.issubset(names): return ["last_name","first_name"]
-    if {"surname","given_name"}.issubset(names):   return ["surname","given_name"]
-    if {"family_name","given_names"}.issubset(names): return ["family_name","given_names"]
-    if "name" in names: return ["name"]
+    f = {f.name for f in M._meta.get_fields() if hasattr(f, "attname")}
+    if {"last_name","first_name"}.issubset(f): return ["last_name","first_name"]
+    if {"surname","given_name"}.issubset(f):   return ["surname","given_name"]
+    if {"family_name","given_names"}.issubset(f): return ["family_name","given_names"]
+    if "name" in f: return ["name"]
     return ["id"]
 
 def _display_name(m):
     last = getattr(m, "last_name", None) or getattr(m, "surname", None) or getattr(m, "family_name", None)
     first = getattr(m, "first_name", None) or getattr(m, "given_name", None) or getattr(m, "given_names", None)
     if last and first: return f"{last} {first}"
-    if getattr(m, "name", None): return m.name
+    if getattr(m, "name", None): return getattr(m, "name")
     return str(m)
 
-def _age_years(m):
-    dob = (
-        getattr(m, "birth_date", None)
-        or getattr(m, "date_of_birth", None)
-        or getattr(m, "dob", None)
-        or getattr(m, "geboortedatum", None)
-    )
-    if not dob:
-        return None
+def _age(m):
+    d = getattr(m, "birth_date", None) or getattr(m, "date_of_birth", None) or getattr(m, "dob", None)
+    if not d: return ""
+    t = date.today()
     try:
-        today = date.today()
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+        return str(t.year - d.year - ((t.month, t.day) < (d.month, d.day)))
     except Exception:
-        return None
+        return ""
 
-def _collect_slots(m):
-    vest, kark, elec = [], [], []
+def _role_display(m):
     try:
-        for rel in m._meta.related_objects:
-            accessor = getattr(m, rel.get_accessor_name(), None)
-            if not hasattr(accessor, "all"):
-                continue
-            for obj in accessor.all()[:300]:
-                val = None
-                for f in IDENT_CANDIDATES:
-                    v = getattr(obj, f, None)
-                    if v:
-                        val = str(v).strip()
-                        break
-                if not val:
-                    continue
-                mv = P_VEST.match(val)
-                mk = P_KARK.match(val)
-                me = P_ELEC.match(val)
-                if mv:      vest.append(mv.group(1).strip())
-                elif mk:    kark.append(mk.group(1).strip())
-                elif me:    elec.append(me.group(1).strip())
+        return m.get_household_role_display()
+    except Exception:
+        val = getattr(m, "household_role", "") or ""
+        return str(val)
+
+_ID_PATTERNS = [
+    ("Vestiaire", r"^(?:VST)[_-]?KAST(\w+)$"),
+    ("Kar Kast",  r"^(?:KAR)[_-]?(?:KAST|KLN)(\w+)$"),
+    ("Elec. Kar", r"^(?:KAR[_-]?ELEC|ELEC[_-]?KAR)(\w+)$"),
+]
+_IDENTIFIER_CANDIDATES = ("identifier","code","name","label","slot","number","nummer","ref","reference")
+
+def _pick_identifier_from(obj):
+    for attr in _IDENTIFIER_CANDIDATES:
+        v = getattr(obj, attr, None)
+        if v:
+            s = str(v).strip()
+            if s: return s
+    try:
+        s = str(obj).strip()
+        if s: return s
     except Exception:
         pass
+    return ""
 
-    def uniq(xs):
-        seen, out = set(), []
-        for x in xs:
-            if x and x not in seen:
-                seen.add(x); out.append(x)
-        return out
+def _iter_member_assets(member):
+    try:
+        MemberAsset = apps.get_model("core","MemberAsset")
+    except Exception:
+        MemberAsset = None
 
-    return uniq(vest), uniq(kark), uniq(elec)
+    if MemberAsset:
+        fk_names = []
+        for f in MemberAsset._meta.get_fields():
+            if getattr(f, "is_relation", False) and getattr(f, "many_to_one", False):
+                rel = getattr(f, "remote_field", None)
+                if rel and getattr(rel, "model", None) == member.__class__:
+                    fk_names.append(f.name)
+        qs = None
+        for fk in fk_names or ["member","lid","owner","user"]:
+            try:
+                qs = MemberAsset.objects.filter(**{fk: member})
+                break
+            except Exception:
+                pass
+        if qs is not None:
+            for a in qs: yield a
+
+    for f in member._meta.get_fields():
+        if getattr(f, "auto_created", False) and getattr(f, "one_to_many", False) and getattr(f, "related_model", None):
+            relm = f.related_model
+            nm = relm.__name__.lower()
+            if any(k in nm for k in ("asset","locker","kast","kar","slot","vesti","elec")):
+                try:
+                    for a in getattr(member, f.get_accessor_name()).all():
+                        yield a
+                except Exception:
+                    pass
+
+def _asset_map(member):
+    out = {"Vestiaire":"", "Kar Kast":"", "Elec. Kar":""}
+    for rel in _iter_member_assets(member):
+        idtxt = _pick_identifier_from(rel)
+        if not idtxt: continue
+        for col, pat in _ID_PATTERNS:
+            m = re.match(pat, idtxt, flags=re.IGNORECASE)
+            if m and not out[col]:
+                out[col] = m.group(1) if m.lastindex else idtxt
+    return out
 
 def apply():
-    M = apps.get_model("core", "Member")
+    M = apps.get_model("core","Member")
     ma = admin.site._registry.get(M)
-    if not ma:
-        return
+    if not ma: return
+    C = ma.__class__
+    if getattr(C, "_gzl_table_patched", False): return
 
     order = _order_fields(M)
 
     def gezinsleden(self, obj):
-        if obj is None:
-            return ""
-        qs = M.objects.filter(factureren_via=obj).order_by(*order)
-        if not qs.exists():
-            return "—"
+        if not obj: return ""
+        qs = M.objects.filter(factureren_via_id=getattr(obj,"pk",None)).order_by(*order)
+        if not qs.exists(): return "—"
 
         head = format_html(
-            '<table style="border-collapse:collapse;width:100%"><thead><tr>'
-            '<th style="text-align:left;border-bottom:1px solid #ddd;padding:4px 6px">Naam</th>'
-            '<th style="text-align:left;border-bottom:1px solid #ddd;padding:4px 6px">Leeftijd</th>'
-            '<th style="text-align:left;border-bottom:1px solid #ddd;padding:4px 6px">Vestiaire</th>'
-            '<th style="text-align:left;border-bottom:1px solid #ddd;padding:4px 6px">Kar Kast</th>'
-            '<th style="text-align:left;border-bottom:1px solid #ddd;padding:4px 6px">Elec. Kar</th>'
-            '<th style="text-align:left;border-bottom:1px solid #ddd;padding:4px 6px">ID</th>'
+            "<table style=\"border-collapse:collapse; width:100%\">"
+            "<thead><tr>"
+            "<th style=\"text-align:left; padding:6px; border-bottom:1px solid #f0f0f0\">Naam</th>"
+            "<th style=\"text-align:left; padding:6px; border-bottom:1px solid #f0f0f0\">Leeftijd</th>"
+            "<th style=\"text-align:left; padding:6px; border-bottom:1px solid #f0f0f0\">Rol</th>"
+            "<th style=\"text-align:left; padding:6px; border-bottom:1px solid #f0f0f0\">Vestiaire</th>"
+            "<th style=\"text-align:left; padding:6px; border-bottom:1px solid #f0f0f0\">Kar Kast</th>"
+            "<th style=\"text-align:left; padding:6px; border-bottom:1px solid #f0f0f0\">Elec. Kar</th>"
             "</tr></thead><tbody>"
         )
 
         rows = []
         for m in qs:
-            vest, kark, elec = _collect_slots(m)
-            age = _age_years(m)
+            amap = _asset_map(m)
             rows.append((
                 _display_name(m),
-                f"{age} j" if age is not None else "",
-                ", ".join(vest) if vest else "",
-                ", ".join(kark) if kark else "",
-                ", ".join(elec) if elec else "",
-                f"{m.pk}",
+                _age(m) or "—",
+                _role_display(m) or "—",
+                amap.get("Vestiaire","") or "—",
+                amap.get("Kar Kast","") or "—",
+                amap.get("Elec. Kar","") or "—",
             ))
 
         body = format_html_join(
             "",
             "<tr>"
-            "<td style=\"padding:4px 6px;border-bottom:1px solid #f0f0f0\">{}</td>"
-            "<td style=\"padding:4px 6px;border-bottom:1px solid #f0f0f0\">{}</td>"
-            "<td style=\"padding:4px 6px;border-bottom:1px solid #f0f0f0\">{}</td>"
-            "<td style=\"padding:4px 6px;border-bottom:1px solid #f0f0f0\">{}</td>"
-            "<td style=\"padding:4px 6px;border-bottom:1px solid #f0f0f0\">{}</td>"
-            "<td style=\"padding:4px 6px;border-bottom:1px solid #f0f0f0\">{}</td>"
+            "<td style=\"padding:6px; border-bottom:1px solid #f0f0f0\">{}</td>"
+            "<td style=\"padding:6px; border-bottom:1px solid #f0f0f0\">{}</td>"
+            "<td style=\"padding:6px; border-bottom:1px solid #f0f0f0\">{}</td>"
+            "<td style=\"padding:6px; border-bottom:1px solid #f0f0f0\">{}</td>"
+            "<td style=\"padding:6px; border-bottom:1px solid #f0f0f0\">{}</td>"
+            "<td style=\"padding:6px; border-bottom:1px solid #f0f0f0\">{}</td>"
             "</tr>",
             rows
         )
         tail = format_html("</tbody></table>")
         return head + body + tail
 
-    setattr(ma.__class__, "gezinsleden", gezinsleden)
+    setattr(C, "gezinsleden", gezinsleden)
 
-    orig_ro = getattr(ma.__class__, "get_readonly_fields", None)
+    orig_ro = getattr(C, "get_readonly_fields", None)
     def get_readonly_fields(self, request, obj=None):
         base = list(orig_ro(self, request, obj)) if orig_ro else []
-        if "gezinsleden" not in base:
-            base.append("gezinsleden")
+        if "gezinsleden" not in base: base.append("gezinsleden")
         return tuple(base)
-    setattr(ma.__class__, "get_readonly_fields", get_readonly_fields)
+    setattr(C, "get_readonly_fields", get_readonly_fields)
 
-    orig_fs = ma.__class__.get_fieldsets
+    orig_fs = C.get_fieldsets
     def get_fieldsets(self, request, obj=None):
         fs = list(orig_fs(self, request, obj))
         block = ("Gezinsleden", {"fields": ("gezinsleden",)})
@@ -147,4 +172,6 @@ def apply():
         except StopIteration:
             fs.append(block)
         return tuple(fs)
-    setattr(ma.__class__, "get_fieldsets", get_fieldsets)
+    setattr(C, "get_fieldsets", get_fieldsets)
+
+    C._gzl_table_patched = True
