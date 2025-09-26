@@ -1,27 +1,14 @@
 {% extends "admin/change_form.html" %}
-{% load static %}
+{% load i18n %}
 
-{# Extra “Voorbeeld”-knoppen rechtsboven in de admin (object-tools) #}
 {% block object-tools-items %}
   {{ block.super }}
   {% if original and original.pk %}
-    <li>
-      <a class="viewsitelink" target="_blank" rel="noopener"
-         href="/facturen/{{ original.pk }}/voorbeeld/?papier=digitaal">
-        Voorbeeld (digitaal)
-      </a>
-    </li>
-    <li>
-      <a class="viewsitelink" target="_blank" rel="noopener"
-         href="/facturen/{{ original.pk }}/voorbeeld/?papier=voorbedrukt">
-        Voorbedrukt
-      </a>
-    </li>
-    <li>
-      <a class="viewsitelink" target="_blank" rel="noopener"
-         href="/facturen/{{ original.pk }}/voorbeeld/?papier=digitaal&envelop=venster&guides=1">
-        Venster + gidslijnen
-      </a>
-    </li>
+    <li><a class="button" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}">{% trans "Preview factuur" %}</a></li>
+    <li><a class="button" target="_blank" rel="noopener" href="{% url 'daily-invoice-print' original.pk %}">{% trans "Print factuur" %}</a></li>
+
+    <li><a class="viewsitelink" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}?papier=digitaal">Voorbeeld (digitaal)</a></li>
+    <li><a class="viewsitelink" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}?papier=voorbedrukt">Voorbedrukt</a></li>
+    <li><a class="viewsitelink" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}?papier=digitaal&envelop=venster&guides=1">Venster + gidslijnen</a></li>
   {% endif %}
 {% endblock %}

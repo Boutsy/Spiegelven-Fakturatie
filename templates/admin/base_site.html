@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Spiegelven Facturatie{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Spiegelven Facturatie</h1>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<div id="sv-version-badge"
+     style="position:fixed;right:8px;bottom:8px;opacity:.8;font:12px/1 system-ui;z-index:9999;">
+  v{{ APP_VERSION }}
+</div>
+{% endblock %}

@@ -1,156 +1,96 @@
-from datetime import date
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from django.apps import apps
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, render
 
-from core.billing import prorated_investment_amount, prorated_flex_amount
+Invoice = apps.get_model("core", "Invoice")
+InvoiceLine = apps.get_model("core", "InvoiceLine")
+OrganizationProfile = apps.get_model("core", "OrganizationProfile")
 
-Member          = apps.get_model("core","Member")
-YearPricing     = apps.get_model("core","YearPricing")
-YearInvestScale = apps.get_model("core","YearInvestScale")
+def _q(val):
+    return Decimal(str(val or "0")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-def _age_on_jan1(year:int, dob):
-    if not dob:
-        return None
-    ref = date(year,1,1)
-    return ref.year - dob.year - ((ref.month, ref.day) < (dob.month, dob.day))
+def _split_amount(d):
+    s = f"{_q(d):.2f}"
+    i, dec = s.split(".")
+    return {"int": i.replace("-", "−"), "dec": dec}
 
-def _role_tag(member):
-    v = (getattr(member, "household_role", "") or "").strip().lower()
-    return "PRT" if v in {"prt","partner","partner_role","husband","wife"} else "IND"
+def _lines_for(invoice):
+    qs = InvoiceLine.objects.filter(invoice=invoice).order_by("id")
+    out = []
+    for l in qs:
+        qty = _q(getattr(l, "quantity", 1))
+        unit = _q(getattr(l, "unit_price_excl", 0))
+        rate = Decimal(str(getattr(l, "vat_rate", 0) or 0))
+        ex = _q(qty * unit)
+        vat = _q(ex * rate / Decimal("100"))
+        inc = _q(ex + vat)
+        out.append({
+            "description": getattr(l, "description", "") or "",
+            "quantity": qty,
+            "unit_price_excl": unit,
+            "vat_rate": rate,
+            "line_excl": ex,
+            "vat_amount": vat,
+            "line_incl": inc,
+        })
+    return out
 
-def _base_invest_amount_and_vat2(member, year: int) -> tuple[Decimal, int]:
-    """
-    Bepaalt het totale investeringsbedrag (zonder spreiding) + BTW%.
-    Volgorde:
-      1) YearInvestScale (voor 60-69 etc.)
-      2) YearPricing code: INV_IND / INV_PRT
-      3) Fallback: 2695 (IND) / 1355 (PRT), vat=21
-    """
-    role = _role_tag(member)
-    age = _age_on_jan1(year, getattr(member,"date_of_birth",None))
+def _vat_summary(lines):
+    bucket = {}
+    for l in lines:
+        r = int(l["vat_rate"])
+        b = bucket.setdefault(r, {"rate": f"{r}%", "excl": Decimal("0.00"), "vat": Decimal("0.00"), "incl": Decimal("0.00")})
+        b["excl"] = _q(b["excl"] + l["line_excl"])
+        b["vat"] = _q(b["vat"] + l["vat_amount"])
+        b["incl"] = _q(b["incl"] + l["line_incl"])
+    return [bucket[k] for k in sorted(bucket)]
 
-    # 1) YearInvestScale
-    if age is not None:
-        try:
-            rec = YearInvestScale.objects.get(age=age, role=role)
-            vat = getattr(rec, "vat_rate", None)
-            try:
-                vat = int(vat) if vat is not None else 21
-            except Exception:
-                vat = 21
-            return (rec.amount_normal, vat)
-        except YearInvestScale.DoesNotExist:
-            pass
+def _org_and_payment():
+    org = {"name": "", "address": "", "vat": "", "email": "", "phone": ""}
+    payment = {"iban": "", "bic": "", "ogm": ""}
+    op = OrganizationProfile.objects.first()
+    if op:
+        org["name"] = getattr(op, "name", "") or ""
+        org["address"] = getattr(op, "address", "") or ""
+        org["vat"] = getattr(op, "vat_number", "") or getattr(op, "vat", "") or ""
+        org["email"] = getattr(op, "email", "") or ""
+        org["phone"] = getattr(op, "phone", "") or ""
+        payment["iban"] = getattr(op, "iban", "") or ""
+        payment["bic"] = getattr(op, "bic", "") or ""
+    return org, payment
 
-    # 2) YearPricing
-    code = "INV_PRT" if role == "PRT" else "INV_IND"
-    yp = YearPricing.objects.filter(year=year, code=code).first()
-    if yp:
-        # probeer meerdere mogelijke veldnamen
-        for fld in ("unit_price","price","amount","amount_excl"):
-            if hasattr(yp, fld):
-                amount = getattr(yp, fld)
-                if amount is not None:
-                    break
-        else:
-            amount = Decimal("0.00")
-        vat = getattr(yp, "vat_rate", 21) or 21
-        try:
-            vat = int(vat)
-        except Exception:
-            vat = 21
-        return (Decimal(str(amount)), vat)
-
-    # 3) Fallback
-    return (Decimal("1355.00") if role=="PRT" else Decimal("2695.00"), 21)
-
-def _add_line(lines, desc:str, amount:Decimal, vat:int):
-    lines.append({
-        "description": desc,
-        "quantity": Decimal("1"),
-        "unit_price_excl": amount,
-        "vat_rate": Decimal(str(vat)),
-    })
-
-def _fix_preview_prorata(lines, member):
-    return
-
-@staff_member_required
-def invoice_preview(request, member_id:int, year:int):
-    member = get_object_or_404(Member, pk=member_id)
-    lines = []
-    warnings = []
-
-    # 1) Basistarief investering (totale som)
-    total_invest, vat_invest = _base_invest_amount_and_vat2(member, year)
-
-    # 2) INVESTERING: pro-rata
-    inv_years_total = int(getattr(member, "investment_years_total", 0) or 0)
-    inv_years_rem   = int(getattr(member, "investment_years_remaining", 0) or 0)
-    if inv_years_total > 0 and inv_years_rem > 0 and total_invest > 0:
-        per_year = prorated_investment_amount(member, total_invest)
-        nth = inv_years_total - inv_years_rem + 1
-        _add_line(lines, f"Investering (jaar {nth}/{inv_years_total})", per_year, vat_invest)
-
-    # 3) FLEX: per jaar — locked bedrag of pro-rata + 17%
-    flex_years_total = int(getattr(member, "flex_years_total", 0) or 0)
-    flex_years_rem   = int(getattr(member, "flex_years_remaining", 0) or 0)
-    if flex_years_total > 0 and flex_years_rem > 0:
-        locked = getattr(member, "invest_flex_locked_amount", None)
-        if locked is not None:
-            flex_amount = Decimal(str(locked))
-        else:
-            base = (total_invest / Decimal(flex_years_total)) if flex_years_total else Decimal("0.00")
-            flex_amount = (base * Decimal("1.17"))
-        flex_amount = flex_amount.quantize(Decimal("0.01"))
-        nth = flex_years_total - flex_years_rem + 1
-        _add_line(lines, f"Flex (jaar {nth}/{flex_years_total})", flex_amount, vat_invest)
-
-    # 4) Totalen
-    total_excl = Decimal("0.00")
-    total_vat = Decimal("0.00")
-    for d in lines:
-        qty = d["quantity"] or Decimal("1")
-        up  = d["unit_price_excl"] or Decimal("0.00")
-        excl = qty * up
-        vat_rate = Decimal(str(d.get("vat_rate") or "0"))
-        vat_amt = excl * vat_rate / 100
-        total_excl += excl
-        total_vat  += vat_amt
-
-    ctx = {
-        "member": member,
-        "year": year,
+def _ctx_for(invoice):
+    lines = _lines_for(invoice)
+    vat_summary = _vat_summary(lines) if lines else []
+    total_excl = _q(sum((l["line_excl"] for l in lines), Decimal("0.00")))
+    total_vat = _q(sum((l["vat_amount"] for l in lines), Decimal("0.00")))
+    total_incl = _q(total_excl + total_vat)
+    org, payment = _org_and_payment()
+    ogm = getattr(invoice, "structured_message", None) or getattr(invoice, "ogm", None) or ""
+    if ogm:
+        payment["ogm"] = ogm
+    return {
+        "invoice": invoice,
         "lines": lines,
-        "warnings": warnings,
-        "total_excl": total_excl,
-        "total_vat": total_vat,
-        "total_incl": total_excl + total_vat,
+        "vat_summary": vat_summary,
+        "totals_parts": {
+            "excl": _split_amount(total_excl),
+            "vat": _split_amount(total_vat),
+            "incl": _split_amount(total_incl),
+        },
+        "org": org,
+        "payment": payment,
     }
-    return render(request, "admin/invoice_preview.html", ctx)
 
 @staff_member_required
-def invoice_preview_default_next_year(request, member_id:int):
-    return invoice_preview(request, member_id, date.today().year + 1)
+def daily_invoice_preview(request, pk: int):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    ctx = _ctx_for(invoice)
+    return render(request, "invoices/preview.html", ctx)
 
 @staff_member_required
-def invoice_preview_default(request, member_id:int):
-    return invoice_preview(request, member_id, date.today().year)
-
-def _base_invest_amount_and_vat2(member, year: int) -> tuple[Decimal, int]:
-    """
-    Haal basis investeringsbedrag (IND/PRT) + BTW uit YearPricing.
-    Let op: in dit model heet het bedrag **amount**.
-    """
-    role_val = (getattr(member, "household_role", "") or "").strip().lower()
-    role = "PRT" if role_val in {"prt", "partner", "husband", "wife"} else "IND"
-    code = "INV_PRT" if role == "PRT" else "INV_IND"
-    yp = YearPricing.objects.filter(year=year, code=code, active=True).first()
-    if yp is not None:
-        amt = getattr(yp, "amount", None) or Decimal("0.00")
-        vat = int(getattr(yp, "vat_rate", 21) or 21)
-        return amt, vat
-    return Decimal("0.00"), 21
-
+def daily_invoice_print(request, pk: int):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    ctx = _ctx_for(invoice)
+    return render(request, "invoices/print.html", ctx)

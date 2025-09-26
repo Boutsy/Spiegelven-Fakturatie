@@ -331,3 +331,7 @@ try:
     _g.apply()
 except Exception:
     pass
+
+# SITE_HEADER_TESTPOINT
+from django.contrib import admin as _a
+_a.site.site_header = 'Spiegelven Facturatie.'

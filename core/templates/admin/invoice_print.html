@@ -1,0 +1,5 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Print factuur{% if invoice %} #{{ invoice.id }}{% endif %}</h1>
+{% include "admin/invoice_preview.html" %}
+{% endblock %}
