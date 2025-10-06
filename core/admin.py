@@ -1,12 +1,16 @@
 from datetime import date
+from decimal import Decimal
 from django import forms
 from django.contrib import admin
 from django.apps import apps
 from django.db import models
+from django.contrib import admin as _admin
 from django.db.models import F, Value, IntegerField, Case, When, Q
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from .phonefmt import normalize_phone_be_store, format_phone_be_display
+from django.core.exceptions import ValidationError
+
 
 # -- helpers -------------------------------------------------
 
@@ -80,12 +84,10 @@ class MemberAdminForm(forms.ModelForm):
             for fn in ("phone_private","phone_mobile","phone_work"):
                 if fn in self.fields and hasattr(inst, fn):
                     raw = getattr(inst, fn) or ""
-                    # Toon in formulier ALTIJD nationale BE-vorm indien Belgisch; buitenland blijft +CC/...
                     self.initial[fn] = format_phone_be_display(raw)
 
     def clean(self):
         data = super().clean()
-        # Wat de gebruiker ook intikt (nationaal, +32, spaties...), bij opslaan uniform maken
         for fn in ("phone_private","phone_mobile","phone_work"):
             if fn in self.fields and data.get(fn) is not None:
                 try:
@@ -225,8 +227,15 @@ class MemberAdmin(admin.ModelAdmin):
 
 # Registreer de rest van core-modellen generiek
 _core_app = apps.get_app_config("core")
+# voorkom dubbele registratie: sla Member, Product, Invoice, InvoiceLine over
+_Skip = {
+    apps.get_model("core", "Member"),
+    apps.get_model("core", "Product"),
+    apps.get_model("core", "Invoice"),
+    apps.get_model("core", "InvoiceLine"),
+}
 for _model in _core_app.get_models():
-    if _model is Member:
+    if _model in _Skip:
         continue
     try:
         admin.site.register(_model)
@@ -332,6 +341,186 @@ try:
 except Exception:
     pass
 
-# SITE_HEADER_TESTPOINT
-from django.contrib import admin as _a
-_a.site.site_header = 'Spiegelven Facturatie.'
+# === DAGFACTUUR ADMIN (één set: Form -> Inline -> Admin) ===
+from django import forms
+from django.contrib import admin as _admin
+from decimal import Decimal
+from django.core.exceptions import ValidationError
+from .models import Invoice as _Inv, InvoiceLine as _InvLine, Product as _Prod
+
+class _InvLineForm(forms.ModelForm):
+    VAT_CHOICES = [(0, "0"), (6, "6"), (12, "12"), (21, "21")]
+
+    # twee display-velden (geen modelvelden)
+    total_excl_display = forms.CharField(required=False, disabled=True, label="Tot. EX.")
+    total_incl_display = forms.CharField(required=False, disabled=True, label="Tot. INC.")
+
+    class Meta:
+        model = _InvLine
+        fields = "__all__"
+        localized_fields = ("quantity", "unit_price_excl")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Kortere labels
+        if "product" in self.fields:
+            self.fields["product"].label = "Produkt"
+        if "description" in self.fields:
+            self.fields["description"].label = "Omschrijving"
+        if "quantity" in self.fields:
+            self.fields["quantity"].label = "Aantal"
+        if "unit_price_excl" in self.fields:
+            self.fields["unit_price_excl"].label = "Prijs EX."
+
+        # BTW als dropdown (int-coerce)
+        if "vat_rate" in self.fields:
+            self.fields["vat_rate"] = forms.TypedChoiceField(
+                label="BTW",
+                choices=self.VAT_CHOICES,
+                coerce=int,
+                required=True,
+                widget=forms.Select(attrs={"style": "min-width:6rem"})
+            )
+
+        # gelokaliseerde TEXT inputs (komma) voor aantal/prijs
+        for fn in ("quantity", "unit_price_excl"):
+            if fn in self.fields:
+                f = self.fields[fn]
+                f.localize = True
+                f.widget.is_localized = True
+                f.widget = forms.TextInput(
+                    attrs={"inputmode": "decimal", "style": "text-align:right; width:8em;"}
+                )
+
+        # description & unit_price_excl mogen leeg binnenkomen; vullen/valideren in clean()
+        if "description" in self.fields:
+            self.fields["description"].required = False
+        if "unit_price_excl" in self.fields:
+            self.fields["unit_price_excl"].required = False
+
+        # Indien bestaande instantie: initiale totalen vullen (cosmetisch)
+        inst = getattr(self, "instance", None)
+        if inst and getattr(inst, "pk", None):
+            try:
+                q   = Decimal(str(getattr(inst, "quantity", 0) or 0))
+                upx = Decimal(str(getattr(inst, "unit_price_excl", 0) or 0))
+                vr  = Decimal(str(getattr(inst, "vat_rate", 21) or 21))
+                ex  = (q * upx).quantize(Decimal("0.01"))
+                inc = (ex * (Decimal("1.00") + vr/Decimal("100"))).quantize(Decimal("0.01"))
+                self.initial["total_excl_display"] = f"{ex:.2f}"
+                self.initial["total_incl_display"] = f"{inc:.2f}"
+            except Exception:
+                pass
+
+    def clean(self):
+        data = super().clean()
+
+        p   = data.get("product")
+        dsc = data.get("description")
+        up  = data.get("unit_price_excl")
+        qty = data.get("quantity")
+
+        def _is_zero_or_empty(val):
+            if val in (None, ""):
+                return True
+            if isinstance(val, Decimal):
+                return val == Decimal("0")
+            try:
+                return Decimal(str(val)) == Decimal("0")
+            except Exception:
+                return False
+
+        # Prefill server-side (UI doet dit client-side ook)
+        if p:
+            if not dsc:
+                data["description"] = getattr(p, "name", str(p))
+
+            prod_price = getattr(p, "unit_price_excl", None)
+            if prod_price in (None, ""):
+                prod_price = getattr(p, "default_price_excl", None)
+            if _is_zero_or_empty(up) and prod_price not in (None, ""):
+                data["unit_price_excl"] = prod_price
+
+            prod_vat = getattr(p, "vat_rate", None)
+            if prod_vat in (None, ""):
+                prod_vat = getattr(p, "default_vat_rate", None)
+            try:
+                pv = None if prod_vat in (None, "") else int(prod_vat)
+            except Exception:
+                pv = None
+            if pv in (0, 6, 12, 21):
+                data["vat_rate"] = pv
+
+        if not qty:
+            data["quantity"] = 1
+
+        if data.get("vat_rate") not in (0, 6, 12, 21):
+            raise ValidationError("BTW moet 0, 6, 12 of 21 zijn.")
+
+        if not p:
+            if not data.get("description") or data.get("unit_price_excl") in (None, ""):
+                raise ValidationError("Geef een omschrijving én prijs, of kies een product.")
+
+        if p and data.get("unit_price_excl") in (None, ""):
+            raise ValidationError("Gekozen product heeft geen prijs. Vul de prijs in.")
+
+        # display-velden updaten in formdata (optioneel, JS doet live updates)
+        try:
+            q   = Decimal(str(data.get("quantity", 0) or 0))
+            upx = Decimal(str(data.get("unit_price_excl", 0) or 0))
+            vr  = Decimal(str(data.get("vat_rate", 0) or 0))
+            ex  = (q * upx).quantize(Decimal("0.01"))
+            inc = (ex * (Decimal("1.00") + vr/Decimal("100"))).quantize(Decimal("0.01"))
+            self.data = self.data.copy()
+            self.data[self.add_prefix("total_excl_display")] = f"{ex:.2f}"
+            self.data[self.add_prefix("total_incl_display")] = f"{inc:.2f}"
+        except Exception:
+            pass
+
+        return data
+
+
+class _InvLineInline(_admin.TabularInline):
+    model = _InvLine
+    form = _InvLineForm
+    fk_name = "invoice"
+    fields = (
+        "product", "description", "quantity", "unit_price_excl", "vat_rate",
+        "total_excl_display", "total_incl_display"
+    )
+    autocomplete_fields = ()
+    extra = 1
+
+    class Media:
+        js = ("core/invoice.inline.v3.js",)
+
+class _InvAdmin(_admin.ModelAdmin):
+    # BELANGRIJK: dit zet jouw custom template met de print/preview knoppen terug
+    change_form_template = "admin/core/invoice/change_form.html"
+
+    list_display = ("id", "number", "member", "issue_date")
+    list_filter = ("issue_date",)
+    date_hierarchy = "issue_date"
+    inlines = [_InvLineInline]
+
+
+# Herregisteren met onze enige, juiste admin
+try:
+    _admin.site.unregister(_Inv)
+except Exception:
+    pass
+_admin.site.register(_Inv, _InvAdmin)
+
+
+class _ProdAdmin(_admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+try:
+    _admin.site.unregister(_Prod)
+except Exception:
+    pass
+_admin.site.register(_Prod, _ProdAdmin)
+
+# === EINDE DAGFACTUUR ADMIN ===

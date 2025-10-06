@@ -2,13 +2,27 @@
 {% load i18n %}
 
 {% block object-tools-items %}
-  {{ block.super }}
-  {% if original and original.pk %}
-    <li><a class="button" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}">{% trans "Preview factuur" %}</a></li>
-    <li><a class="button" target="_blank" rel="noopener" href="{% url 'daily-invoice-print' original.pk %}">{% trans "Print factuur" %}</a></li>
-
-    <li><a class="viewsitelink" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}?papier=digitaal">Voorbeeld (digitaal)</a></li>
-    <li><a class="viewsitelink" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}?papier=voorbedrukt">Voorbedrukt</a></li>
-    <li><a class="viewsitelink" target="_blank" rel="noopener" href="{% url 'daily-invoice-preview' original.pk %}?papier=digitaal&envelop=venster&guides=1">Venster + gidslijnen</a></li>
+  {% if original.pk %}
+    <li>
+      <a href="{% url 'daily-invoice-preview-logo' original.pk %}" class="button" target="_blank">
+        Voorbeeld (logo)
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'daily-invoice-preview-preprinted' original.pk %}" class="button" target="_blank">
+        Voorbeeld (voorbedrukt)
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'daily-invoice-print-logo' original.pk %}" class="button" target="_blank">
+        Print (logo)
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'daily-invoice-print-preprinted' original.pk %}" class="button" target="_blank">
+        Print (voorbedrukt)
+      </a>
+    </li>
   {% endif %}
+  {{ block.super }}
 {% endblock %}

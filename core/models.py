@@ -103,8 +103,13 @@ class Member(models.Model):
     #household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL)
     household_role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_OTHER, blank=True)
     def __str__(self) -> str:
-        name = f"{self.first_name} {self.last_name}".strip()
+        parts = [(self.last_name or "").strip(), (self.first_name or "").strip()]
+        name = " ".join(p for p in parts if p)
         return name or f"Member #{self.pk}"
+    
+    class Meta:
+        ordering = ["last_name", "first_name"]
+
     @property
     def is_household_head(self):
         return self.household_head_id is None
@@ -272,6 +277,10 @@ class Invoice(models.Model):
         self.status = self.STATUS_FINAL
         self.save()
 
+    class Meta:
+        verbose_name = "Dagfactuur"
+        verbose_name_plural = "Dagfacturen"
+
 class InvoiceLine(models.Model):
     invoice = models.ForeignKey(Invoice, related_name="lines", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
@@ -335,29 +344,6 @@ class YearRule(_models.Model):
 
     def __str__(self):
         return f"{self.year} · {self.code} · #{self.order}"
-# === Degressieve investering 60-69 (IND/PRT) ===
-class YearInvestScale(models.Model):
-    ROLE_IND = "IND"
-    ROLE_PRT = "PRT"
-    ROLE_CHOICES = [(ROLE_IND, "Individueel"), (ROLE_PRT, "Partner")]
-
-    age = models.PositiveSmallIntegerField(help_text="Leeftijd (jaren)")
-    role = models.CharField(max_length=3, choices=ROLE_CHOICES)
-    amount_normal = models.DecimalField(max_digits=10, decimal_places=2)
-    amount_flex_yearly = models.DecimalField(max_digits=10, decimal_places=2,
-                                             help_text="Jaarbedrag voor FLEX: (normaal * 1.17) / 7, afgerond op 2 dec.")
-    vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal("0.00"))
-    active = models.BooleanField(default=True)
-
-    class Meta:
-        unique_together = (("age", "role"),)
-        ordering = ["age", "role"]
-        verbose_name = _("Degressieve investeringsbedrag")
-        verbose_name_plural = _("Degressieve investeringsbedragen")
-
-    def __str__(self) -> str:
-        return f"{self.age}+ {self.get_role_display()}: {self.amount_normal} (FLEX {self.amount_flex_yearly})"
-
 # === Degressieve investering 60-69 (IND/PRT) ===
 class YearInvestScale(models.Model):
     ROLE_IND = "IND"
