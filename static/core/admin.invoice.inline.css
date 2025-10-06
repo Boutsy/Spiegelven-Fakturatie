@@ -1,8 +1,12 @@
-/* A. Verberg inline headings boven elk productselectievak */
+/* A. Verberg inline headings boven elk productselectievak (add + change) */
 .inline-group .inline-related > h3,
 .inline-group .inline-related > h2,
 .inline-group .inline-related .inline_label,
-.inline-group .inline-related .inline-heading {
+.inline-group .inline-related .inline-heading,
+body.change-form .inline-group .inline-related > h3,
+body.change-form .inline-group .inline-related > h2,
+body.change-form .inline-group .inline-related .inline_label,
+body.change-form .inline-group .inline-related .inline-heading {
   display: none !important;
 }
 
@@ -41,30 +45,23 @@
 }
 
 /* G. Compacter */
-.inline-group .inline-related .form-row {
-  margin-bottom: 4px;
-}
-.inline-group .inline-related .form-row > div {
-  padding-top: 0;
-}
+.inline-group .inline-related .form-row { margin-bottom: 4px; }
+.inline-group .inline-related .form-row > div { padding-top: 0; }
 
 /* H. Smallere kolommen (aantal, prijs, btw, totalen)
-   Exact passend op:
-   - Aantal:      999,99  (7 tekens)
-   - Prijs/Totalen:999.999,99 (10 tekens)
-   - BTW:         99      (2 tekens)
-   We gebruiken ch-units en zetten width/min/max gelijk om uitrekken te voorkomen. */
-
+   - Aantal:      999,99   (7 tekens)  => 7.5ch
+   - Prijs/Totalen:999.999,99 (10 tekens) => 11ch
+   - BTW:         99        (2 tekens) => 4ch (met padding)
+*/
 .inline-group .inline-related .field-quantity input {
   box-sizing: content-box;
-  width: 7.5ch !important;       /* 999,99  -> 7 tekens + marge */
+  width: 7.5ch !important;
   min-width: 7.5ch !important;
   max-width: 7.5ch !important;
   padding-right: .3ch;
   text-align: right;
 }
 
-/* Prijs EX + Totalen: 999.999,99 = 10 tekens -> ~11ch voor wat ademruimte */
 .inline-group .inline-related .field-unit_price_excl input,
 .inline-group .inline-related .field-total_excl_display input,
 .inline-group .inline-related .field-total_incl_display input {
@@ -76,7 +73,7 @@
   text-align: right;
 }
 
-/* BTW: smal, zelfde hoogte én zelfde fontgrootte als andere velden */
+/* BTW: smal, zelfde hoogte én fontgrootte als de andere velden */
 .inline-group .inline-related .field-vat_rate select,
 .inline-group .inline-related .field-vat_rate input {
   box-sizing: content-box;
@@ -85,20 +82,49 @@
   max-width: 4ch !important;
   text-align: right;
 
-  /* Zelfde typografie als inputs */
-  font-size: 0.8125rem;     /* standaard Django admin input font-size */
+  font-size: 0.8125rem;   /* gelijk aan Django admin inputs */
   font-family: inherit;
-  line-height: 1.4;         /* zelfde visuele hoogte */
-  height: 1.85em;           /* exact gelijk aan de tekstvelden */
+  line-height: 1.4;
+  height: 1.85em;
   padding: 2px 0.2ch;
   vertical-align: middle;
 }
 
-/* --- VERBERG KLEINE TITEL/OMSCHRIJVING BOVEN INLINE RIJ --- */
-.inline-group .inline-related > h3,
-.inline-group .inline-related > h2,
-.inline-group .inline-related .inline_label,
-.inline-group .inline-related .inline-heading,
+/* --- VERBERG mini-omschrijving/help rond het productveld (add + change) --- */
+.inline-group .inline-related .field-product .help,
+.inline-group .inline-related .field-product .helptext,
+.inline-group .inline-related .field-product .form-text,
+.inline-group .inline-related .field-product .description,
+.inline-group .inline-related .field-product small,
+.inline-group .inline-related .field-product .field-description {
+  display: none !important;
+}
+
+/* Soms staat die tekst direct NA de widget-wrapper (als sibling) */
+.inline-group .inline-related .field-product .related-widget-wrapper + .help,
+.inline-group .inline-related .field-product .related-widget-wrapper + .helptext,
+.inline-group .inline-related .field-product .related-widget-wrapper + .form-text,
+.inline-group .inline-related .field-product .related-widget-wrapper + .description,
+.inline-group .inline-related .field-product .related-widget-wrapper + small,
+.inline-group .inline-related .field-product .related-widget-wrapper + .field-description,
+.inline-group .inline-related .field-product .related-widget-wrapper + :not(.errors) {
+  display: none !important;
+}
+
+/* Verberg ook expliciet het label van het Omschrijving-veld boven de rij */
 .inline-group .inline-related .form-row .field-description label {
+  display: none !important;
+}
+
+/* --- Verberg de 'original' titel in change-view per inline rij --- */
+body.change-form .inline-group .inline-related .original {
+  display: none !important;
+}
+
+/* Veiligheidsnet: eender welke inline heading/legend in change-view weg */
+body.change-form .inline-group .inline-related h3,
+body.change-form .inline-group .inline-related .inline_label,
+body.change-form .inline-group .inline-related .inline-heading,
+body.change-form .inline-group .inline-related .module h3 {
   display: none !important;
 }
