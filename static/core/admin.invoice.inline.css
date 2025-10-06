@@ -1,0 +1,104 @@
+/* A. Verberg inline headings boven elk productselectievak */
+.inline-group .inline-related > h3,
+.inline-group .inline-related > h2,
+.inline-group .inline-related .inline_label,
+.inline-group .inline-related .inline-heading {
+  display: none !important;
+}
+
+/* B. Label “Produkt” zichtbaar en links van de select */
+.inline-group .inline-related .field-product label {
+  display: inline-block !important;
+  font-weight: 600;
+  margin: 0 8px 0 0;
+}
+
+/* C. Eén lijn: select + icoontjes */
+.inline-group .inline-related .field-product .related-widget-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+/* D. Select krijgt ruimte; icoontjes rechts */
+.inline-group .inline-related .field-product .related-widget-wrapper select,
+.inline-group .inline-related .field-product .related-widget-wrapper .select2-container {
+  flex: 1 1 auto;
+  min-width: 260px;
+  max-width: 100%;
+}
+
+/* E. Verberg alleen het rode kruis bij de product-select */
+.inline-group .inline-related .field-product .related-widget-wrapper a.delete-related {
+  display: none !important;
+}
+
+/* F. Icoontjes niet laten afbreken */
+.inline-group .inline-related .field-product .related-widget-wrapper .related-widget-wrapper-link {
+  white-space: nowrap;
+}
+
+/* G. Compacter */
+.inline-group .inline-related .form-row {
+  margin-bottom: 4px;
+}
+.inline-group .inline-related .form-row > div {
+  padding-top: 0;
+}
+
+/* H. Smallere kolommen (aantal, prijs, btw, totalen)
+   Exact passend op:
+   - Aantal:      999,99  (7 tekens)
+   - Prijs/Totalen:999.999,99 (10 tekens)
+   - BTW:         99      (2 tekens)
+   We gebruiken ch-units en zetten width/min/max gelijk om uitrekken te voorkomen. */
+
+.inline-group .inline-related .field-quantity input {
+  box-sizing: content-box;
+  width: 7.5ch !important;       /* 999,99  -> 7 tekens + marge */
+  min-width: 7.5ch !important;
+  max-width: 7.5ch !important;
+  padding-right: .3ch;
+  text-align: right;
+}
+
+/* Prijs EX + Totalen: 999.999,99 = 10 tekens -> ~11ch voor wat ademruimte */
+.inline-group .inline-related .field-unit_price_excl input,
+.inline-group .inline-related .field-total_excl_display input,
+.inline-group .inline-related .field-total_incl_display input {
+  box-sizing: content-box;
+  width: 11ch !important;
+  min-width: 11ch !important;
+  max-width: 11ch !important;
+  padding-right: .3ch;
+  text-align: right;
+}
+
+/* BTW: smal, zelfde hoogte én zelfde fontgrootte als andere velden */
+.inline-group .inline-related .field-vat_rate select,
+.inline-group .inline-related .field-vat_rate input {
+  box-sizing: content-box;
+  width: 4ch !important;
+  min-width: 4ch !important;
+  max-width: 4ch !important;
+  text-align: right;
+
+  /* Zelfde typografie als inputs */
+  font-size: 0.8125rem;     /* standaard Django admin input font-size */
+  font-family: inherit;
+  line-height: 1.4;         /* zelfde visuele hoogte */
+  height: 1.85em;           /* exact gelijk aan de tekstvelden */
+  padding: 2px 0.2ch;
+  vertical-align: middle;
+}
+
+/* --- VERBERG KLEINE TITEL/OMSCHRIJVING BOVEN INLINE RIJ --- */
+.inline-group .inline-related > h3,
+.inline-group .inline-related > h2,
+.inline-group .inline-related .inline_label,
+.inline-group .inline-related .inline-heading,
+.inline-group .inline-related .form-row .field-description label {
+  display: none !important;
+}

@@ -365,7 +365,10 @@ class _InvLineForm(forms.ModelForm):
 
         # Kortere labels
         if "product" in self.fields:
+            # Geen visueel label (we tonen de select + iconen op één lijn)
             self.fields["product"].label = "Produkt"
+            # (optioneel) ook geen helptekst
+            self.fields["product"].help_text = "Produkt"
         if "description" in self.fields:
             self.fields["description"].label = "Omschrijving"
         if "quantity" in self.fields:
@@ -380,18 +383,28 @@ class _InvLineForm(forms.ModelForm):
                 choices=self.VAT_CHOICES,
                 coerce=int,
                 required=True,
-                widget=forms.Select(attrs={"style": "min-width:6rem"})
+                widget=forms.Select(attrs={"style": "min-width:4em; width:4em;"})
             )
 
-        # gelokaliseerde TEXT inputs (komma) voor aantal/prijs
-        for fn in ("quantity", "unit_price_excl"):
-            if fn in self.fields:
-                f = self.fields[fn]
-                f.localize = True
-                f.widget.is_localized = True
-                f.widget = forms.TextInput(
-                    attrs={"inputmode": "decimal", "style": "text-align:right; width:8em;"}
-                )
+        # Specifieke widgets
+        if "quantity" in self.fields:
+            f = self.fields["quantity"]
+            f.localize = True
+            f.widget = forms.NumberInput(
+                attrs={
+                    "style": "text-align:right; width:6em;",
+                    "step": "1",        # altijd in eenheden
+                    "min": "0",         # geen negatieve aantallen
+                }
+            )
+
+        if "unit_price_excl" in self.fields:
+            f = self.fields["unit_price_excl"]
+            f.localize = True
+            f.widget.is_localized = True
+            f.widget = forms.TextInput(
+                attrs={"inputmode": "decimal", "style": "text-align:right; width:8em;"}
+            )
 
         # description & unit_price_excl mogen leeg binnenkomen; vullen/valideren in clean()
         if "description" in self.fields:
@@ -494,6 +507,7 @@ class _InvLineInline(_admin.TabularInline):
 
     class Media:
         js = ("core/invoice.inline.v3.js",)
+        css = {"all": ("core/admin.invoice.inline.css",)}
 
 class _InvAdmin(_admin.ModelAdmin):
     # BELANGRIJK: dit zet jouw custom template met de print/preview knoppen terug
