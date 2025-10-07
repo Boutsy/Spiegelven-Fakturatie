@@ -503,7 +503,7 @@ class _InvLineInline(_admin.TabularInline):
         "total_excl_display", "total_incl_display"
     )
     autocomplete_fields = ()
-    extra = 1
+    extra = 0
 
     class Media:
         js = ("core/invoice.inline.v3.js",)

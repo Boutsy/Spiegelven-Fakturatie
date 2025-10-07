@@ -128,3 +128,68 @@ body.change-form .inline-group .inline-related .inline-heading,
 body.change-form .inline-group .inline-related .module h3 {
   display: none !important;
 }
+
+/* --- Delete naast Tot. INC. en kolomkop weg --- */
+
+/* verberg de kolomtitel (meest voorkomende klassenaamvarianten) */
+.inline-group table thead th.delete,
+.inline-group table thead th.field-DELETE,
+.inline-group table thead th[class*="DELETE"] {
+  display: none !important;
+}
+
+/* verberg originele delete-cel in de body (we verplaatsen de inhoud met JS) */
+.inline-group table tbody td.delete,
+.inline-group table tbody td.field-DELETE,
+.inline-group table tbody td[class*="DELETE"] {
+  display: none !important;
+}
+
+/* Tot. INC.-cel fungeert als container voor input + kruisje */
+.inline-group .inline-related td.field-total_incl_display {
+  white-space: nowrap;
+}
+
+/* ✖-kruisje naast het inputveld */
+.line-del-btn {
+  display: inline-block;
+  text-decoration: none;
+  color: #c00;
+  font-weight: 700;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+}
+.line-del-btn:hover { color: #900; }
+
+/* --- Compactere rijen in de factuurlijnentabel --- */
+
+/* verklein verticale marge en celhoogte */
+.inline-group table tr.form-row,
+.inline-group table tbody tr.form-row,
+.inline-group .inline-related {
+  height: auto !important;
+  line-height: 1.2 !important;
+}
+
+.inline-group table td,
+.inline-group table th {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+  vertical-align: middle !important;
+}
+
+/* inputvelden netjes centreren in de lagere rijen */
+.inline-group table td input,
+.inline-group table td select {
+  height: 1.8em !important;
+  margin: 0 !important;
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
+  vertical-align: middle;
+}
+
+/* iets strakkere afstand tussen rijen */
+.inline-group .inline-related .form-row {
+  margin-bottom: 2px !important;
+}

@@ -9,40 +9,28 @@
       maximumFractionDigits: digits
     }).format(Number(n));
   }
-  function normalizeNumericString(s) {
-    if (s === null || s === undefined) return "";
-    // verwijder duizendpunten, vervang komma door punt
-    return String(s).trim().replace(/\./g, "").replace(",", ".");
-  }
-  // vervangt normalizeNumericString() en parseNum()
+
   // Slim parsen: EU ("1.234,56") en US ("1750.00")
   function parseNum(s) {
     if (s === null || s === undefined) return NaN;
     let t = String(s).trim();
     if (t === "") return NaN;
 
-    // verwijder spaties / non-breaking / smalle spaties
     t = t.replace(/\s|\u00A0|\u202F/g, "");
-
     const hasComma = t.includes(",");
     const hasDot   = t.includes(".");
 
     if (hasComma && hasDot) {
-      // "1.234,56" -> "1234.56"
       t = t.replace(/\./g, "").replace(",", ".");
     } else if (hasComma) {
-      // "1234,56" -> "1234.56"
       t = t.replace(",", ".");
     } else {
-      // Alleen punten of niets: laat één punt als decimaal
       const dots = (t.match(/\./g) || []).length;
       if (dots > 1) {
         const last = t.lastIndexOf(".");
         t = t.slice(0, last).replace(/\./g, "") + t.slice(last);
       }
-      // bij 0 of 1 punt: niets doen (bv. "1750.00" blijft zo)
     }
-
     const n = Number(t);
     return isFinite(n) ? n : NaN;
   }
@@ -54,6 +42,7 @@
     const n = parseNum(t);
     return !isFinite(n) || n === 0;
   }
+
   function findRow(el) {
     return el.closest("tr") || el.closest(".inline-related") || document;
   }
@@ -65,13 +54,112 @@
     el.dispatchEvent(new Event("input",  { bubbles: true }));
     el.dispatchEvent(new Event("change", { bubbles: true }));
   }
-  // schrijf geformatteerde tekst (met duizendpunt/komma) naar TEXT inputs
   function setNumericText(input, num, digits = 2) {
     if (!input) return;
     const n = Number(num);
     if (!isFinite(n)) return;
     input.value = fmtNL(n, digits);
     triggerChange(input);
+  }
+
+  // ---------- delete helpers ----------
+  function inlineGroupOf(node) {
+    return node.closest(".inline-group") || document;
+  }
+  function decrementTotalForms(row) {
+    const group = inlineGroupOf(row);
+    const total = group.querySelector('input[id$="-TOTAL_FORMS"]');
+    if (total) {
+      const n = parseInt(total.value || "0", 10);
+      if (n > 0) total.value = String(n - 1);
+    }
+  }
+  function removeUnsavedRow(row) {
+    decrementTotalForms(row);
+    (row.closest("tr") || row).remove();
+  }
+
+  // --- header “VERWIJDEREN?” verbergen ---
+  function hideDeleteHeader(root) {
+    root.querySelectorAll(".inline-group table thead th").forEach((th) => {
+      const cls = (th.className || "").toLowerCase();
+      const txt = (th.textContent || "").toLowerCase();
+      const hasDeleteInput = !!th.querySelector('input[name$="-DELETE"]');
+      if (cls.includes("delete") || cls.includes("field-delete") || txt.includes("verwijder") || txt.includes("delete") || hasDeleteInput) {
+        th.style.display = "none";
+      }
+    });
+  }
+
+  // --- één ✖ naast Tot. INC. per rij (werkt voor bestaande én nieuwe rijen) ---
+  function moveDeleteNextToTotal(row) {
+    const totInc =
+      row.querySelector('td.field-total_incl_display') ||
+      row.querySelector('td[class*="total_incl_display"]');
+    if (!totInc) return;
+
+    // voorkom 2x / 3x
+    totInc.querySelectorAll(".line-del-btn").forEach(n => n.remove());
+
+    // bron zoeken
+    const delCell =
+      row.querySelector('td.delete, td.field-DELETE, td[class*="DELETE"]') || row;
+    const delCheckbox = delCell.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    const delLinkInCell = delCell.querySelector("a.inline-deletelink, a, button");
+    const delLinkAnywhere = row.querySelector("a.inline-deletelink");
+
+    let btn = null;
+
+    if (delLinkAnywhere || delLinkInCell) {
+      // verplaats ingebouwde verwijderlink
+      btn = (delLinkAnywhere || delLinkInCell);
+      btn.classList.add("line-del-btn");
+    } else if (delCheckbox) {
+      // bestaande (opgeslagen) rij: koppel aan DELETE-checkbox
+      btn = document.createElement("a");
+      btn.href = "#";
+      btn.className = "line-del-btn";
+      btn.title = "Verwijder deze lijn";
+      btn.textContent = "✖";
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        delCheckbox.checked = true;
+        delCheckbox.dispatchEvent(new Event("change", { bubbles: true }));
+        (row.closest("tr") || row).style.display = "none";
+      });
+    } else {
+      // NIEUWE (nog niet opgeslagen) rij zonder delete-link: maak eigen ✖ + corrigeer TOTAL_FORMS
+      btn = document.createElement("a");
+      btn.href = "#";
+      btn.className = "line-del-btn";
+      btn.title = "Verwijder deze (nieuwe) lijn";
+      btn.textContent = "✖";
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        removeUnsavedRow(row);
+      });
+    }
+
+    if (btn) {
+      const input = totInc.querySelector("input");
+      totInc.style.display = "flex";
+      totInc.style.alignItems = "center";
+      totInc.style.gap = "0.4ch";
+      if (input) input.insertAdjacentElement("afterend", btn);
+      else totInc.appendChild(btn);
+    }
+
+    // verberg originele delete-cel (kolom neemt dan geen ruimte in)
+    const origDelCell =
+      row.querySelector('td.delete, td.field-DELETE, td[class*="DELETE"]');
+    if (origDelCell) origDelCell.style.display = "none";
+  }
+
+  // Link-tekst aanpassen
+  function retitleAddRow(root=document) {
+    root.querySelectorAll(".inline-group .add-row a").forEach(a => {
+      a.textContent = "+ Nog een factuurlijn toevoegen";
+    });
   }
 
   // ---------- totalen per rij ----------
@@ -101,14 +189,13 @@
   }
 
   function wireTotals(row) {
-    ["quantity", "unit_price_excl", "vat_rate"].forEach(suffix => {
+    ["quantity", "unit_price_excl", "vat_rate"].forEach((suffix) => {
       const el = qInRow(row, suffix);
       if (!el) return;
       el.addEventListener("input",  () => computeRowTotals(row));
       el.addEventListener("change", () => computeRowTotals(row));
     });
 
-    // >>> NIEUW: Prijs EX automatisch mooi maken bij verlaten veld
     const upEl = qInRow(row, "unit_price_excl");
     if (upEl) {
       upEl.addEventListener("blur", () => {
@@ -117,8 +204,9 @@
         triggerChange(upEl);
       });
     }
-    // <<<
+
     computeRowTotals(row);
+    moveDeleteNextToTotal(row);
   }
 
   // ---------- core ----------
@@ -126,29 +214,24 @@
     if (!row || !prod) return;
 
     const dsc = qInRow(row, "description");
-    const qty = qInRow(row, "quantity");          // number input
-    const up  = qInRow(row, "unit_price_excl");   // text (gelokaliseerd)
+    const qty = qInRow(row, "quantity");
+    const up  = qInRow(row, "unit_price_excl");
     const vat = qInRow(row, "vat_rate");
 
-    // Omschrijving
     if (dsc && (force || dsc.value.trim() === "")) {
       dsc.value = prod.name || "";
       triggerChange(dsc);
     }
-    // Aantal (NOOIT met komma in number input schrijven)
     if (qty && (force || String(qty.value || "").trim() === "")) {
-      // native spinner laten werken: integer 1
       qty.value = "1";
       triggerChange(qty);
     }
-    // Eenheidsprijs excl (geformatteerde tekst)
     if (up) {
       const pv = parseNum(prod.unit_price_excl);
       if (isFinite(pv) && (force || isEmptyOrZero(up.value))) {
         setNumericText(up, pv, 2);
       }
     }
-    // BTW
     if (vat) {
       const vv  = parseNum(prod.vat_rate);
       const val = isFinite(vv) ? String(Math.trunc(vv)) : "21";
@@ -180,26 +263,34 @@
     // product selects
     root.querySelectorAll('select[id$="-product"]').forEach(sel => wireSelect(sel, catalog));
 
-    // bestaande rijen zonder productkeuze: zorg dat Aantal niet leeg is (1)
-    root.querySelectorAll('input[name$="quantity"]').forEach(inp => {
-      if (!inp.value || String(inp.value).trim() === "") {
-        inp.value = "1"; // integer (geen komma) voor number input
-        triggerChange(inp);
+    // bestaande + nieuwe rijen
+    root.querySelectorAll('tr.form-row, .inline-related').forEach(row => {
+      // default aantal
+      const qty = qInRow(row, "quantity");
+      if (qty && (!qty.value || String(qty.value).trim() === "")) {
+        qty.value = "1";
+        triggerChange(qty);
       }
-      const row = findRow(inp);
       wireTotals(row);
     });
+
+    // header verbergen + plus-link hernoemen
+    root.querySelectorAll(".inline-group table").forEach(tbl => hideDeleteHeader(tbl));
+    retitleAddRow(root);
   }
 
   function initWithCatalog(catalog) {
     window._PRODUCTS_CATALOG = catalog;
     wireContainer(document, catalog);
 
-    document.addEventListener("formset:added", e => {
-      wireContainer(e.target || document, catalog);
+    // wanneer een nieuwe rij wordt toegevoegd
+    document.addEventListener("formset:added", (e) => {
+      const scope = e.target || document;
+      wireContainer(scope, catalog);
     });
 
-    window.addEventListener("message", ev => {
+    // popup product picker (Django related-lookup)
+    window.addEventListener("message", (ev) => {
       const d = ev && ev.data;
       if (!d || !d.relatedField || !d.value || !d.action) return;
       if (!String(d.relatedField).endsWith("-product")) return;
