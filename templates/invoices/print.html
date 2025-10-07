@@ -1,4 +1,4 @@
-{% load static helpers %}
+{% load static helpers humanize %}
 <!doctype html>
 <html lang="nl">
 <head>
@@ -95,8 +95,8 @@
   {% if request.GET.papier|default:"digitaal" == "digitaal" %}{% include "invoices/_footer_org.html" %}{% endif %}
   {% if request.GET.papier|default:"digitaal" == "digitaal" %}
   <style id="address-screen-override">
-    @media screen{ .address-window{ display:block !important; visibility:visible !important; opacity:1 !important; z-index:60 !important; pointer-events:none; } }
-  </style>
+    @media screen{ .addrwin{ display:block !important; visibility:visible !important; opacity:1 !important; z-index:60 !important; pointer-events:none; } }
+  </style>  
   {% endif %}
   {% include "invoices/_address_window.html" %}
   <div class="wrap">
@@ -124,6 +124,13 @@
           <div class="meta-cell left"><span class="label">Datum:</span><span class="value">{{ invoice.issue_date|date:"d/m/Y" }}</span></div>
           <div class="meta-cell center"><span class="label">Factuurnummer:</span><span class="value">{{ invoice.number|default:"(nog geen nummer)" }}</span></div>
           <div class="meta-cell right"><span class="label">Status:</span><span class="value">{{ invoice.get_status_display|default:invoice.status }}</span></div>
+
+          {% if invoice.account and invoice.account.vat_number %}
+            <div class="meta-cell" style="grid-column: 1 / -1; justify-content: center;">
+              <span class="label">BTW klant</span>
+              <span class="value">{{ invoice.account.vat_number }}</span>
+            </div>
+          {% endif %}
         </div>
       </div>
       {% if invoice.notes %}<div class="note-box"><div class="note-body">{{ invoice.notes }}</div></div>{% endif %}

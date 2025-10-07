@@ -26,10 +26,19 @@
 </style>
 
 <div class="addrwin">
-  <strong>{{ invoice.account.name }}</strong><br>
-  {% if invoice.account.street %}{{ invoice.account.street }}<br>{% endif %}
-  {% if invoice.account.postal_code or invoice.account.city %}
-    {{ invoice.account.postal_code }} {{ invoice.account.city }}<br>
+  {% if invoice.account %}
+    <strong>{{ invoice.account.name }}</strong><br>
+    {% if invoice.account.street %}{{ invoice.account.street }}<br>{% endif %}
+    {% if invoice.account.postal_code or invoice.account.city %}
+      {{ invoice.account.postal_code }} {{ invoice.account.city }}<br>
+    {% endif %}
+    {% if invoice.account.country %}{{ invoice.account.country }}{% endif %}
+  {% elif invoice.member %}
+    <strong>{% if invoice.member.last_name %}{{ invoice.member.last_name }}{% endif %}{% if invoice.member.first_name %} {{ invoice.member.first_name }}{% endif %}</strong><br>
+    {% if invoice.member.street %}{{ invoice.member.street }}<br>{% endif %}
+    {% if invoice.member.postal_code or invoice.member.city %}
+      {{ invoice.member.postal_code }} {{ invoice.member.city }}<br>
+    {% endif %}
+    {% if invoice.member.country %}{{ invoice.member.country }}{% endif %}
   {% endif %}
-  {% if invoice.account.country %}{{ invoice.account.country }}{% endif %}
 </div>

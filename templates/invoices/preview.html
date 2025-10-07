@@ -1,4 +1,4 @@
-{% load static helpers %}
+{% load static helpers humanize %}
 <!doctype html>
 <html lang="nl">
 <head>
@@ -379,6 +379,52 @@
     }
   </style>
   {% endif %}
+  {% block extra_styles %}{% endblock %}
+
+  <style>
+  @media screen{
+    .top-sep{ display:none !important; }
+  }
+</style>
+<style>
+  /* Subtielere VAT-samenvatting: zelfde maat/rijhoogte als productlijnen */
+  .vat-summary{ margin-top:10px; }
+  .vat-summary .vat-title{
+    font-weight:600;
+    color: var(--muted);
+    font-size:12.5px;        /* gelijk aan .table thead th */
+    margin: 0 0 4px;
+  }
+  .vat-summary thead th{
+    font-size:12.5px;        /* zelfde als kolomtitels boven */
+    padding:6px 6px;         /* idem productlijnen header */
+    line-height:1.25;
+    background: transparent; /* subtieler dan soft achtergrond */
+    color: var(--muted);
+    text-align:left;
+    font-weight:600;
+  }
+  /* headers van numerieke kolommen rechts uitlijnen */
+  .vat-summary thead th.num{
+    text-align:right;
+    white-space:nowrap;
+  }
+  .vat-summary tbody td{
+    font-size:12.5px;        /* zelfde als cellen productlijnen */
+    padding:4px 6px;         /* idem productlijnen body */
+    line-height:1.25;
+  }
+  @media print{
+    .vat-summary .vat-title{ font-size:11.5px; }
+    .vat-summary thead th,
+    .vat-summary tbody td{
+      font-size:11.5px;      /* print: compacter, zoals productlijnen */
+      padding:3px 5px;
+      line-height:1.18;
+    }
+  }
+</style>
+
 </head>
 <body>
 
@@ -387,24 +433,8 @@
     {% include "invoices/_footer_org.html" %}
   {% endif %}
 
-  {# Forceer adresvenster zichtbaar op scherm bij papier=digitaal #}
-  {% if request.GET.papier|default:"digitaal" == "digitaal" %}
-    <style id="address-screen-override">
-      @media screen{
-        .address-window{
-          display:block !important;
-          visibility:visible !important;
-          opacity:1 !important;
-          z-index:60 !important;      /* boven de kaart/inhoud */
-          pointer-events:none;         /* kliks niet blokkeren */
-        }
-      }
-    </style>
-  {% endif %}
-
   {# Adresvenster (positie & guides geregeld in _address_window.html) #}
-  {% include "invoices/_address_window.html" %}
-
+  
   <div class="wrap">
     <div class="toolbar">
       <div style="font-weight:700;">Voorbeeld factuur</div>
@@ -415,7 +445,8 @@
     </div>
 
     <div class="card">
-
+      {# Adresvenster: op scherm binnen de kaart tonen; bij print is dit fixed gepositioneerd #}
+      {% include "invoices/_address_window.html" %}
       {# Logo: altijd zichtbaar op scherm; print alleen bij digitaal #}
       {% if request.GET.papier|default:"digitaal" == "voorbedrukt" %}
         <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo screen-only">
@@ -434,7 +465,7 @@
         {% endwith %}
       </div>
 
-      <hr>
+      <hr class="top-sep">
 
       <div class="meta-box">
         <div class="meta-grid">
@@ -450,6 +481,12 @@
             <span class="label">Status:</span>
             <span class="value">{{ invoice.get_status_display|default:invoice.status }}</span>
           </div>
+          {% if invoice.account and invoice.account.vat_number %}
+            <div class="meta-cell" style="grid-column: 1 / -1; justify-content: center;">
+              <span class="label">BTW klant</span>
+              <span class="value">{{ invoice.account.vat_number }}</span>
+            </div>
+          {% endif %}
         </div>
       </div>
 
@@ -492,8 +529,8 @@
       </div>
 
       {% if vat_summary %}
-      <div style="margin-top:12px">
-        <div class="box-title">Samenvatting per BTW-tarief</div>
+      <div class="vat-summary">
+        <div class="vat-title">Samenvatting per BTW-tarief</div>
         <table>
           <thead>
             <tr>
@@ -551,21 +588,21 @@
             <div class="label">Totaal excl.</div>
             <div class="value">
               <span class="curr">€</span>
-              <span class="int">{{ totals_parts.excl.int }}</span><span class="dec">,{{ totals_parts.excl.dec }}</span>
+              <span class="int">{{ totals_parts.excl.int|intcomma }}</span><span class="dec">,{{ totals_parts.excl.dec }}</span>
             </div>
           </div>
           <div class="row">
             <div class="label">BTW</div>
             <div class="value">
               <span class="curr">€</span>
-              <span class="int">{{ totals_parts.vat.int }}</span><span class="dec">,{{ totals_parts.vat.dec }}</span>
+              <span class="int">{{ totals_parts.vat.int|intcomma }}</span><span class="dec">,{{ totals_parts.vat.dec }}</span>
             </div>
           </div>
           <div class="row total">
             <div class="label">Totaal incl.</div>
             <div class="value">
               <span class="curr">€</span>
-              <span class="int">{{ totals_parts.incl.int }}</span><span class="dec">,{{ totals_parts.incl.dec }}</span>
+              <span class="int">{{ totals_parts.incl.int|intcomma }}</span><span class="dec">,{{ totals_parts.incl.dec }}</span>
             </div>
           </div>
         </div>
@@ -579,6 +616,27 @@
   {% if request.GET.papier|default:"digitaal" == "digitaal" %}
     {% include "invoices/_footer_org.html" %}
   {% endif %}
+
+  <style id="address-screen-override-final">
+    /* SCHERM: positioneer het adresvenster binnen de kaart */
+    @media screen{
+      .card{ position: relative; }           /* anker voor absolute positioning */
+      .addrwin{
+        position: absolute !important;       /* binnen .card */
+        top: 20mm !important;                 /* <== eventueel 2–4mm bijsturen */
+        left: 135mm !important;               /* <== zet hem rechts van het logo */
+        width: 110mm !important;
+
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 5 !important;               /* boven de inhoud in de kaart */
+        background: transparent !important;
+        pointer-events: none !important;
+        margin: 0 !important;
+      }
+    }
+  </style>  
 
 </body>
 </html>

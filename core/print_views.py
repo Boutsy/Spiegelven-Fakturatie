@@ -73,7 +73,15 @@ def invoice_preview(request, pk):
     ]
 
     # organisatie t.b.v. footer
-    org = OrganizationProfile.objects.order_by("id").first()
+    org_qs = OrganizationProfile.objects.all()
+org = None
+if org_qs.exists():
+    # kies het profiel met de meeste ingevulde velden (meest "compleet")
+    def _score(o):
+        fields = ["name","address_line1","address_line2","postal_code","city","country","iban","bic","email","website","vat_number"]
+        return sum(1 for f in fields if getattr(o, f, None))
+    org = sorted(org_qs, key=_score, reverse=True)[0]
+
 
     ogm_raw = (
         getattr(invoice, "structured_message", None)

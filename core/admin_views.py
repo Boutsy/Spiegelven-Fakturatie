@@ -50,21 +50,34 @@ def _vat_summary(lines):
     return [bucket[k] for k in sorted(bucket)]
 
 def _org_and_payment():
-    org = {"name": "", "address": "", "vat": "", "email": "", "phone": ""}
-    payment = {"iban": "", "bic": "", "ogm": ""}
-    op = OrganizationProfile.objects.first()
-    if op:
-        org["name"] = getattr(op, "name", "") or ""
-        org["address"] = " ".join([
-            getattr(op, "address_line1", "") or "",
-            getattr(op, "address_line2", "") or "",
-            getattr(op, "postal_code", "") or "",
-            getattr(op, "city", "") or "",
-        ]).strip()
-        org["vat"] = getattr(op, "vat_number", "") or ""
-        org["email"] = getattr(op, "email", "") or ""
-        payment["iban"] = getattr(op, "iban", "") or ""
-        payment["bic"] = getattr(op, "bic", "") or ""
+    # Kies het meest complete OrganizationProfile
+    qs = OrganizationProfile.objects.all()
+    op = None
+    if qs.exists():
+        def _score(o):
+            fields = ["name","address_line1","address_line2","postal_code","city","country","iban","bic","email","website","vat_number"]
+            return sum(1 for f in fields if getattr(o, f, None))
+        op = sorted(qs, key=_score, reverse=True)[0]
+
+    # Geef ALLE velden door zodat templates zoals _footer_org.html ze kunnen gebruiken
+    org = {
+        "name": getattr(op, "name", "") if op else "",
+        "address_line1": getattr(op, "address_line1", "") if op else "",
+        "address_line2": getattr(op, "address_line2", "") if op else "",
+        "postal_code": getattr(op, "postal_code", "") if op else "",
+        "city": getattr(op, "city", "") if op else "",
+        "country": getattr(op, "country", "") if op else "",
+        "vat_number": getattr(op, "vat_number", "") if op else "",
+        "email": getattr(op, "email", "") if op else "",
+        "website": getattr(op, "website", "") if op else "",
+        "iban": getattr(op, "iban", "") if op else "",
+        "bic": getattr(op, "bic", "") if op else "",
+    }
+    payment = {
+        "iban": org["iban"],
+        "bic": org["bic"],
+        "ogm": "",
+    }
     return org, payment
 
 def _ctx_for(invoice):
