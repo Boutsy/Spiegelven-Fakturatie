@@ -8,11 +8,23 @@ from core.admin_views import (
     daily_invoice_preview_preprinted,
     daily_invoice_print_logo,
     daily_invoice_print_preprinted,
+    member_invoice_preview,
+    member_invoice_preview_default,
 )
 
 urlpatterns = [
     # catalogus voor JS
     path("admin/products-catalog.json", products_catalog_json, name="products-catalog-json"),
+    path(
+        "admin/invoice/preview/<int:member_id>/<int:year>/",
+        member_invoice_preview,
+        name="admin-invoice-preview",
+    ),
+    path(
+        "admin/invoice/preview/<int:member_id>/",
+        member_invoice_preview_default,
+        name="admin-invoice-preview-default",
+    ),
 
     # admin
     path("admin/", admin.site.urls),

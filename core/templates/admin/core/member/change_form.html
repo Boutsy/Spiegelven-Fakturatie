@@ -2,9 +2,9 @@
 {% load i18n %}
 {% block object-tools-items %}
   {{ block.super }}
-  {% if original and original.pk %}
+  {% if original and original.pk and preview_next_year_url %}
     <li>
-      <a href="{% url 'admin-invoice-preview-default' original.pk %}" class="button" target="_blank" rel="noopener">
+      <a href="{{ preview_next_year_url }}" class="button" target="_blank" rel="noopener">
         {% trans "Preview factuur (volgend jaar)" %}
       </a>
     </li>

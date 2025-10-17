@@ -19,6 +19,8 @@ class OrganizationProfile(models.Model):
     country = models.CharField(max_length=100, default="Belgium", blank=True)
     iban = models.CharField(max_length=34, blank=True)
     bic = models.CharField(max_length=11, blank=True)
+    phone = models.CharField("Telefoon", max_length=30, blank=True)
+    fax = models.CharField("Faxnummer", max_length=30, blank=True)
     email = models.EmailField(blank=True)
     website = models.URLField(blank=True)
     vat_number = models.CharField(max_length=20, blank=True)  # BTW

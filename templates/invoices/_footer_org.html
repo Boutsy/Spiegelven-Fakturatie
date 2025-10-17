@@ -1,19 +1,26 @@
 {% load static %}
 <div class="invoice-footer">
   <div class="wrap" style="padding:0 16px">
-    <div class="footer-row">
+
+    {# 1e regel: alles gecentreerd, incl. Tel/Fax indien aanwezig #}
+    <div class="footer-row" style="justify-content:center; text-align:center;">
       {% if org.name %}<strong>{{ org.name }}</strong>{% endif %}
       {% if org.address_line1 %}<span class="footer-sep"> · </span><span>{{ org.address_line1 }}</span>{% endif %}
       {% if org.address_line2 %}<span class="footer-sep"> · </span><span>{{ org.address_line2 }}</span>{% endif %}
       {% if org.postal_code or org.city %}<span class="footer-sep"> · </span><span>{{ org.postal_code }} {{ org.city }}</span>{% endif %}
       {% if org.country %}<span class="footer-sep"> · </span><span>{{ org.country }}</span>{% endif %}
+      {% if org.phone %}<span class="footer-sep"> · </span><span>Tel: {{ org.phone }}</span>{% endif %}
+      {% if org.fax %}<span class="footer-sep"> · </span><span>Fax: {{ org.fax }}</span>{% endif %}
     </div>
-    <div class="footer-row" style="margin-top:4px">
+
+    {# 2e regel: blijft gecentreerd zoals voorheen #}
+    <div class="footer-row" style="margin-top:4px; justify-content:center; text-align:center;">
       {% if org.vat_number %}<span>BTW: {{ org.vat_number }}</span>{% endif %}
       {% if org.iban %}<span class="footer-sep"> · </span><span>IBAN: {{ org.iban }}</span>{% endif %}
       {% if org.bic %}<span class="footer-sep"> · </span><span>BIC: {{ org.bic }}</span>{% endif %}
       {% if org.email %}<span class="footer-sep"> · </span><span>{{ org.email }}</span>{% endif %}
       {% if org.website %}<span class="footer-sep"> · </span><span>{{ org.website }}</span>{% endif %}
     </div>
+
   </div>
 </div>

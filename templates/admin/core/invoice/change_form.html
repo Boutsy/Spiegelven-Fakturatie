@@ -1,6 +1,17 @@
 {% extends "admin/change_form.html" %}
 {% load i18n %}
 
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    window.invoiceIsFinalized = {% if original and original.status == "finalized" %}true{% else %}false{% endif %};
+  </script>
+{% endblock %}
+
+{% block bodyclass %}
+  {{ block.super }} invoice-change{% if original and original.status == "finalized" %} invoice-finalized{% endif %}
+{% endblock %}
+
 {% block object-tools-items %}
   {% if original.pk %}
     <li>
@@ -25,4 +36,14 @@
     </li>
   {% endif %}
   {{ block.super }}
+{% endblock %}
+
+{% block content %}
+  {% if original %}
+    <div class="invoice-change-root" data-invoice-status="{{ original.status|default_if_none:'' }}">
+      {{ block.super }}
+    </div>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
 {% endblock %}

@@ -90,14 +90,37 @@ def _iter_member_assets(member):
                     pass
 
 def _asset_map(member):
-    out = {"Vestiaire":"", "Kar Kast":"", "Elec. Kar":""}
+    out = {"Vestiaire": "", "Kar Kast": "", "Elec. Kar": ""}
     for rel in _iter_member_assets(member):
+        if hasattr(rel, "active") and not getattr(rel, "active"):
+            continue
         idtxt = _pick_identifier_from(rel)
-        if not idtxt: continue
+        asset_type = getattr(rel, "asset_type", "") or ""
+        normalized = asset_type.lower()
+
+        target_col = None
+        if normalized in {"locker", "kast", "locker_kast"}:
+            target_col = "Vestiaire"
+        elif normalized in {"trolley_locker", "kar", "kar_kast", "kar_kln"}:
+            target_col = "Kar Kast"
+        elif normalized in {"e_trolley_locker", "elec_kar", "kar_elec", "kar_elektrisch"}:
+            target_col = "Elec. Kar"
+
+        # First try explicit mapping based on asset_type
+        if target_col and not out[target_col]:
+            if idtxt:
+                out[target_col] = idtxt
+            continue
+
+        if not idtxt:
+            continue
+
+        # Fallback: detect based on identifier pattern (oude stijl)
         for col, pat in _ID_PATTERNS:
             m = re.match(pat, idtxt, flags=re.IGNORECASE)
             if m and not out[col]:
                 out[col] = m.group(1) if m.lastindex else idtxt
+                break
     return out
 
 def apply():
@@ -164,7 +187,13 @@ def apply():
 
     orig_fs = C.get_fieldsets
     def get_fieldsets(self, request, obj=None):
-        fs = list(orig_fs(self, request, obj))
+        fs = []
+        for title, opts in orig_fs(self, request, obj):
+            tnorm = str(title or "").strip().lower()
+            fields = tuple((opts or {}).get("fields", ()))
+            if tnorm == "gezinsleden" or any(str(f).lower() == "gezinsleden" for f in fields):
+                continue
+            fs.append((title, opts))
         block = ("Gezinsleden", {"fields": ("gezinsleden",)})
         try:
             i = next(i for i,(t,_) in enumerate(fs) if str(t or "").strip().lower() in {"facturatie","facturering","billing"})

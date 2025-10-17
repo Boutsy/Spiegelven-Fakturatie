@@ -62,6 +62,37 @@
     triggerChange(input);
   }
 
+  function getInvoiceStatus(root = document) {
+    const marker = root.querySelector("[data-invoice-status]");
+    if (!marker) return "";
+    return String(marker.getAttribute("data-invoice-status") || "").toLowerCase();
+  }
+
+  function isFinalizedInvoice(root = document) {
+    if (typeof window !== "undefined" && typeof window.invoiceIsFinalized === "boolean") {
+      if (window.invoiceIsFinalized) return true;
+    }
+    if (document.body && document.body.classList && document.body.classList.contains("invoice-finalized")) {
+      return true;
+    }
+    const status = getInvoiceStatus(root);
+    if (status === "finalized" || status === "finalised") return true;
+    const statusInput = document.querySelector('input[name$="status"], select[name$="status"]');
+    if (statusInput) {
+      const val = statusInput.value || statusInput.textContent || "";
+      if (String(val).toLowerCase().includes("final")) return true;
+    }
+    const disabledQty = root.querySelector('.inline-group input[name$="-quantity"][disabled]');
+    return !!disabledQty;
+  }
+
+  function isFinalizedRow(row) {
+    if (!row) return false;
+    const inputs = row.querySelectorAll("input, select, textarea");
+    if (!inputs.length) return false;
+    return Array.from(inputs).every((el) => el.disabled);
+  }
+
   // ---------- delete helpers ----------
   function inlineGroupOf(node) {
     return node.closest(".inline-group") || document;
@@ -93,6 +124,15 @@
 
   // --- één ✖ naast Tot. INC. per rij (werkt voor bestaande én nieuwe rijen) ---
   function moveDeleteNextToTotal(row) {
+    if (isFinalizedInvoice(document) || isFinalizedRow(row)) {
+      row.querySelectorAll(".line-del-btn").forEach((btn) => btn.remove());
+      row.querySelectorAll("a.inline-deletelink").forEach((lnk) => lnk.remove());
+      const origDelCell =
+        row.querySelector('td.delete, td.field-DELETE, td[class*="DELETE"]');
+      if (origDelCell) origDelCell.style.display = "none";
+      return;
+    }
+
     const totInc =
       row.querySelector('td.field-total_incl_display') ||
       row.querySelector('td[class*="total_incl_display"]');
@@ -164,6 +204,11 @@
 
   // ---------- totalen per rij ----------
   function computeRowTotals(row) {
+    if (isFinalizedRow(row)) {
+      moveDeleteNextToTotal(row);
+      return;
+    }
+
     const qtyEl = qInRow(row, "quantity");
     const upEl  = qInRow(row, "unit_price_excl");
     const vatEl = qInRow(row, "vat_rate");
@@ -276,7 +321,12 @@
 
     // header verbergen + plus-link hernoemen
     root.querySelectorAll(".inline-group table").forEach(tbl => hideDeleteHeader(tbl));
-    retitleAddRow(root);
+    if (isFinalizedInvoice(root)) {
+      root.querySelectorAll(".line-del-btn").forEach(btn => btn.remove());
+      root.querySelectorAll(".inline-group .add-row").forEach(el => el.remove());
+    } else {
+      retitleAddRow(root);
+    }
   }
 
   function initWithCatalog(catalog) {

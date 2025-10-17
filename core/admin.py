@@ -1,15 +1,20 @@
+from .models import Invoice as _Inv, InvoiceLine as _InvLine, Product as _Prod
+from django.forms.models import BaseInlineFormSet
+from django.core.exceptions import ValidationError
+from django.contrib import admin as _admin
 from datetime import date
 from decimal import Decimal
 from django import forms
 from django.contrib import admin
+from django.contrib import messages
 from django.apps import apps
 from django.db import models
-from django.contrib import admin as _admin
 from django.db.models import F, Value, IntegerField, Case, When, Q
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+from django.utils import timezone
 from .phonefmt import normalize_phone_be_store, format_phone_be_display
-from django.core.exceptions import ValidationError
 
 
 # -- helpers -------------------------------------------------
@@ -225,6 +230,21 @@ class MemberAdmin(admin.ModelAdmin):
             qs = qs.filter(q) if q else qs
         return qs, may_have_duplicates
 
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        preview_url = None
+        if object_id:
+            try:
+                preview_url = reverse("admin-invoice-preview-default", args=[int(object_id)])
+            except Exception:
+                try:
+                    year = timezone.now().year + 1
+                    preview_url = reverse("admin-invoice-preview", args=[int(object_id), year])
+                except Exception:
+                    preview_url = None
+        extra_context["preview_next_year_url"] = preview_url
+        return super().changeform_view(request, object_id, form_url, extra_context=extra_context)
+
 # Registreer de rest van core-modellen generiek
 _core_app = apps.get_app_config("core")
 # voorkom dubbele registratie: sla Member, Product, Invoice, InvoiceLine over
@@ -342,11 +362,12 @@ except Exception:
     pass
 
 # === DAGFACTUUR ADMIN (één set: Form -> Inline -> Admin) ===
+
+from .models import Invoice as _Inv, InvoiceLine as _InvLine, Product as _Prod
 from django import forms
 from django.contrib import admin as _admin
 from decimal import Decimal
 from django.core.exceptions import ValidationError
-from .models import Invoice as _Inv, InvoiceLine as _InvLine, Product as _Prod
 
 class _InvLineForm(forms.ModelForm):
     VAT_CHOICES = [(0, "0"), (6, "6"), (12, "12"), (21, "21")]
@@ -492,18 +513,63 @@ class _InvLineForm(forms.ModelForm):
             pass
 
         return data
+    
+# --- FINALIZE: zelfde widgets, maar disabled wanneer invoice finalized is ---
+
+
+class _InvLineDisabledForm(_InvLineForm):
+    """Behoudt exact dezelfde widgets/HTML; maakt ze onaanpasbaar als finalized."""
+    def __init__(self, *args, **kwargs):
+        is_finalized = kwargs.pop("is_finalized", False)
+        super().__init__(*args, **kwargs)
+        if is_finalized:
+            for f in self.fields.values():
+                f.disabled = True  # layout blijft identiek; enkel niet-bewerkbaar
+
+class _InvLineFormSet(BaseInlineFormSet):
+    """Geeft finalized-status door aan elke form in de formset."""
+    def __init__(self, *args, **kwargs):
+        self.is_finalized = kwargs.pop("is_finalized", False)
+        super().__init__(*args, **kwargs)
+
+    def _construct_form(self, i, **kwargs):
+        kwargs["is_finalized"] = self.is_finalized
+        return super()._construct_form(i, **kwargs)    
 
 
 class _InvLineInline(_admin.TabularInline):
     model = _InvLine
-    form = _InvLineForm
+    form = _InvLineDisabledForm          # << gebruik de disabled-variant
+    verbose_name = "Product"
+    verbose_name_plural = "Producten"
     fk_name = "invoice"
     fields = (
         "product", "description", "quantity", "unit_price_excl", "vat_rate",
         "total_excl_display", "total_incl_display"
     )
     autocomplete_fields = ()
-    extra = 0
+    extra = 1  # in concept 1 lege rij; bij finalized zetten we dit naar 0 (zie get_extra)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        is_finalized = bool(obj and getattr(obj, "status", "") == "finalized")
+
+        class _FS(_InvLineFormSet):
+            def __init__(self, *a, **kw):
+                kw["is_finalized"] = is_finalized
+                super().__init__(*a, **kw)
+
+        kwargs["formset"] = _FS
+        return super().get_formset(request, obj, **kwargs)
+
+    # === Bij finalized: geen nieuwe regels, geen delete-kolom, geen extra rij ===
+    def has_add_permission(self, request, obj=None):
+        return not (obj and getattr(obj, "status", "") == "finalized")
+
+    def has_delete_permission(self, request, obj=None):
+        return not (obj and getattr(obj, "status", "") == "finalized")
+
+    def get_extra(self, request, obj=None, **kwargs):
+        return 0 if (obj and getattr(obj, "status", "") == "finalized") else 1
 
     class Media:
         js = ("core/invoice.inline.v3.js",)
@@ -513,10 +579,57 @@ class _InvAdmin(_admin.ModelAdmin):
     # BELANGRIJK: dit zet jouw custom template met de print/preview knoppen terug
     change_form_template = "admin/core/invoice/change_form.html"
 
-    list_display = ("id", "number", "member", "issue_date")
+    list_display = ("id", "number", "status", "member", "issue_date")
     list_filter = ("issue_date",)
     date_hierarchy = "issue_date"
     inlines = [_InvLineInline]
+
+    actions = ["finalize_selected"]
+
+    def save_model(self, request, obj, form, change):
+        # Eerst normaal opslaan
+        super().save_model(request, obj, form, change)
+
+        # Als hij op finalized staat maar nog geen nummer heeft, genereer nummer + OGM
+        if getattr(obj, "status", "") == "finalized" and not getattr(obj, "number", None):
+            try:
+                obj.finalize()   # zet number, payment_reference_raw (OGM) en status
+            except Exception as e:
+                from django.contrib import messages
+                messages.error(request, f"Finaliseren bij opslaan mislukte: {e}")    
+
+    def finalize_selected(self, request, queryset):
+        # enkel concept-facturen finaliseren
+        to_finalize = queryset.filter(
+            Q(status="draft") | Q(number__isnull=True) | Q(number__exact="")
+        )        
+        count = 0
+        for inv in to_finalize:
+            try:
+                inv.finalize()  # gebruikt jouw bestaande methode op het model
+                count += 1
+            except Exception as e:
+                messages.error(request, f"Kon factuur {inv.pk} niet finaliseren: {e}")
+        if count:
+            messages.success(request, f"{count} factuur/facturen gefinaliseerd.")
+        else:
+            messages.warning(request, "Geen conceptfacturen om te finaliseren.")
+    finalize_selected.short_description = "Finalizeer geselecteerde facturen"
+
+    # --- 3c: Factuur read-only als status = finalized ---
+    def get_readonly_fields(self, request, obj=None):
+        ro = list(super().get_readonly_fields(request, obj))
+        if obj and getattr(obj, "status", "") == "finalized":
+            # Hoofding (modelvelden van Invoice) mag read-only blijven;
+            # de inline velden worden via disabled widgets afgehandeld.
+            ro = list({*ro, *[f.name for f in obj._meta.fields]})
+        return ro
+
+    def has_change_permission(self, request, obj=None):
+        has = super().has_change_permission(request, obj)
+        if obj and getattr(obj, "status", "") == "finalized":
+            return request.method in ("GET","HEAD","OPTIONS")
+        return has
 
 
 # Herregisteren met onze enige, juiste admin
@@ -538,3 +651,24 @@ except Exception:
 _admin.site.register(_Prod, _ProdAdmin)
 
 # === EINDE DAGFACTUUR ADMIN ===
+
+# ---- FAILSAFE FOR INVOICE ADMIN ----
+try:
+    # probeer je bestaande (custom) registratie opnieuw
+    try:
+        _admin.site.unregister(_Inv)
+    except Exception:
+        pass
+    _admin.site.register(_Inv, _InvAdmin)
+except Exception as _invoice_admin_error:
+    import logging
+    logging.exception("Invoice admin crashed, enabling minimal fallback: %s", _invoice_admin_error)
+    # minimale fallback-admin zodat de site niet crasht
+    class _InvAdminFallback(_admin.ModelAdmin):
+        list_display = ("id", "number", "status", "member", "issue_date")
+    try:
+        _admin.site.unregister(_Inv)
+    except Exception:
+        pass
+    _admin.site.register(_Inv, _InvAdminFallback)
+# ---- END FAILSAFE ----

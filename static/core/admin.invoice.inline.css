@@ -193,3 +193,22 @@ body.change-form .inline-group .inline-related .module h3 {
 .inline-group .inline-related .form-row {
   margin-bottom: 2px !important;
 }
+
+/* Lid-activa inline: verberg mini-omschrijving boven TYPE */
+.inline-group .inline-related .field-asset_type .help,
+.inline-group .inline-related .field-asset_type .form-row .field-box > span,
+.inline-group .inline-related .field-asset_type .form-row .field-box small {
+  display: none !important;
+}
+
+
+/* Lid-activa inline: verberg oorspronkelijke objectlabel boven Type */
+.inline-group table td.field-asset_type p {
+  display: none !important;
+  margin: 0 !important;
+}
+
+/* Lid-activa inline: verberg oorspronkelijke objectlabel boven Type */
+.inline-group table td.original {
+  display: none !important;
+}
