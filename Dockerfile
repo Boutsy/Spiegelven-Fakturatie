@@ -14,5 +14,6 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+RUN chmod +x scripts/entrypoint.sh
 
-CMD ["sh", "-c", "gunicorn app.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+CMD ["./scripts/entrypoint.sh"]
