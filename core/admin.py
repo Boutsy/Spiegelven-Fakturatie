@@ -241,7 +241,7 @@ class MemberAdmin(admin.ModelAdmin):
         membership = []
         for f in ("membership_mode", "course", "active"):
             if _exists(Member, f): membership.append(f)
-        for f in ("household_head", "household_role", "factureren_via"):
+        for f in ("household_head", "household_role"):
             if _exists(Member, f): membership.append(f)
         if membership:
             sections.append((_('Lidmaatschap'), {"fields": tuple(membership)}))

@@ -73,7 +73,7 @@ class Member(models.Model):
         ('P3', 'Par-3'),
     ]
     course = models.CharField(max_length=3, choices=COURSE_CHOICES, blank=True, null=True, db_index=True)
-    billing_account = models.ForeignKey('InvoiceAccount', null=True, blank=True, on_delete=models.SET_NULL, related_name='members_billed')
+    billing_account = models.ForeignKey('InvoiceAccount', null=True, blank=True, on_delete=models.SET_NULL, related_name='members_billed', verbose_name='Factureren via (alternatief adres)')
     federale_bijdrage_via_spiegelven = models.BooleanField(
         _('Federale bijdrage via Spiegelven'),
         default=True,
