@@ -1,0 +1,88 @@
+﻿Afkorting;Omschrijving;Prijs;BTW-tarief;Hoe factureren
+LID_IND_CC;Lidgeld Individueel lid Championship Course;1705;6;Wordt gefactureerd op de eigen factuur. 
+;;;;Kan enkel aangerekend worden indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat. 
+;;;;Het lid moet ook ouder zijn dan 35 jaar.
+LID_PRT_CC;Lidgeld Partner Championship Course;935;6;Is een prijs die gefactureerd wordt bij het gelinkte gezinshoofd.
+;;;;Kan enkel aangerekend worden indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat. 
+;;;;Het lid moet ook ouder zijn dan 35 jaar.
+INV_IND;Investeringsbijdrage Individueel Championship Course;2695;6;Wordt gefactureerd op de eigen factuur (Enkel voor een lid waarbij in veld “Investering”, zoals hierboven omschreven in veld A.h., “Norm” staat.)
+;;;; Wordt geteld voor personen vanaf 27 jaar.
+;;;;Vanaf 60 jaar is de investeringsbijdrage degressief. 
+;;;;Vanaf 70 jaar bij aantreden betaalt men geen investeringsbijdrage meer.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+INV_PRT;Investeringsbijdrage Partner Championship Course;1355;6;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt. (Enkel voor een lid waarbij in veld “Investering”, zoals hierboven omschreven in veld A.h., “Norm” staat.)
+;;;;Wordt geteld voor personen vanaf 27 jaar. 
+;;;;Vanaf 60 jaar is de investeringsbijdrage degressief. 
+;;;;Vanaf 70 jaar bij aantreden betaalt men geen investeringsbijdrage meer.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+INV_FLX_IND;Flex Investeringsbijdrage (X) Individueel Championship Course;2695;6;Wordt gefactureerd op de eigen factuur (Enkel voor een lid waarbij in veld “Investering”, zoals hierboven omschreven in veld A.h., “Flex” staat.)
+;;;;Wordt geteld voor personen vanaf 27 jaar.
+;;;;Vanaf 60 jaar is de investeringsbijdrage degressief. 
+;;;;Vanaf 70 jaar bij aantreden betaalt men geen investeringsbijdrage meer.
+;;;;Deze bijdrage wordt verdeeld over de eerste 7 jaarlijkse facturen en stopt daarna. Het systeem houdt bij het hoeveelste jaar het is en veranderd de (X) in de omschrijving op de factuur door de hoeveelste bijdrage het is (1, 2, 3, 4, 5, 6 of 7). Het systeem gebruikt hiervoor het veld “Flexjaar” (Zie A.j. hierboven) om na te gaan het hoeveelste jaar het is.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+INV_FLX_PRT;Flex Investeringsbijdrage (X) Partner Championship Course;1355;6;Is een prijs die op de factuur van zijn gelinkte gezinshoofd gefactureerd wordt. (Enkel voor een lid waarbij in veld “Investering”, zoals hierboven omschreven in veld A.h., “Flex” staat.)
+;;;;Wordt geteld voor personen vanaf 27 jaar. 
+;;;;Vanaf 60 jaar is de investeringsbijdrage degressief. 
+;;;;Vanaf 70 jaar bij aantreden betaalt men geen investeringsbijdrage meer. 
+;;;;Deze bijdrage wordt verdeeld over de eerste 7 jaarlijkse facturen en stopt daarna. Het systeem houdt bij het hoeveelste jaar het is en veranderd de (X) in de omschrijving op de factuur door de hoeveelste bijdrage het is (1, 2, 3, 4, 5, 6 of 7). Het systeem gebruikt hiervoor het veld “Flexjaar” (Zie A.j. hierboven) om na te gaan het hoeveelste jaar het is.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+KID_0-15;Kids t/m 15 jr Championship Course;210;6;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt .
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Deze prijs wordt automatisch geselecteerd als lidgeld voor kinderen die tussen 0 tot en met 15 jaar zijn tijdens het jaar waarop de factuur wordt aangemaakt.
+;;;;Om te bepalen of dit aangerekend wordt kijkt het systeem naar de afkorting van het veld A.d. hierboven omschreven. Indien men de facturen voor het volgend jaar maakt kijkt het systeem naar de afkorting van het veld A.e. 
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+KID_16-21;Kids 16 t/m 21  jr Championship Course;440;6;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt .
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Deze prijs wordt automatisch geselecteerd als lidgeld voor kinderen die tussen 16 tot en met 21 jaar zijn tijdens het jaar waarop de factuur wordt aangemaakt.
+;;;;Om te bepalen of dit aangerekend wordt kijkt het systeem naar de afkorting van het veld A.d. hierboven omschreven. Indien men de facturen voor het volgend jaar maakt kijkt het systeem naar de afkorting van het veld A.e. 
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+YA_22_26;Young Adult 22 t/m 26  jr Championship Course;490;6;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd.
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Deze prijs wordt automatisch geselecteerd als lidgeld voor young adults (is gewoon een naam)  die tussen 22 tot en met 26 jaar zijn tijdens het jaar waarop de factuur wordt aangemaakt.
+;;;;Om te bepalen of dit aangerekend wordt kijkt het systeem naar de afkorting van het veld A.d. hierboven omschreven. Indien men de facturen voor het volgend jaar maakt kijkt het systeem naar de afkorting van het veld A.e.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+YA_27_29;Young Adult 27 t/m 29  jr Championship Course;875;6;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt .
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Deze prijs wordt automatisch geselecteerd als lidgeld voor young adults (is gewoon een naam)  die tussen 27 tot en met 29 jaar zijn tijdens het jaar waarop de factuur wordt aangemaakt.
+;;;;Om te bepalen of dit aangerekend wordt kijkt het systeem naar de afkorting van het veld A.d. hierboven omschreven. Indien men de facturen voor het volgend jaar maakt kijkt het systeem naar de afkorting van het veld A.e.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat
+YA_30_35;Young Adult 30 t/m 35  jr Championship Course;1400;6;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd 
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Deze prijs wordt automatisch geselecteerd als lidgeld voor young adults (is gewoon een naam)  die tussen 30 tot en met 35 jaar zijn tijdens het jaar waarop de factuur wordt aangemaakt.
+;;;;Om te bepalen of dit aangerekend wordt kijkt het systeem naar de afkorting van het veld A.d. hierboven omschreven. Indien men de facturen voor het volgend jaar maakt kijkt het systeem naar de afkorting van het veld A.e.
+;;;;Kan enkel aangerekend worden (en vanaf) indien bij de leden in het veld “Course” (zie omschrijving hierboven in A.g.) “CC” staat.
+FED_VOLW;Federale bijdrage Volwassene CC;67;0;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt.
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;; Mag enkel aangerekend worden indien in het veld “Federatie”, zoals omschreven in punt A.f. hierboven “Ja” staat. 
+;;;;Het wordt aangerekend ongeacht of dit lid op de bij het veld Course “CC” of “P3” heeft staan (staat hierboven in punt A.g.)
+FED__JGD;Federale bijdrage Jeugd CC;14;0;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt.
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Mag enkel aangerekend worden indien in het veld “Federatie”, zoals omschreven in punt A.f. hierboven “Ja” staat. 
+;;;;Het wordt aangerekend ongeacht of dit lid op de bij het veld Course “CC” of “P3” heeft staan (staat hierboven in punt A.g.)
+;;;;Dit is van toepassing indien het lid jonger is dan 21 jaar op het moment van het betrokken jaar.
+LID_IND_P3;Lidgeld Individueel Par 3;675;6;Is een prijs die gehanteerd wordt indien het lid ouder dan 22 jaar is.
+;;;;Is een prijs die altijd gewoon op de eigen factuur voorkomt. 
+;;;;Is voor leden waarbij in het veld, zoals hierboven omschreven in punt A.g. “P3” staat.
+LID_P3_PRT;Lidgeld Koppel Par 3;545;6;Is een prijs die gehanteerd wordt indien het lid ouder dan 22 jaar is.
+;;;;Is een prijs die gefactureerd wordt bij het gelinkte gezinshoofd. 
+;;;;Is voor leden waarbij in het veld, zoals hierboven omschreven in punt A.g. “P3” staat.
+LID_P3-21;Lidgeld -21jr Par 3;337,5;6;Is een prijs die gehanteerd wordt indien het lid jonger dan 22 jaar is
+;;;;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt .
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;Is voor leden waarbij in het veld, zoals hierboven omschreven in punt A.g. “P3” staat.
+VST_KAST;Vestiaire kast;68;21;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt. 
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;De prijs is dezelfde, ongeacht de ouderdom
+;;;;Wordt aangerekend wanneer er op de ledenfiche aangeduid staat dat dit lid een vestiairekast heeft. 
+;;;;Op de ledenfiche zal ook het nummer van deze kast moeten voorkomen en dit nummer moet op de factuur vermeld worden.
+KAR_KLN;Karrengarage klein;68;21;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt.
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;De prijs is dezelfde, ongeacht de ouderdom
+;;;;Wordt aangerekend wanneer er op de ledenfiche aangeduid staat dat dit lid een karrengarage heeft. 
+;;;;Op de ledenfiche zal ook het nummer van deze kast moeten voorkomen en dit nummer moet op de factuur vermeld worden.
+KAR_ELEC;Karrengarage Groot (elektrisch);195;21;Is een prijs die op de factuur van zijn gelinkt gezinshoofd gefactureerd wordt.
+;;;;Indien er geen gezinshoofd is wordt een eigen factuur opgemaakt.
+;;;;De prijs is dezelfde, ongeacht de ouderdom
+;;;;Wordt aangerekend wanneer er op de ledenfiche aangeduid staat dat dit lid een karrengarage heeft. 
+;;;;Op de ledenfiche zal ook het nummer van deze kast moeten voorkomen en dit nummer moet op de factuur vermeld worden.

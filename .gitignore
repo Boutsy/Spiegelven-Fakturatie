@@ -21,8 +21,13 @@ backups/
 *.tar.gz
 *.pyc
 
-# lokale backups
-core/management/commands/*.bak.*
-core/prijslijst.csv
+# lokale backups en rommelbestanden
+*.bak
+*.bak.*
+*.broken
+*.disabled
+*.bak_disable
+PATCHED.MARKER
+migrations_diff.zip
 
 backups/
