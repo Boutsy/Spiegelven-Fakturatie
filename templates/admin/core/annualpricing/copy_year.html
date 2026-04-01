@@ -1,28 +1,28 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
-{% block title %}Kopieer prijzen {{ from_year }} → {{ to_year }}{% endblock %}
+{% block title %}Kopieer prijzen {{ from_year|stringformat:"d" }} → {{ to_year|stringformat:"d" }}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
   <a href="{% url 'admin:index' %}">Home</a>
   &rsaquo; <a href="{% url 'admin:core_annualpricing_changelist' %}">Jaarlijkse prijzen</a>
-  &rsaquo; Kopieer {{ from_year }} → {{ to_year }}
+  &rsaquo; Kopieer {{ from_year|stringformat:"d" }} → {{ to_year|stringformat:"d" }}
 </div>
 {% endblock %}
 
 {% block content %}
-<h1>Prijzen {{ from_year }} kopiëren naar {{ to_year }}</h1>
+<h1>Prijzen {{ from_year|stringformat:"d" }} kopiëren naar {{ to_year|stringformat:"d" }}</h1>
 
 <p>
-  Alle bedragen uit <strong>{{ from_year }}</strong> worden overgenomen naar <strong>{{ to_year }}</strong>
+  Alle bedragen uit <strong>{{ from_year|stringformat:"d" }}</strong> worden overgenomen naar <strong>{{ to_year|stringformat:"d" }}</strong>
   en verhoogd (of verlaagd) met het opgegeven percentage.<br>
   Na het aanmaken kan je de individuele bedragen nog aanpassen.
 </p>
 
 <form method="post">
   {% csrf_token %}
-  <input type="hidden" name="from_year" value="{{ from_year }}">
+  <input type="hidden" name="from_year" value="{{ from_year|stringformat:"d" }}">
 
   <div style="max-width: 400px;">
     <table class="form-table">
@@ -46,7 +46,7 @@
   </div>
 
   <div class="submit-row" style="margin-top: 1.5rem;">
-    <input type="submit" value="Jaar {{ to_year }} aanmaken" class="default">
+    <input type="submit" value="Jaar {{ to_year|stringformat:"d" }} aanmaken" class="default">
     <a href="{% url 'admin:core_annualpricing_changelist' %}" class="button cancel-link" style="margin-left: 1rem;">Annuleren</a>
   </div>
 </form>

@@ -1,6 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-  <h1>Prognose inkomsten — {{ year }}</h1>
+  <h1>Prognose inkomsten — {{ year|stringformat:"d" }}</h1>
 
   <p>
     <a class="button" href="{% url 'yearplan_forecast_csv' year %}">Download CSV</a>

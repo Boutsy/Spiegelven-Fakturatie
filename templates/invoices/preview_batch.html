@@ -3,7 +3,7 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
-  <title>Batch preview jaarfacturen {{ year }}</title>
+  <title>Batch preview jaarfacturen {{ year|stringformat:"d" }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; --brand:#0f766e; }
@@ -174,10 +174,10 @@
 
   <div class="wrap">
     <div class="toolbar">
-      <div style="font-weight:700;">Batch preview jaarfacturen {{ year }}</div>
+      <div style="font-weight:700;">Batch preview jaarfacturen {{ year|stringformat:"d" }}</div>
       <div>
         <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
-        <a href="/admin/invoice/year/totals/?jaar={{ year }}" class="btn">Terug</a>
+        <a href="/admin/invoice/year/totals/?jaar={{ year|stringformat:"d" }}" class="btn">Terug</a>
       </div>
     </div>
 

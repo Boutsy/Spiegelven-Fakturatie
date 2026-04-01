@@ -6,9 +6,9 @@
     <div style="margin-bottom:16px; padding:12px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc;">
       <strong>Jaarfacturen</strong>
       <div style="margin-top:6px;">
-        <a href="{% url 'admin-yearly-totals' %}?jaar={{ next_year }}"
+        <a href="{% url 'admin-yearly-totals' %}?jaar={{ next_year|stringformat:"d" }}"
            style="display:inline-block; padding:8px 12px; border-radius:6px; background:#0f766e; color:white; text-decoration:none;">
-          Overzicht jaarfacturen {{ next_year }}
+          Overzicht jaarfacturen {{ next_year|stringformat:"d" }}
         </a>
       </div>
     </div>

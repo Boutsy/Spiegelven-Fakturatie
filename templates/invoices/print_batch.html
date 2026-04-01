@@ -3,7 +3,7 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8" />
-  <title>Batch print jaarfacturen {{ year }}</title>
+  <title>Batch print jaarfacturen {{ year|stringformat:"d" }}</title>
   <style>
     :root { --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; }
     * { box-sizing: border-box; }
