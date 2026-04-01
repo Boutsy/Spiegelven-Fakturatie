@@ -322,6 +322,7 @@ _Skip = {
     apps.get_model("core", "YearRule"),
     apps.get_model("core", "YearPricing"),   # vervangen door AnnualPricingAdmin
     apps.get_model("core", "AnnualPricing"), # krijgt eigen custom admin hieronder
+    apps.get_model("core", "InvoiceLine"),   # alleen inline binnen factuur, niet als apart menu-item
     # laat Member/Product/Invoice staan (custom admins actief)
 }
 # Zorg dat verborgen modellen niet zichtbaar zijn als ze eerder geregistreerd werden
