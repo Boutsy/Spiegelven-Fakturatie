@@ -1,0 +1,62 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Totaal jaarfactuur {{ selected_year }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+  <h1>Totaal jaarfactuur {{ selected_year }}</h1>
+
+  <p>
+    <strong>Totale excl.:</strong> € {{ total_excl|floatformat:2 }}<br>
+    <strong>BTW:</strong> € {{ total_vat|floatformat:2 }}<br>
+    <strong>Totale incl.:</strong> € {{ total_incl|floatformat:2 }}<br>
+    <strong>Huishoudens:</strong> {{ households }}
+  </p>
+
+  <h2>Batch-links</h2>
+  <ul>
+    <li><a href="{{ batch_urls.preview_logo }}">Batch preview (logo)</a></li>
+    <li><a href="{{ batch_urls.preview_preprinted }}">Batch preview (voorbedrukt)</a></li>
+    <li><a href="{{ batch_urls.print_logo }}">Batch print (logo)</a></li>
+    <li><a href="{{ batch_urls.print_preprinted }}">Batch print (voorbedrukt)</a></li>
+  </ul>
+
+  {% if components %}
+    <h2>Componenten</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Omschrijving</th>
+          <th class="text-right">Excl.</th>
+          <th class="text-right">BTW</th>
+          <th class="text-right">Incl.</th>
+          <th class="text-right">Aantal leden</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for comp in components %}
+          <tr>
+            <td>{{ comp.code }}</td>
+            <td>{{ comp.description }}</td>
+            <td class="text-right">€ {{ comp.total_excl|floatformat:2 }}</td>
+            <td class="text-right">€ {{ comp.total_vat|floatformat:2 }}</td>
+            <td class="text-right">€ {{ comp.total_incl|floatformat:2 }}</td>
+            <td class="text-right">{{ comp.member_count }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p><em>Geen componenten gevonden.</em></p>
+  {% endif %}
+
+  {% if notes %}
+    <h2>Opmerkingen</h2>
+    <ul>
+      {% for n in notes %}
+        <li>{{ n }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

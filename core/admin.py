@@ -103,9 +103,17 @@ class MemberAdminForm(forms.ModelForm):
 
 # -- Admin ---------------------------------------------------
 
+try:
+    MemberAsset = apps.get_model("core", "MemberAsset")
+except Exception:
+    MemberAsset = None
+
+
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
     form = MemberAdminForm
+    change_form_template = "admin/core/member/change_form.html"
+    inlines = []
 
     # lijst: toon naam, leeftijd, external id, facturatie, + MOOI geformatteerde telefoons
     list_display = (
@@ -187,6 +195,26 @@ class MemberAdmin(admin.ModelAdmin):
     def phone_mobile_fmt(self, obj):
         return format_phone_be_display(getattr(obj, "phone_mobile", "") or "")
 
+    @admin.display(description=_("Rol binnen huishouden"))
+    def household_role_display(self, obj):
+        try:
+            if hasattr(obj, "get_household_role_display"):
+                lbl = obj.get_household_role_display() or ""
+            else:
+                lbl = getattr(obj, "household_role", "") or ""
+        except Exception:
+            lbl = ""
+        l = (lbl or "").strip().lower()
+        if l in {"head","gezinshoofd","household head","hoofdlid"}:
+            return "Gezinshoofd"
+        if l in {"individual","individueel","solo"}:
+            return "Individueel"
+        if l in {"child","kind","kid"}:
+            return "Kind"
+        if l in {"partner","partnerlid"}:
+            return "Partner"
+        return lbl or "—"
+
     # fieldsets
     def get_fieldsets(self, request, obj=None):
         sections = []
@@ -200,6 +228,7 @@ class MemberAdmin(admin.ModelAdmin):
         bd = _birthdate_field(Member)
         if bd: ident.append(bd)
         if _exists(Member, "gender"): ident.append("gender")
+        if _exists(Member, "external_id"): ident.append("external_id")
         if ident:
             sections.append((_('Identiteit'), {"fields": tuple(ident)}))
 
@@ -208,15 +237,50 @@ class MemberAdmin(admin.ModelAdmin):
         if contact:
             sections.append((_('Contact'), {"fields": contact}))
 
+        # Lidmaatschap / huishouding
+        membership = []
+        for f in ("membership_mode", "course", "active"):
+            if _exists(Member, f): membership.append(f)
+        for f in ("household_head", "household_role", "factureren_via"):
+            if _exists(Member, f): membership.append(f)
+        if membership:
+            sections.append((_('Lidmaatschap'), {"fields": tuple(membership)}))
+
         # Facturatie
-        fact = tuple(f for f in ("billing_account","course","active") if _exists(Member, f))
+        fact = [f for f in ("billing_account",) if _exists(Member, f)]
+        if _exists(Member, "federale_bijdrage_via_spiegelven"):
+            fact.append("federale_bijdrage_via_spiegelven")
+        if _exists(Member, "federation_via_club"):
+            fact.append("federation_via_club")
         if fact:
-            sections.append((_('Facturatie'), {"fields": fact,
+            sections.append((_('Facturatie'), {"fields": tuple(fact),
                 "description": _("Indien ingevuld, wordt dit facturatieprofiel gebruikt i.p.v. het standaard adres van het lid.")}))
+
+        # Investering / Flex
+        invest = []
+        for f in (
+            "investment_years_total", "investment_years_remaining",
+            "flex_years_total", "flex_years_remaining",
+            "invest_flex_start_year", "invest_flex_locked_amount",
+        ):
+            if _exists(Member, f):
+                invest.append(f)
+        if invest:
+            sections.append((_('Investering / Flex'), {"fields": tuple(invest)}))
+
         # Overig
         if _exists(Member, "notes"):
             sections.append((_('Overig'), {"fields": ("notes",)}))
         return tuple(sections)
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        # Voeg het volgende jaar toe voor knoppen in het template.
+        try:
+            from django.utils import timezone
+            context["next_year"] = timezone.now().year + 1
+        except Exception:
+            context["next_year"] = None
+        return super().render_change_form(request, context, *args, **kwargs)
 
     # zoeken uitbreiden met external id
     def get_search_results(self, request, queryset, search_term):
@@ -248,12 +312,25 @@ class MemberAdmin(admin.ModelAdmin):
 # Registreer de rest van core-modellen generiek
 _core_app = apps.get_app_config("core")
 # voorkom dubbele registratie: sla Member, Product, Invoice, InvoiceLine over
+# en verberg ongebruikte modellen (PricingRule, YearPlan, YearPlanItem)
 _Skip = {
-    apps.get_model("core", "Member"),
-    apps.get_model("core", "Product"),
-    apps.get_model("core", "Invoice"),
-    apps.get_model("core", "InvoiceLine"),
+    # verberg deze uit de admin
+    apps.get_model("core", "MemberAsset"),
+    apps.get_model("core", "PricingRule"),
+    apps.get_model("core", "YearPlan"),
+    apps.get_model("core", "YearPlanItem"),
+    apps.get_model("core", "YearRule"),
+    apps.get_model("core", "YearPricing"),   # vervangen door AnnualPricingAdmin
+    apps.get_model("core", "AnnualPricing"), # krijgt eigen custom admin hieronder
+    # laat Member/Product/Invoice staan (custom admins actief)
 }
+# Zorg dat verborgen modellen niet zichtbaar zijn als ze eerder geregistreerd werden
+for _hide in list(_Skip):
+    try:
+        admin.site.unregister(_hide)
+    except Exception:
+        pass
+
 for _model in _core_app.get_models():
     if _model in _Skip:
         continue
@@ -303,11 +380,7 @@ except Exception:
     pass
 
 # forceer facturatie fieldset
-from core import _facturatie_admin_override  # noqa
-
 # forceer toevoegen van household_role_display in Facturatie
-from core import _facturatie_force_insert  # noqa
-
 # -- facturatie fieldsets hotfix --
 try:
     from core import admin_facturatie_fix as _af
@@ -575,6 +648,19 @@ class _InvLineInline(_admin.TabularInline):
         js = ("core/invoice.inline.v3.js",)
         css = {"all": ("core/admin.invoice.inline.css",)}
 
+if MemberAsset is not None:
+    class MemberAssetInline(_admin.TabularInline):
+        model = MemberAsset
+        extra = 0
+        fields = ("asset_type", "identifier", "year", "price_excl", "vat_rate", "active", "assigned_on", "released_on")
+        readonly_fields = ()
+        can_delete = True
+
+    try:
+        MemberAdmin.inlines = list(getattr(MemberAdmin, "inlines", [])) + [MemberAssetInline]
+    except Exception:
+        MemberAdmin.inlines = [MemberAssetInline]
+
 class _InvAdmin(_admin.ModelAdmin):
     # BELANGRIJK: dit zet jouw custom template met de print/preview knoppen terug
     change_form_template = "admin/core/invoice/change_form.html"
@@ -672,3 +758,149 @@ except Exception as _invoice_admin_error:
         pass
     _admin.site.register(_Inv, _InvAdminFallback)
 # ---- END FAILSAFE ----
+
+
+# ============================================================
+# === JAARLIJKSE PRIJZEN ADMIN (AnnualPricing) ===============
+# ============================================================
+from decimal import Decimal, ROUND_HALF_UP
+from django import forms as _forms
+from django.http import HttpResponseRedirect
+from django.urls import path as _path, reverse as _reverse
+from django.shortcuts import render as _render
+from django.contrib import messages as _messages
+from core.models import AnnualPricing as _AP
+
+
+class _CopyYearForm(_forms.Form):
+    from_year = _forms.IntegerField(widget=_forms.HiddenInput)
+    percentage = _forms.DecimalField(
+        label="Prijsverhoging (%)",
+        min_value=Decimal("-50"),
+        max_value=Decimal("100"),
+        decimal_places=2,
+        initial=Decimal("0.00"),
+        help_text="Positief = verhoging, negatief = verlaging. Bv. 2.5 voor +2,5%.",
+    )
+
+
+class _APAdmin(_admin.ModelAdmin):
+    list_display  = ("year",
+                     "lid_cc_ind", "lid_cc_prt",
+                     "p3_ind", "p3_prt",
+                     "fed_cc_ind",
+                     "inv_ind", "inv_flex_ind",
+                     "vst_kast", "kar_kln", "kar_elec")
+    list_display_links = ("year",)
+    ordering = ("-year",)
+    actions = ["copy_to_next_year"]
+
+    fieldsets = [
+        ("Jaar", {
+            "fields": ("year",),
+        }),
+        ("Lidgeld Championship Course (BTW 6%)", {
+            "fields": (
+                ("lid_cc_ind", "lid_cc_prt"),
+                ("lid_cc_kid_0_15", "lid_cc_kid_16_21"),
+                ("lid_cc_ya_22_26", "lid_cc_ya_27_29", "lid_cc_ya_30_35"),
+            ),
+        }),
+        ("Lidgeld Par-3 (BTW 6%)", {
+            "fields": (
+                ("p3_ind", "p3_prt", "p3_kid"),
+            ),
+        }),
+        ("Federatiebijdrage (BTW 0%)", {
+            "fields": (
+                ("fed_cc_ind", "fed_cc_prt", "fed_cc_kid"),
+            ),
+        }),
+        ("Investeringsbijdrage (BTW 6%)", {
+            "fields": (
+                ("inv_ind", "inv_prt"),
+                ("inv_flex_ind", "inv_flex_prt"),
+            ),
+        }),
+        ("Extra's — Kasten & Karren (BTW 21%)", {
+            "fields": (
+                ("vst_kast", "kar_kln", "kar_elec"),
+            ),
+        }),
+    ]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            _path(
+                "kopieer-jaar/",
+                self.admin_site.admin_view(self._copy_year_view),
+                name="core_annualpricing_copy_year",
+            ),
+        ]
+        return custom + urls
+
+    def copy_to_next_year(self, request, queryset):
+        if queryset.count() != 1:
+            _messages.error(request, "Selecteer exact 1 jaar om te kopiëren.")
+            return
+        obj = queryset.first()
+        url = _reverse("admin:core_annualpricing_copy_year") + f"?from_year={obj.year}"
+        return HttpResponseRedirect(url)
+    copy_to_next_year.short_description = "Kopieer naar volgend jaar met prijsverhoging"
+
+    def _copy_year_view(self, request):
+        from_year = int(request.GET.get("from_year") or request.POST.get("from_year") or 0)
+        to_year = from_year + 1
+
+        if request.method == "POST":
+            form = _CopyYearForm(request.POST)
+            if form.is_valid():
+                pct = form.cleaned_data["percentage"]
+                multiplier = (Decimal("100") + pct) / Decimal("100")
+
+                if _AP.objects.filter(year=to_year).exists():
+                    _messages.error(request, f"Jaar {to_year} bestaat al. Verwijder het eerst of bewerk het rechtstreeks.")
+                    return HttpResponseRedirect(
+                        _reverse("admin:core_annualpricing_changelist")
+                    )
+
+                source = _AP.objects.filter(year=from_year).first()
+                if not source:
+                    _messages.error(request, f"Jaar {from_year} niet gevonden.")
+                    return HttpResponseRedirect(_reverse("admin:core_annualpricing_changelist"))
+
+                new_obj = _AP(year=to_year)
+                price_fields = [f for f in _AP._meta.get_fields()
+                                if hasattr(f, "get_internal_type")
+                                and f.get_internal_type() == "DecimalField"]
+                for f in price_fields:
+                    old_val = getattr(source, f.name, Decimal("0.00")) or Decimal("0.00")
+                    new_val = (Decimal(str(old_val)) * multiplier).quantize(
+                        Decimal("0.01"), rounding=ROUND_HALF_UP
+                    )
+                    setattr(new_obj, f.name, new_val)
+                new_obj.save()
+
+                _messages.success(
+                    request,
+                    f"Jaar {to_year} aangemaakt op basis van {from_year} met {pct:+.2f}% aanpassing."
+                )
+                return HttpResponseRedirect(
+                    _reverse("admin:core_annualpricing_change", args=[new_obj.pk])
+                )
+        else:
+            form = _CopyYearForm(initial={"from_year": from_year, "percentage": "0.00"})
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": f"Kopieer prijzen {from_year} → {to_year}",
+            "form": form,
+            "from_year": from_year,
+            "to_year": to_year,
+            "opts": _AP._meta,
+        }
+        return _render(request, "admin/core/annualpricing/copy_year.html", context)
+
+
+_admin.site.register(_AP, _APAdmin)

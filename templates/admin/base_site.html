@@ -6,6 +6,19 @@
 <h1 id="site-name">Spiegelven Facturatie</h1>
 {% endblock %}
 
+{% block nav-global %}
+  <div style="padding:4px 0;">
+    {% now "Y" as current_year %}
+    {% with next_year=current_year|add:"1" %}
+      <a href="{% url 'admin-yearly-totals' %}?jaar={{ next_year }}"
+         style="color:#0f766e; font-weight:600; text-decoration:none;">
+        ▸ Overzicht jaarfacturen {{ next_year }}
+      </a>
+    {% endwith %}
+  </div>
+  {{ block.super }}
+{% endblock %}
+
 {% block footer %}
 {{ block.super }}
 <div id="sv-version-badge"

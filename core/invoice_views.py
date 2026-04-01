@@ -67,7 +67,7 @@ def _ctx_for(invoice):
     total_vat = _q(sum((l["vat_amount"] for l in lines), Decimal("0.00")))
     total_incl = _q(total_excl + total_vat)
     org, payment = _org_and_payment()
-    ogm = getattr(invoice, "structured_message", None) or getattr(invoice, "ogm", None) or ""
+    ogm = invoice.payment_reference_display()
     if ogm:
         payment["ogm"] = ogm
     return {

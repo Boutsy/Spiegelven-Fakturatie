@@ -11,17 +11,12 @@ def _price_code(code: str) -> str:
     return ALIASES.get(code, code)
 
 def _find_household_head(member: Member) -> Member | None:
-    # 1) factuur op gezinshoofd; zoniet lid zelf
-    if member.household_id and getattr(member.household, "head_id", None):
-        return member.household.head
+    # factuur op gezinshoofd; zoniet lid zelf
     if getattr(member, "household_head_id", None):
         return member.household_head
     return member
 
 def _preferred_account(member: Member) -> InvoiceAccount | None:
-    # factureer bij voorkeur op Household.account; anders op member.billing_account
-    if member.household_id and getattr(member.household, "account_id", None):
-        return member.household.account
     return member.billing_account
 
 def _ensure_draft_invoice(year: int, target_member: Member) -> Invoice:
@@ -32,7 +27,6 @@ def _ensure_draft_invoice(year: int, target_member: Member) -> Invoice:
         return inv
     inv = Invoice(
         member=target_member,
-        household=getattr(target_member, "household", None),
         account=_preferred_account(target_member),
         issue_date=datetime.date(year, 1, 1),
         status=Invoice.STATUS_DRAFT,
@@ -88,7 +82,7 @@ def build_asset_rule_index(year: int) -> Dict[str, dict]:
 
 def iter_member_assets_for_year(year: int):
     # 4) aanrekenen als asset bestaat voor dit jaar en actief is
-    return MemberAsset.objects.select_related("member", "member__household").filter(
+    return MemberAsset.objects.select_related("member", "member__household_head").filter(
         active=True, year=year
     )
 

@@ -38,46 +38,44 @@ class PatchedMemberAdmin(Base):
     # behoud inlines/opties van de bestaande admin als die er waren
     pass
 
+# zoekvelden (naam, e-mail, postcode, telefoons) zoals in de NL admin
+PatchedMemberAdmin.search_fields = (
+    "last_name", "first_name", "email", "postal_code", "city",
+    "phone_private", "phone_mobile", "phone_work",
+)
+
 # readonly display-methode toevoegen
 if not hasattr(PatchedMemberAdmin, "household_role_display"):
+    @admin.display(description=_("Rol binnen huishouden"))
     def household_role_display(self, obj):
-        return household_role_label(obj)
-    household_role_display.short_description = _("Rol binnen huishouden")
+        try:
+            if hasattr(obj, "get_household_role_display"):
+                lbl = obj.get_household_role_display() or ""
+            else:
+                lbl = getattr(obj, "household_role", "") or ""
+        except Exception:
+            lbl = ""
+        l = (lbl or "").strip().lower()
+        if l in {"head","gezinshoofd","household head","hoofdlid"}:
+            return "Gezinshoofd"
+        if l in {"individual","individueel","solo"}:
+            return "Individueel"
+        if l in {"child","kind","kid"}:
+            return "Kind"
+        if l in {"partner","partnerlid"}:
+            return "Partner"
+        return lbl or "—"
     setattr(PatchedMemberAdmin, "household_role_display", household_role_display)
 
-# get_fieldsets uitbreiden met "Facturatie"
-_old_get_fieldsets = getattr(PatchedMemberAdmin, "get_fieldsets", None)
+# Zorg dat het veld read-only is zodat de ModelForm het accepteert
+existing_readonly = getattr(PatchedMemberAdmin, "readonly_fields", ()) or ()
+if "household_role_display" not in existing_readonly:
+    PatchedMemberAdmin.readonly_fields = tuple(existing_readonly) + ("household_role_display",)
 
-def _ensure_tuple(fs):
-    if fs is None: return tuple()
-    if isinstance(fs, tuple): return fs
-    if isinstance(fs, list): return tuple(fs)
-    return tuple(fs)
-
-def _has_facturatie(fs):
-    for title, cfg in fs:
-        try:
-            if str(title).strip().lower() in ("facturatie","billing","facturation"):
-                return True
-            fields = tuple(cfg.get("fields", ()))
-            if "billing_account" in fields and "household_role_display" in fields:
-                return True
-        except Exception:
-            continue
-    return False
-
-from django.contrib import admin as _admin_mod
-def _base_get_fieldsets(self, request, obj=None):
-    if _old_get_fieldsets and callable(_old_get_fieldsets):
-        fs = _old_get_fieldsets(self, request, obj)
-    else:
-        fs = _admin_mod.ModelAdmin.get_fieldsets(self, request, obj)
-    fs = list(_ensure_tuple(fs))
-    if not _has_facturatie(fs):
-        fs.append((_("Facturatie"), {"fields": ("billing_account", "household_role_display")}))
-    return tuple(fs)
-
-setattr(PatchedMemberAdmin, "get_fieldsets", _base_get_fieldsets)
+# get_fieldsets: behoud de bestaande van MemberAdmin zonder aanpassingen
+_old_get_fieldsets = getattr(original_admin, "get_fieldsets", None)
+if _old_get_fieldsets and callable(_old_get_fieldsets):
+    setattr(PatchedMemberAdmin, "get_fieldsets", _old_get_fieldsets)
 
 # Inlines van de originele admin meenemen (als die er zijn)
 if original_admin:

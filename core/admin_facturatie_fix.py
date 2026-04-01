@@ -40,7 +40,7 @@ def apply():
                 found = True
                 break
         if not found:
-            fs.append((_(Facturatie),
+            fs.append((_("Facturatie"),
                        {"fields": ("billing_account", "household_role", "course", "active")}))
         return tuple(fs)
     setattr(C, "get_fieldsets", get_fieldsets)

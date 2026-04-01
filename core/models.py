@@ -28,6 +28,9 @@ class OrganizationProfile(models.Model):
     default_print_mode = models.CharField(max_length=20, choices=PRINT_CHOICES, default=PRINT_WITH_LOGO_FOOTER)
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name = "Organisatie profiel"
+        verbose_name_plural = "Organisatie profiel"
 
 class InvoiceAccount(models.Model):
     TYPE_PERSON = "person"
@@ -43,6 +46,9 @@ class InvoiceAccount(models.Model):
     country = models.CharField(max_length=100, default="Belgium", blank=True)
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name = "Alternatief factuurgegevens"
+        verbose_name_plural = "Alternatief factuurgegevens"
 
 class Member(models.Model):
 
@@ -111,6 +117,8 @@ class Member(models.Model):
     
     class Meta:
         ordering = ["last_name", "first_name"]
+        verbose_name = "Lid"
+        verbose_name_plural = "Leden"
 
     @property
     def is_household_head(self):
@@ -125,12 +133,6 @@ class Member(models.Model):
         on_delete=models.PROTECT,
     )
 
-    federale_bijdrage_via_spiegelven = models.BooleanField(
-        _('Federale bijdrage via Spiegelven'),
-        default=True,
-        help_text=_('Vink uit als dit lid de federale bijdrage via een andere club betaalt.'),
-    )
-
 class ImportMapping(models.Model):
     name = models.CharField(max_length=200, unique=True)
     model = models.CharField(max_length=100)  # b.v. "Member"
@@ -139,6 +141,9 @@ class ImportMapping(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self) -> str:
         return f"{self.name} ({self.model})"
+    class Meta:
+        verbose_name = "Import Data"
+        verbose_name_plural = "Import Data"
 
 class MemberAsset(models.Model):
     active = models.BooleanField(default=True)
@@ -188,6 +193,9 @@ class Product(models.Model):
     active = models.BooleanField(default=True)
     def __str__(self) -> str:
         return f"{self.code} - {self.name}"
+    class Meta:
+        verbose_name = "Produkt"
+        verbose_name_plural = "Produkten"
 
 class PricingRule(models.Model):
     ACTION_SET = "set"
@@ -210,6 +218,9 @@ class YearSequence(models.Model):
     last_number = models.PositiveIntegerField(default=0)
     def __str__(self) -> str:
         return f"{self.year} - {self.last_number}"
+    class Meta:
+        verbose_name = "Volgnummer Factuur"
+        verbose_name_plural = "Volgnummer Factuur"
 
 class Invoice(models.Model):
     TYPE_INVOICE = "INV"
@@ -368,3 +379,114 @@ class YearInvestScale(models.Model):
 
     def __str__(self) -> str:
         return f"{self.age}+ {self.get_role_display()}: {self.amount_normal} (FLEX {self.amount_flex_yearly})"
+
+
+# === Jaarlijkse prijzen (één record per jaar) ===
+class AnnualPricing(models.Model):
+    """Eén record per jaar met alle prijsvelden. Vervangt de losse YearPricing-rijen als admin-interface."""
+
+    year = models.PositiveIntegerField(unique=True, verbose_name="Jaar")
+
+    # --- Lidgeld Championship Course ---
+    lid_cc_ind       = models.DecimalField("CC individueel",  max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    lid_cc_prt       = models.DecimalField("CC partner",      max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    lid_cc_kid_0_15  = models.DecimalField("CC kind t/m 15",  max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    lid_cc_kid_16_21 = models.DecimalField("CC kind 16–21",   max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    lid_cc_ya_22_26  = models.DecimalField("CC YA 22–26",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    lid_cc_ya_27_29  = models.DecimalField("CC YA 27–29",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    lid_cc_ya_30_35  = models.DecimalField("CC YA 30–35",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    # --- Lidgeld Par-3 ---
+    p3_ind = models.DecimalField("Par-3 individueel", max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    p3_prt = models.DecimalField("Par-3 partner",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    p3_kid = models.DecimalField("Par-3 kind",        max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    # --- Federatiebijdrage ---
+    fed_cc_ind = models.DecimalField("Federatie CC individueel", max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    fed_cc_prt = models.DecimalField("Federatie CC partner",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    fed_cc_kid = models.DecimalField("Federatie CC kind/YA",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    # --- Investering ---
+    inv_ind      = models.DecimalField("Investering normaal IND",  max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    inv_prt      = models.DecimalField("Investering normaal PRT",  max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    inv_flex_ind = models.DecimalField("Investering flex IND (1/7)", max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    inv_flex_prt = models.DecimalField("Investering flex PRT (1/7)", max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    # --- Extra's / Assets ---
+    vst_kast = models.DecimalField("Vestiaire kast",              max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    kar_kln  = models.DecimalField("Karrengarage klein",          max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    kar_elec = models.DecimalField("Karrengarage elektrisch",     max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    # Mapping: YearPricing.code → (veldnaam, BTW-tarief)
+    PRICE_CODE_MAP = {
+        'LID_CC_IND':      ('lid_cc_ind',       6),
+        'LID_CC_PRT':      ('lid_cc_prt',        6),
+        'LID_CC_KID_0_15': ('lid_cc_kid_0_15',   6),
+        'LID_CC_KID_16_21':('lid_cc_kid_16_21',  6),
+        'LID_CC_YA_22_26': ('lid_cc_ya_22_26',   6),
+        'LID_CC_YA_27_29': ('lid_cc_ya_27_29',   6),
+        'LID_CC_YA_30_35': ('lid_cc_ya_30_35',   6),
+        'P3_IND':          ('p3_ind',            6),
+        'P3_PRT':          ('p3_prt',            6),
+        'P3_KID':          ('p3_kid',            6),
+        'FED_CC_IND':      ('fed_cc_ind',        0),
+        'FED_CC_PRT':      ('fed_cc_prt',        0),
+        'FED_CC_KID':      ('fed_cc_kid',        0),
+        'INV_IND':         ('inv_ind',           6),
+        'INV_PRT':         ('inv_prt',           6),
+        'INV_FLEX_IND':    ('inv_flex_ind',      6),
+        'INV_FLEX_PRT':    ('inv_flex_prt',      0),
+        'VST_KAST':        ('vst_kast',         21),
+        'KAR_KLN':         ('kar_kln',          21),
+        'KAR_ELEC':        ('kar_elec',         21),
+    }
+
+    DESCRIPTIONS = {
+        'LID_CC_IND':      'Lidgeld CC individueel',
+        'LID_CC_PRT':      'Lidgeld CC partner',
+        'LID_CC_KID_0_15': 'Lidgeld CC kind t/m 15',
+        'LID_CC_KID_16_21':'Lidgeld CC kind 16–21',
+        'LID_CC_YA_22_26': 'Lidgeld CC YA 22–26',
+        'LID_CC_YA_27_29': 'Lidgeld CC YA 27–29',
+        'LID_CC_YA_30_35': 'Lidgeld CC YA 30–35',
+        'P3_IND':          'Par-3 individueel',
+        'P3_PRT':          'Par-3 partner',
+        'P3_KID':          'Par-3 kind',
+        'FED_CC_IND':      'Federatie CC individueel',
+        'FED_CC_PRT':      'Federatie CC partner',
+        'FED_CC_KID':      'Federatie CC kind/YA',
+        'INV_IND':         'Investering normaal IND',
+        'INV_PRT':         'Investering normaal PRT',
+        'INV_FLEX_IND':    'Investering flex IND (1/7)',
+        'INV_FLEX_PRT':    'Investering flex PRT (1/7)',
+        'VST_KAST':        'Vestiaire kast',
+        'KAR_KLN':         'Karrengarage klein',
+        'KAR_ELEC':        'Karrengarage elektrisch',
+    }
+
+    def sync_to_yearpricing(self):
+        """Houdt de oude YearPricing-tabel synchroon voor de facturatie-engine."""
+        for code, (field, vat_rate) in self.PRICE_CODE_MAP.items():
+            amount = getattr(self, field, Decimal("0.00"))
+            YearPricing.objects.update_or_create(
+                year=self.year,
+                code=code,
+                defaults={
+                    'amount': amount,
+                    'vat_rate': vat_rate,
+                    'description': self.DESCRIPTIONS.get(code, code),
+                    'active': True,
+                },
+            )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.sync_to_yearpricing()
+
+    def __str__(self):
+        return f"Prijzen {self.year}"
+
+    class Meta:
+        verbose_name = "Jaarlijkse prijzen"
+        verbose_name_plural = "Jaarlijkse prijzen"
+        ordering = ["-year"]

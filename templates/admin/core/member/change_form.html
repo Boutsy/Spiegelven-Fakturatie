@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if original.pk %}
+    {% now "Y" as current_year %}
+    {# next_year uit context, anders huidig jaar + 1 #}
+    {% with ny=next_year|default:current_year|add:"1" %}
+    <li>
+      <a class="viewsitelink" href="{% url 'admin-invoice-preview-default' original.pk %}">
+        Jaarfactuur preview (volgend jaar)
+      </a>
+    </li>
+    <li>
+      <a class="viewsitelink" href="{% url 'yearly-invoice-preview-logo' original.pk ny %}">
+        Jaarfactuur (logo) {{ ny }}
+      </a>
+    </li>
+    <li>
+      <a class="viewsitelink" href="{% url 'yearly-invoice-preview-preprinted' original.pk ny %}">
+        Jaarfactuur (voorbedrukt) {{ ny }}
+      </a>
+    </li>
+    <li>
+      <a class="viewsitelink" href="{% url 'admin-yearly-totals' %}?jaar={{ ny }}">
+        Jaarfacturen overzicht {{ ny }}
+      </a>
+    </li>
+    {% endwith %}
+  {% endif %}
+{% endblock %}

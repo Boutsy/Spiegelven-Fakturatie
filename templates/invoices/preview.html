@@ -9,17 +9,25 @@
     :root { --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; --chip:#eef2ff; --brand:#0f766e; }
     * { box-sizing: border-box; }
     body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:#f1f5f9; }
-    .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px; }
-    .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-    .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:white; text-decoration:none; color:var(--fg); }
+    .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px;
+            display: flex; flex-direction: column; min-height: calc(100vh - 48px); }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-shrink: 0; }
+    .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:white; text-decoration:none; color:var(--fg); cursor:pointer; }
     .btn.primary { background:var(--brand); color:white; border-color:var(--brand); }
-    .card { background:white; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow: 0 2px 8px rgba(15,23,42,.04); position: relative; }
+    .card { background:white; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow: 0 2px 8px rgba(15,23,42,.04); position: relative;
+            display: flex; flex-direction: column;
+            padding-bottom: 24mm; }
 
-    /* geef ruimte voor de (lagere) footer, maar niet te veel */
-    .card { padding-bottom: 24mm; }   /* pas aan naar 22–28mm indien nodig */
+    /* op scherm: kaart groeit mee met de wrap zodat de lege ruimte ingevuld wordt */
+    @media screen {
+      .card { flex: 1 1 auto; }
+    }
+
+    /* factuurlijnen-tabel vult de lege ruimte → samenvatting + betaling zakken naar beneden */
+    .table { flex: 1 1 auto; }
 
     @media print {
-      .card { padding-bottom: 24mm; } /* idem op print */
+      .card { min-height: 240mm; } /* A4 ≈ 297mm, rest is marges */
     }
 
     /* Kop */
@@ -48,7 +56,9 @@
     .org-block { color:var(--muted); margin-top:6px; }
 
     /* Logo alleen digitaal */
-    .brand-logo { width: 38mm; height:auto; display:block; margin:0 0 8mm 0; }
+    .brand-logo { width: 38mm; height:auto; display:block; margin:0 0 1mm 0; }
+    .brand-tagline { font-size:9px; font-weight:700; letter-spacing:.4px; color:#475569;
+                     margin:0 0 7mm 0; text-transform:uppercase; }
     @media print{
       .screen-only{ display:none !important; }
     }
@@ -152,7 +162,6 @@
       }
     }
 
-    /* Zorg dat hij op scherm zeker zichtbaar is */
     @media screen{
       .doc-stamp{
         display: block !important;
@@ -229,20 +238,19 @@
       .meta-grid{ font-size:12px; }
     }
 
-    /* FOOTER — hard zichtbaar maken */
+    /* FOOTER — alleen zichtbaar bij print */
     .invoice-footer{
       position: fixed;
       left: 0; right: 0;
-      bottom: 6mm;                 /* lager/hoger zetten kan hier */
-      z-index: 10;          /* boven álles */
+      bottom: 6mm;
+      z-index: 10;
       border-top: 1px solid #e2e8f0;
-      background: transparent;         /* eigen achtergrond */
+      background: white;
       padding-top: 4px;
       font-size: 10.5px;
       line-height: 1.35;
-      text-align: center;          /* centreren */
-      visibility: visible !important;
-      opacity: 1 !important;
+      text-align: center;
+      display: none;  /* standaard verborgen op scherm */
     }
 
     /* centreer de inhoud binnen je max breedte */
@@ -267,7 +275,7 @@
       body { background:white; }
       .card { box-shadow:none; border-color:#ddd; }
       .brand-logo { width:38mm; }
-      .invoice-footer{ bottom: 5mm; }
+      .invoice-footer{ display: block; bottom: 5mm; }
       /* print: kleiner, gecentreerd, één regel — forceer met !important */
       .paycall{
         font-size: 10.5px !important;
@@ -440,6 +448,12 @@
       <div style="font-weight:700;">Voorbeeld factuur</div>
       <div>
         <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
+        {% if send_ubl_url %}
+        <form method="post" action="{{ send_ubl_url }}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn">Verstuur UBL naar Billit</button>
+        </form>
+        {% endif %}
         <a href="/admin/core/invoice/{{ invoice.pk }}/change/" class="btn">Terug naar admin</a>
       </div>
     </div>
@@ -452,6 +466,7 @@
         <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo screen-only">
       {% else %}
         <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo">
+        <div class="brand-tagline">Spiegelven Golf Genk BV</div>
       {% endif %}
 
       {# Stempel rechtsboven: FACTUUR of CREDITNOTA #}

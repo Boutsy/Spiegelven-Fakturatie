@@ -1,0 +1,338 @@
+{% load static helpers humanize %}
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <title>Batch preview jaarfacturen {{ year }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --fg:#0f172a; --muted:#475569; --line:#e2e8f0; --soft:#f8fafc; --brand:#0f766e; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:#f1f5f9; }
+    .wrap { max-width:900px; margin:24px auto; padding:0 16px; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-shrink:0; }
+    .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:white; text-decoration:none; color:var(--fg); cursor:pointer; }
+    .btn.primary { background:var(--brand); color:white; border-color:var(--brand); }
+
+    /* Eén factuur per pagina */
+    .invoice-page { page-break-after: always; margin-bottom: 32px; }
+    .invoice-page:last-child { page-break-after: auto; margin-bottom: 0; }
+
+    .card { background:white; border:1px solid var(--line); border-radius:16px; padding:24px;
+            box-shadow:0 2px 8px rgba(15,23,42,.04); position:relative;
+            display:flex; flex-direction:column; padding-bottom:28mm; }
+    @media screen { .card { min-height: calc(100vh - 120px); } }
+    @media print  { .card { min-height:240mm; box-shadow:none; border-color:#ddd; } }
+
+    .brand-logo { width:38mm; height:auto; display:block; margin:0 0 1mm 0; }
+    .brand-tagline { font-size:9px; font-weight:700; letter-spacing:.4px; color:#475569;
+                     margin:0 0 7mm 0; text-transform:uppercase; }
+    @media print { .screen-only { display:none !important; } }
+
+    .doc-stamp { position:absolute; top:8mm; right:8mm; font-size:26px; font-weight:800;
+                 letter-spacing:.5px; color:#0f172a; pointer-events:none; z-index:1; }
+    @media print { .doc-stamp { font-size:28px; } }
+
+    hr { border:0; height:1px; background:var(--line); margin:20px 0; }
+
+    .meta-box { margin:20mm 0 12px; border:1px solid var(--line); border-radius:10px;
+                background:#fff; padding:10px 12px; }
+    .meta-grid { display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+                 column-gap:12px; font-size:13px; }
+    @media print { .meta-grid { font-size:12px; } }
+    .meta-cell { display:flex; gap:6px; align-items:baseline; }
+    .meta-cell .label { color:var(--muted); font-weight:600; }
+    .meta-cell .value { font-weight:700; }
+    .meta-grid .left  { justify-content:flex-start; }
+    .meta-grid .center{ justify-content:center; text-align:center; }
+    .meta-grid .right { justify-content:flex-end; text-align:right; }
+
+    .note-box { margin:14px 0 12px; border:1px solid var(--line); border-radius:10px;
+                background:#fff; padding:10px 12px; }
+    .note-body { white-space:pre-wrap; }
+
+    /* Factuurlijnen */
+    .table { flex:1 1 auto; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+    thead th { background:var(--soft); text-align:left; font-weight:600; }
+    td.num, th.num { text-align:right; white-space:nowrap; }
+    .table thead th { font-size:12.5px; padding:6px 6px; line-height:1.25; }
+    .table tbody td { font-size:12.5px; padding:4px 6px; line-height:1.25; }
+    @media print { .table thead th, .table tbody td { font-size:11.5px; padding:3px 5px; line-height:1.18; } }
+    .muted { color:var(--muted); }
+
+    /* BTW-samenvatting */
+    .vat-summary { margin-top:10px; }
+    .vat-summary .vat-title { font-weight:600; color:var(--muted); font-size:12.5px; margin:0 0 4px; }
+    .vat-summary thead th { font-size:12.5px; padding:6px 6px; line-height:1.25;
+                            background:transparent; color:var(--muted); text-align:left; font-weight:600; }
+    .vat-summary thead th.num { text-align:right; white-space:nowrap; }
+    .vat-summary tbody td { font-size:12.5px; padding:4px 6px; line-height:1.25; }
+    @media print { .vat-summary thead th, .vat-summary tbody td { font-size:11.5px; padding:3px 5px; line-height:1.18; } }
+
+    /* Betalings + totalen rij */
+    .summary-row { margin-top:12px; display:grid; grid-template-columns:1fr auto;
+                   column-gap:12px; align-items:stretch; }
+    .summary-row .pay-card  { grid-column:1; }
+    .summary-row .totals-card { grid-column:2; justify-self:end; width:min(420px,100%); }
+
+    .pay-card { width:100%; border:1px solid var(--line); border-radius:10px; background:#fff;
+                padding:10px 12px; font-size:12px; line-height:1.3; height:100%;
+                display:flex; flex-direction:column; }
+    .pay-card .row { display:flex; gap:10px; flex-wrap:wrap; align-items:baseline; padding:4px 0; justify-content:flex-start; }
+    .pay-card .pay-title { font-weight:700; margin:2px 0 6px; }
+    .pay-card .label { color:var(--muted); font-weight:600; }
+    .pay-card .value { font-weight:700; }
+    .pay-card .sep { opacity:.6; margin:0 6px; }
+
+    .totals-card { width:min(420px,100%); border:1px solid var(--line); border-radius:10px;
+                   background:#fff; padding:10px 12px; height:100%; }
+    .totals-card .row { display:grid; grid-template-columns:1fr auto; align-items:baseline;
+                        padding:4px 0; column-gap:10mm; }
+    .totals-card .row.total { border-top:1px solid var(--line); margin-top:6px; padding-top:8px; font-weight:700; }
+    .totals-card .label { color:var(--muted); }
+    .totals-card .value { display:inline-flex; align-items:baseline; gap:2px; padding-right:5mm;
+                          font-variant-numeric:tabular-nums; }
+    .totals-card .value .curr { margin-right:2px; }
+    .totals-card .value .dec { min-width:2ch; }
+
+    .ogm-chip { display:inline-block; padding:2px 6px; border-radius:6px; background:#0f172a;
+                color:#fff; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+                letter-spacing:.4px; white-space:nowrap; }
+    @media print {
+      .ogm-chip { background:#000 !important; color:#fff !important;
+                  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+                  padding:4px 10px; border-radius:4px; letter-spacing:1px; font-weight:700; }
+    }
+
+    /* Footer — alleen bij print */
+    .invoice-footer { position:fixed; left:0; right:0; bottom:6mm; z-index:10;
+                      border-top:1px solid #e2e8f0; background:white; padding-top:4px;
+                      font-size:10.5px; line-height:1.35; text-align:center; display:none; }
+    .invoice-footer .wrap { max-width:900px; margin:0 auto; padding:0 8px; }
+    .footer-row { display:flex; flex-wrap:wrap; justify-content:center; gap:3px 8px; align-items:center; }
+    .footer-sep { opacity:.5; }
+    @media print {
+      .toolbar { display:none !important; }
+      body { background:white; }
+      .invoice-footer { display:block; bottom:5mm; }
+    }
+
+    /* Adresvenster — absolute binnen .card (scherm én print) */
+    .addrwin {
+      position: absolute;
+      top: 20mm;
+      left: 135mm;
+      width: 110mm;
+      font-size: 14px;
+      line-height: 1.28;
+      background: transparent;
+      pointer-events: none;
+      z-index: 5;
+    }
+    @media print {
+      .addrwin {
+        top: 31mm;
+        left: 113mm;
+        font-size: 15px;
+      }
+    }
+
+    /* Voorbedrukt papier */
+    {% if papier == "voorbedrukt" %}
+    @media screen { .card { padding-top:58mm; } .doc-stamp { top:16mm; } }
+    @media print  { .card { padding-top:38mm !important; } .doc-stamp { top:5mm !important; } }
+    {% endif %}
+  </style>
+</head>
+<body>
+
+  {% with inv_ctx=invoices.0 %}{% if inv_ctx %}
+    {% with inv_org=inv_ctx.org %}
+    {% if papier == "digitaal" %}
+    <div class="invoice-footer">
+      <div class="wrap" style="padding:0 16px">
+        <div class="footer-row" style="justify-content:center; text-align:center;">
+          {% if inv_org.name %}<strong>{{ inv_org.name }}</strong>{% endif %}
+          {% if inv_org.address_line1 %}<span class="footer-sep"> · </span><span>{{ inv_org.address_line1 }}</span>{% endif %}
+          {% if inv_org.postal_code or inv_org.city %}<span class="footer-sep"> · </span><span>{{ inv_org.postal_code }} {{ inv_org.city }}</span>{% endif %}
+          {% if inv_org.phone %}<span class="footer-sep"> · </span><span>Tel: {{ inv_org.phone }}</span>{% endif %}
+        </div>
+        <div class="footer-row" style="margin-top:4px; justify-content:center; text-align:center;">
+          {% if inv_org.vat_number %}<span>BTW: {{ inv_org.vat_number }}</span>{% endif %}
+          {% if inv_org.iban %}<span class="footer-sep"> · </span><span>IBAN: {{ inv_org.iban }}</span>{% endif %}
+          {% if inv_org.bic %}<span class="footer-sep"> · </span><span>BIC: {{ inv_org.bic }}</span>{% endif %}
+          {% if inv_org.email %}<span class="footer-sep"> · </span><span>{{ inv_org.email }}</span>{% endif %}
+          {% if inv_org.website %}<span class="footer-sep"> · </span><span>{{ inv_org.website }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+  {% endif %}{% endwith %}
+
+  <div class="wrap">
+    <div class="toolbar">
+      <div style="font-weight:700;">Batch preview jaarfacturen {{ year }}</div>
+      <div>
+        <a href="javascript:window.print()" class="btn primary">Print / PDF</a>
+        <a href="/admin/invoice/year/totals/?jaar={{ year }}" class="btn">Terug</a>
+      </div>
+    </div>
+
+    {% for inv_ctx in invoices %}
+    {% with invoice=inv_ctx.invoice lines=inv_ctx.lines vat_summary=inv_ctx.vat_summary totals_parts=inv_ctx.totals_parts org=inv_ctx.org payment=inv_ctx.payment %}
+    <div class="invoice-page">
+      <div class="card">
+
+        {# Adresvenster: alternatief account of lid-adres #}
+        <div class="addrwin">
+          {% if invoice.account %}
+            <strong>{{ invoice.account.name }}</strong><br>
+            {% if invoice.account.street %}{{ invoice.account.street }}<br>{% endif %}
+            {% if invoice.account.postal_code or invoice.account.city %}{{ invoice.account.postal_code }} {{ invoice.account.city }}<br>{% endif %}
+            {% if invoice.account.country %}{{ invoice.account.country }}{% endif %}
+          {% elif invoice.member %}
+            <strong>{{ invoice.member.last_name }} {{ invoice.member.first_name }}</strong><br>
+            {% if invoice.member.street %}{{ invoice.member.street }}<br>{% endif %}
+            {% if invoice.member.postal_code or invoice.member.city %}{{ invoice.member.postal_code }} {{ invoice.member.city }}<br>{% endif %}
+            {% if invoice.member.country %}{{ invoice.member.country }}{% endif %}
+          {% endif %}
+        </div>
+
+        {% if papier == "voorbedrukt" %}
+          <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo" style="display:none;">
+        {% else %}
+          <img src="{% static 'branding/spiegelven-logo.svg' %}" alt="Spiegelven" class="brand-logo">
+          <div class="brand-tagline">Spiegelven Golf Genk BV</div>
+        {% endif %}
+
+        <div class="doc-stamp">FACTUUR</div>
+
+        <hr>
+
+        <div class="meta-box">
+          <div class="meta-grid">
+            <div class="meta-cell left">
+              <span class="label">Datum:</span>
+              <span class="value">{{ invoice.issue_date|date:"d/m/Y" }}</span>
+            </div>
+            <div class="meta-cell center">
+              <span class="label">Factuurnummer:</span>
+              <span class="value">{{ invoice.number|default:"(concept)" }}</span>
+            </div>
+            <div class="meta-cell right">
+              <span class="label">Aan:</span>
+              <span class="value">
+                {% if invoice.account %}{{ invoice.account.name }}{% else %}{{ invoice.member }}{% endif %}
+              </span>
+            </div>
+            {% if invoice.account and invoice.account.vat_number %}
+            <div class="meta-cell" style="grid-column:1/-1; justify-content:center;">
+              <span class="label">BTW klant</span>
+              <span class="value">{{ invoice.account.vat_number }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if invoice.notes %}
+        <div class="note-box"><div class="note-body">{{ invoice.notes }}</div></div>
+        {% endif %}
+
+        <div class="table">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:46%">Omschrijving</th>
+                <th class="num" style="width:9%">Aantal</th>
+                <th class="num" style="width:15%">Eenheidsprijs</th>
+                <th class="num" style="width:8%"></th>
+                <th class="num" style="width:11%">Excl.</th>
+                <th class="num" style="width:11%">BTW</th>
+                <th class="num" style="width:11%">Incl.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in lines %}
+              <tr>
+                <td>{{ l.description }}</td>
+                <td class="num">{{ l.quantity|eur:"0" }}</td>
+                <td class="num">{{ l.unit_price_excl|eur }}</td>
+                <td class="num">{{ l.vat_rate|floatformat:"0" }}%</td>
+                <td class="num">{{ l.line_excl|eur }}</td>
+                <td class="num">{{ l.vat_amount|eur }}</td>
+                <td class="num">{{ l.line_incl|eur }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="muted">Geen regels.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if vat_summary %}
+        <div class="vat-summary">
+          <div class="vat-title">Samenvatting per BTW-tarief</div>
+          <table>
+            <thead><tr><th>Tarief</th><th class="num">Excl.</th><th class="num">BTW</th><th class="num">Incl.</th></tr></thead>
+            <tbody>
+              {% for r in vat_summary %}
+              <tr>
+                <td>{{ r.rate }}</td>
+                <td class="num">{{ r.excl|eur }}</td>
+                <td class="num">{{ r.vat|eur }}</td>
+                <td class="num">{{ r.incl|eur }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        <div class="summary-row">
+          <div class="pay-card">
+            <div class="pay-title">Betalingsgegevens:</div>
+            {% if org.name %}
+            <div class="row"><span class="label">Op naam van</span><span class="value">{{ org.name }}</span></div>
+            {% endif %}
+            {% if payment.iban %}
+            <div class="row">
+              <span class="label">IBAN</span><span class="value">{{ payment.iban }}</span>
+              {% if payment.bic %}<span class="sep">·</span><span class="label">BIC</span><span class="value">{{ payment.bic }}</span>{% endif %}
+            </div>
+            {% endif %}
+            {% if payment.ogm %}
+            <div class="row">
+              <span class="label">Gestructureerde mededeling:</span>
+              <span class="ogm-chip">{{ payment.ogm|ogm }}</span>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="totals-card">
+            <div class="row">
+              <div class="label">Totaal excl.</div>
+              <div class="value"><span class="curr">€</span><span class="int">{{ totals_parts.excl.int|intcomma }}</span><span class="dec">,{{ totals_parts.excl.dec }}</span></div>
+            </div>
+            <div class="row">
+              <div class="label">BTW</div>
+              <div class="value"><span class="curr">€</span><span class="int">{{ totals_parts.vat.int|intcomma }}</span><span class="dec">,{{ totals_parts.vat.dec }}</span></div>
+            </div>
+            <div class="row total">
+              <div class="label">Totaal incl.</div>
+              <div class="value"><span class="curr">€</span><span class="int">{{ totals_parts.incl.int|intcomma }}</span><span class="dec">,{{ totals_parts.incl.dec }}</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.card -->
+    </div><!-- /.invoice-page -->
+    {% endwith %}
+    {% endfor %}
+
+  </div><!-- /.wrap -->
+
+</body>
+</html>

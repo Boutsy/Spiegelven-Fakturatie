@@ -1,0 +1,53 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Kopieer prijzen {{ from_year }} → {{ to_year }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; <a href="{% url 'admin:core_annualpricing_changelist' %}">Jaarlijkse prijzen</a>
+  &rsaquo; Kopieer {{ from_year }} → {{ to_year }}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Prijzen {{ from_year }} kopiëren naar {{ to_year }}</h1>
+
+<p>
+  Alle bedragen uit <strong>{{ from_year }}</strong> worden overgenomen naar <strong>{{ to_year }}</strong>
+  en verhoogd (of verlaagd) met het opgegeven percentage.<br>
+  Na het aanmaken kan je de individuele bedragen nog aanpassen.
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="from_year" value="{{ from_year }}">
+
+  <div style="max-width: 400px;">
+    <table class="form-table">
+      <tbody>
+        <tr>
+          <th>
+            <label for="{{ form.percentage.id_for_label }}">{{ form.percentage.label }}:</label>
+          </th>
+          <td>
+            {{ form.percentage }}
+            {% if form.percentage.help_text %}
+              <p class="help">{{ form.percentage.help_text }}</p>
+            {% endif %}
+            {% if form.percentage.errors %}
+              <ul class="errorlist">{% for e in form.percentage.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row" style="margin-top: 1.5rem;">
+    <input type="submit" value="Jaar {{ to_year }} aanmaken" class="default">
+    <a href="{% url 'admin:core_annualpricing_changelist' %}" class="button cancel-link" style="margin-left: 1rem;">Annuleren</a>
+  </div>
+</form>
+{% endblock %}
