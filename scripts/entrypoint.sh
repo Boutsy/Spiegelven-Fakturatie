@@ -10,6 +10,19 @@ tailwindcss -c tailwind.config.js -i ./assets/input.css -o ./static/css/tailwind
 echo "==> Collecting static files"
 python manage.py collectstatic --noinput
 
+echo "==> Loading initial data if fixture exists and database is empty"
+python manage.py shell -c "
+from core.models import Member
+import os, subprocess
+fixture = 'scripts/initial_data.json'
+if os.path.exists(fixture) and Member.objects.count() == 0:
+    print('Laden van begindata...')
+    subprocess.run(['python', 'manage.py', 'loaddata', fixture], check=True)
+    print('Begindata geladen.')
+else:
+    print('Geen fixture geladen (al data aanwezig of bestand niet gevonden).')
+"
+
 echo "==> Creating superuser if not exists"
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
