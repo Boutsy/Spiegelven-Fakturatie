@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: spiegelven-fakturatie
+    runtime: docker
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: spiegelven-fakturatie.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: spiegelven-db
+          property: connectionString
+
+databases:
+  - name: spiegelven-db
+    plan: free
