@@ -786,14 +786,18 @@ class _CopyYearForm(_forms.Form):
 
 
 class _APAdmin(_admin.ModelAdmin):
-    list_display  = ("year",
+    list_display  = ("display_year",
                      "lid_cc_ind", "lid_cc_prt",
                      "p3_ind", "p3_prt",
                      "fed_cc_ind",
                      "inv_ind", "inv_flex_ind",
                      "vst_kast", "kar_kln", "kar_elec")
-    list_display_links = ("year",)
+    list_display_links = ("display_year",)
     ordering = ("-year",)
+
+    @_admin.display(description="Jaar", ordering="year")
+    def display_year(self, obj):
+        return str(obj.year)
     actions = ["copy_to_next_year"]
 
     fieldsets = [
